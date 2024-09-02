@@ -167,13 +167,7 @@ const useMenuList = () => {
             iconStyle: <i className="material-symbols-outlined">widgets</i>,
 
         },
-        {
-            title: 'Exchange',
-            classsChange: 'mm-active',
-            to: '/exchange',
-            iconStyle: <i className="material-symbols-outlined">request_quote</i>,
-
-        },
+     
         {
             title: 'Swap',
             classsChange: 'mm-active',

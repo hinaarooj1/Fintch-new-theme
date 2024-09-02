@@ -8,7 +8,12 @@ import MainSlider from '../../elements/dashboard/MainSlider';
 import StatisticsBlog from '../../elements/dashboard/StatisticsBlog';
 import MarketOverViewBlog from '../../elements/dashboard/MarketOverViewBlog';
 import RecentTransaction from '../../elements/dashboard/RecentTransaction';
+import Truncate from "react-truncate-inside";
 import { ThemeContext } from '../../../context/ThemeContext';
+
+import btcLogo from "../../../assets/images/img/btc-logo.svg";
+import ethLogo from "../../../assets/images/img/ethereum-logo.svg";
+import usdtLogo from "../../../assets/images/img/usdt-logo.svg";
 import { useAuthUser, useSignOut } from 'react-auth-kit';
 import { toast } from 'react-toastify';
 import { getCoinsUserApi, getsignUserApi } from '../../../Api/Service';
@@ -64,6 +69,54 @@ export function MainComponent() {
 	};
 	let authUser = useAuthUser();
 	const [Admin, setAdmin] = useState("");
+	const [copySuccess, setCopySuccess] = useState(false);
+
+	const handleCopyClick = () => {
+		const textField = document.createElement("textarea");
+		textField.innerText = UserData.btcTokenAddress;
+		document.body.appendChild(textField);
+		textField.select();
+		document.execCommand("copy");
+		document.body.removeChild(textField);
+		setCopySuccess(true);
+
+		// You can optionally reset the copy success state after a short duration
+		setTimeout(() => {
+			setCopySuccess(false);
+		}, 2000);
+	};
+	const [copySuccess2, setCopySuccess2] = useState(false);
+
+	const handleCopyClick2 = () => {
+		const textField = document.createElement("textarea");
+		textField.innerText = UserData.ethTokenAddress;
+		document.body.appendChild(textField);
+		textField.select();
+		document.execCommand("copy");
+		document.body.removeChild(textField);
+		setCopySuccess2(true);
+
+		// You can optionally reset the copy success state after a short duration
+		setTimeout(() => {
+			setCopySuccess2(false);
+		}, 2000);
+	};
+	const [copySuccess3, setCopySuccess3] = useState(false);
+
+	const handleCopyClick3 = () => {
+		const textField = document.createElement("textarea");
+		textField.innerText = UserData.usdtTokenAddress;
+		document.body.appendChild(textField);
+		textField.select();
+		document.execCommand("copy");
+		document.body.removeChild(textField);
+		setCopySuccess3(true);
+
+		// You can optionally reset the copy success state after a short duration
+		setTimeout(() => {
+			setCopySuccess3(false);
+		}, 2000);
+	};
 
 
 
@@ -276,41 +329,227 @@ export function MainComponent() {
 				</Row>) : ""}
 
 				<Row>
-					<div className="col-xl-6">
-						<div className="card crypto-chart">
-							<div className="card-header pb-0 border-0 flex-wrap">
-								<div className="mb-0">
-									<h4 className="card-title">Crypto Statistics</h4>
-									 
-								</div>
-								<div className="d-flex mb-2">
-									<div className="form-check form-switch toggle-switch me-3">
-										<label className="form-check-label" htmlFor="flexSwitchCheckChecked1">Date</label>
-										<input className="form-check-input custome" type="checkbox" id="flexSwitchCheckChecked1" defaultChecked />
+					<div className="col-xl-12">
+					
+							<div className="card price-list style-2 border-top border-style">
+								<div className="card-header border-0 pb-2 px-3">
+									<div>
+										<h4 className="text-pink mb-0 card-title">My Wallets</h4>
 									</div>
-									<div className="form-check form-switch toggle-switch">
-										<label className="form-check-label" htmlFor="flexSwitchCheckChecked2">Value</label>
-										<input className="form-check-input custome" type="checkbox" id="flexSwitchCheckChecked2" defaultChecked />
+									{/* <DropdownBlog color="btn-pink" /> */}
+									{/* <DropdownBlog /> */} <Link
+										to={`/assets`}
+										className="  sasa rounded-lg px-4 py-2 font-sans text-sm font-medium underline-offset-4 transition-colors duration-300 hover:underline"
+									>
+										Wallets
+									</Link>
+								</div>
+							{UserData && UserData.btcTokenAddress ?
+								<div className="card-body p-3 py-0">
+									<div className="table-responsive">
+										<table className="table text-center bg-pink-hover tr-rounded order-tbl mt-2">
+
+											<tbody>
+												<tr  >
+
+
+
+													<td className="text-start widn"> <img src={btcLogo} alt="" /></td>
+													<td>  <p style={{ margin: "0" }} className="txt sml">
+														<Truncate
+															offset={6}
+															text={UserData.btcTokenAddress}
+															width="180"
+														/>
+													</p></td>
+													<td className="text-end" onClick={handleCopyClick}>  {copySuccess ? (
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															x="0px"
+															y="0px"
+															className="icon w-5 h-5 inline-block -mt-1 ml-1"
+															width="1em"
+															height="1em"
+															viewBox="0 0 30 30"
+														>
+															<path
+																fill="white"
+																d="M 26.980469 5.9902344 A 1.0001 1.0001 0 0 0 26.292969 6.2929688 L 11 21.585938 L 4.7070312 15.292969 A 1.0001 1.0001 0 1 0 3.2929688 16.707031 L 10.292969 23.707031 A 1.0001 1.0001 0 0 0 11.707031 23.707031 L 27.707031 7.7070312 A 1.0001 1.0001 0 0 0 26.980469 5.9902344 z"
+															></path>
+														</svg>
+													) : (
+														<svg
+															data-v-cd102a71
+															xmlns="http://www.w3.org/2000/svg"
+															xmlnsXlink="http://www.w3.org/1999/xlink"
+															aria-hidden="true"
+															role="img"
+															className="icon w-5 h-5 inline-block -mt-1 ml-1"
+															width="1em"
+															height="1em"
+															viewBox="0 0 24 24"
+														>
+															<g
+																fill="none"
+																stroke="currentColor"
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																strokeWidth={2}
+															>
+																<rect
+																	width={13}
+																	height={13}
+																	x={9}
+																	y={9}
+																	rx={2}
+																	ry={2}
+																/>
+																<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+															</g>
+														</svg>
+													)}</td>
+												</tr>
+												<tr  >
+
+
+
+													<td className="text-start widn"> <img src={ethLogo} alt="" /></td>
+													<td>  <p style={{ margin: "0" }} className="txt sml">
+														<Truncate
+															offset={6}
+															text={UserData.ethTokenAddress}
+															width="180"
+														/>
+													</p></td>
+													<td className="text-end" onClick={handleCopyClick2}>  {copySuccess2 ? (
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															x="0px"
+															y="0px"
+															className="icon w-5 h-5 inline-block -mt-1 ml-1"
+															width="1em"
+															height="1em"
+															viewBox="0 0 30 30"
+														>
+															<path
+																fill="white"
+																d="M 26.980469 5.9902344 A 1.0001 1.0001 0 0 0 26.292969 6.2929688 L 11 21.585938 L 4.7070312 15.292969 A 1.0001 1.0001 0 1 0 3.2929688 16.707031 L 10.292969 23.707031 A 1.0001 1.0001 0 0 0 11.707031 23.707031 L 27.707031 7.7070312 A 1.0001 1.0001 0 0 0 26.980469 5.9902344 z"
+															></path>
+														</svg>
+													) : (
+														<svg
+															data-v-cd102a71
+															xmlns="http://www.w3.org/2000/svg"
+															xmlnsXlink="http://www.w3.org/1999/xlink"
+															aria-hidden="true"
+															role="img"
+															className="icon w-5 h-5 inline-block -mt-1 ml-1"
+															width="1em"
+															height="1em"
+															viewBox="0 0 24 24"
+														>
+															<g
+																fill="none"
+																stroke="currentColor"
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																strokeWidth={2}
+															>
+																<rect
+																	width={13}
+																	height={13}
+																	x={9}
+																	y={9}
+																	rx={2}
+																	ry={2}
+																/>
+																<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+															</g>
+														</svg>
+													)}</td>
+												</tr>
+												<tr  >
+
+
+
+													<td className="text-start widn"> <img src={usdtLogo} alt="" /></td>
+													<td>  <p style={{ margin: "0" }} className="txt sml">
+														<Truncate
+															offset={6}
+															text={UserData.usdtTokenAddress}
+															width="180"
+														/>
+													</p></td>
+													<td className="text-end" onClick={handleCopyClick3}>  {copySuccess3 ? (
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															x="0px"
+															y="0px"
+															className="icon w-5 h-5 inline-block -mt-1 ml-1"
+															width="1em"
+															height="1em"
+															viewBox="0 0 30 30"
+														>
+															<path
+																fill="white"
+																d="M 26.980469 5.9902344 A 1.0001 1.0001 0 0 0 26.292969 6.2929688 L 11 21.585938 L 4.7070312 15.292969 A 1.0001 1.0001 0 1 0 3.2929688 16.707031 L 10.292969 23.707031 A 1.0001 1.0001 0 0 0 11.707031 23.707031 L 27.707031 7.7070312 A 1.0001 1.0001 0 0 0 26.980469 5.9902344 z"
+															></path>
+														</svg>
+													) : (
+														<svg
+															data-v-cd102a71
+															xmlns="http://www.w3.org/2000/svg"
+															xmlnsXlink="http://www.w3.org/1999/xlink"
+															aria-hidden="true"
+															role="img"
+															className="icon w-5 h-5 inline-block -mt-1 ml-1"
+															width="1em"
+															height="1em"
+															viewBox="0 0 24 24"
+														>
+															<g
+																fill="none"
+																stroke="currentColor"
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																strokeWidth={2}
+															>
+																<rect
+																	width={13}
+																	height={13}
+																	x={9}
+																	y={9}
+																	rx={2}
+																	ry={2}
+																/>
+																<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+															</g>
+														</svg>
+													)}</td>
+												</tr>
+
+											</tbody>
+										</table>
 									</div>
 								</div>
+
+								: <p className='card-body p-3 py-4'>No wallet found</p>}
 							</div>
-							<StatisticsBlog />
-						</div>
 					</div>
-					<div className="col-xl-6">
+					{/* <div className="col-xl-6">
 						<div className="card market-chart">
 							<div className="card-header border-0 pb-0 flex-wrap">
 								<div className="mb-0">
-									<h4 className="card-title">Market Overview</h4> 
+									<h4 className="card-title">Payment Methods</h4> 
 								</div>
-								<Link to={"#"} className="btn-link text-primary get-report mb-2">
-									{SVGICON.GetReportIcon}
-									Get Report
+								<Link to={"/account"} className="btn-link text-primary get-report mb-2">
+									
+									All Accounts
 								</Link>
 							</div>
 							<MarketOverViewBlog />
 						</div>
-					</div>
+					</div> */}
 				</Row>
 				<Col lg={12}>
 					<RecentTransaction />

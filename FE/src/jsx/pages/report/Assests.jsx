@@ -853,7 +853,7 @@ const Orders = () => {
                                 className={activeBank ? "btn  btn-primary" : "btn btn-outline-primary"}
                                 onClick={activeBankOne}
                             >
-                                Bank Withdraw
+                                Bank/Card Withdraw
                             </button>
                         </div>
                     </Modal.Header>

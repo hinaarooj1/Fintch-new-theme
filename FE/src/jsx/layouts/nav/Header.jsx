@@ -264,9 +264,9 @@ const Header = ({ onNote }) => {
                 </div>
                 <ol className="breadcrumb">
                   <li className="breadcrumb-item active ms-auto">
-                    <Link to={"/"} className="d-flex align-self-center">
-                        {SVGICON.HeaderHome}
-                        Home
+                    <Link to={"/dashboard"} className="d-flex align-self-center">
+                      
+                        Dashboard
                     </Link>
                   </li>
                   <li className="breadcrumb-item"><Link to={"#"} style={{ textTransform: "capitalize" }}>{finalName.join(" ")}</Link></li>

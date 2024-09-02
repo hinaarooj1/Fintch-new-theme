@@ -17,6 +17,7 @@ import Swappg from "../jsx/pages/user/Swap";
 import Transactions from "../jsx/pages/user/Transactions";
 import Supportpg from "../jsx/pages/user/Support";
 import Kyc from "../jsx/pages/user/Kyc";
+import EmailVerify from "../jsx/pages/EmailVerify";
 import UserVerifications from "../jsx/Admin/SingleUser/UserVerificatons";
 import AdminDashboard from "../jsx/Admin/Dashboard";
 import PendingTransactions from "../jsx/Admin/pendingTransactions";
@@ -37,6 +38,8 @@ export default function Router() {
           <Route index path="/" element={<Home />} />{" "}
           <Route path="auth/login" element={<Login />} />{" "}
           <Route path="/auth/signup" element={<SignUp />} />
+
+          <Route path="/users/:id/verify/:token" element={<EmailVerify />} />
           <Route
             path="/dashboard"
             element={

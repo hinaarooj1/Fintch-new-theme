@@ -316,39 +316,7 @@ const SideBar = (props) => {
                   </span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/exchange"
-                  className="router-link-active nui-focus text-muted-500 color-whute dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
-                >
-                  <svg
-                    fill="currentColor"
-                    height="1rem"
-                    width="1rem"
-                    className="icon w-5 h-5"
-                    version="1.1"
-                    id="Layer_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    viewBox="0 0 477.427 477.427"
-                    xmlSpace="preserve"
-                  >
-                    <g>
-                      <polygon
-                        points="101.82,187.52 57.673,143.372 476.213,143.372 476.213,113.372 57.181,113.372 101.82,68.733 80.607,47.519 
-		0,128.126 80.607,208.733 	"
-                      />
-                      <polygon
-                        points="396.82,268.694 375.607,289.907 420,334.301 1.213,334.301 1.213,364.301 420,364.301 375.607,408.694 
-		396.82,429.907 477.427,349.301 	"
-                      />
-                    </g>
-                  </svg>
-                  <span className="whitespace-nowrap font-sans text-sm block">
-                    Exchange
-                  </span>
-                </NavLink>
-              </li>
+
               <li>
                 <NavLink
                   to="/swap"

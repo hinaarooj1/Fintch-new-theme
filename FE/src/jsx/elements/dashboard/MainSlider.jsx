@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import SolanaImg from '../../../assets/images/solana-sol-vector-logo-seeklogo/solana-sol-seeklogo.svg'
 import axios from 'axios';
 import SwiperLineChart from './SwiperLineChart';
 import { SVGICON } from '../../constant/theme';
@@ -17,17 +18,18 @@ const MainSlider = () => {
             try {
                 const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
                     params: {
-                        ids: 'bitcoin,ethereum,tether',
+                        ids: 'bitcoin,ethereum,tether,solana',
                         vs_currencies: 'usd',
                     },
                 });
 
-                const { bitcoin, ethereum, tether } = response.data;
+                const { bitcoin, ethereum, tether, solana } = response.data;
 
                 setSwiperData([
                     { color: 'bg-dark', amount: ethereum.usd, chartcolor: 'rgba(148, 150, 176, 1)', svgicon: SVGICON.SwiperEthSvg },
                     { color: 'bg-warning', amount: bitcoin.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.SwiperBitSvg },
                     { color: 'bg-warning', amount: tether.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.XrpUsdIcon },
+                    { color: 'bg-warning', amount: solana.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: <img style={{width:"60px"}} src={SolanaImg}/> },
                 ]);
             } catch (error) {
                 console.error('Error fetching crypto prices:', error);

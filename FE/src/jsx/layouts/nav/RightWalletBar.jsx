@@ -4,8 +4,8 @@ import Truncate from "react-truncate-inside";
 import Select from 'react-select';
 import btcLogo from "../../../assets/images/img/btc-logo.svg";
 import ethLogo from "../../../assets/images/img/ethereum-logo.svg";
-import redArrow from "../../../assets/images/img/re-arriw.svg";
 import usdtLogo from "../../../assets/images/img/usdt-logo.svg";
+import redArrow from "../../../assets/images/img/re-arriw.svg";
 import DropdownBlog from '../../elements/DropdownBlog';
 import { SVGICON } from '../../constant/theme';
 import './style.css'

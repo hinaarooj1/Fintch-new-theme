@@ -12,14 +12,13 @@ import {
     ImagePreview,
     VideoPreview,
 } from "@files-ui/react";
-const Documents = () => {
+const Documents = ({ isLoading, setisLoading }) => {
 
     let SignOut = useSignOut();
     const authUser = useAuthUser();
     const Navigate = useNavigate();
     const [slide1, setSlide1] = useState();
     const [slide2, setSlide2] = useState();
-    const [isLoading, setisLoading] = useState(true);
     const [isDisable, setisDisable] = useState(false);
     const [isDisable2, setisDisable2] = useState(false);
     const [verificationCodeSent, setverificationCodeSent] = useState(false);
@@ -110,7 +109,7 @@ const Documents = () => {
                     Navigate("/dashboard");
                     return;
                 }
-                setisLoading(false);
+                // setisLoading(false);
                 return;
             } else {
                 toast.dismiss();
@@ -120,8 +119,20 @@ const Documents = () => {
             toast.dismiss();
             toast.error(error);
         } finally {
+            // setisLoading(false);
+
         }
     };
+    useEffect(() => {
+        const mockAsyncOperation = () => {
+            setTimeout(() => {
+                setisLoading(false);
+            }, 2000); // Simulate a 2-second delay
+        };
+        mockAsyncOperation();
+        console.log(isLoading);
+    }, [setisLoading]);
+    console.log(isLoading);
     const verifyUser = async () => {
         try {
             if (!newSlider1 || !newSlider2) {
@@ -254,7 +265,7 @@ const Documents = () => {
     return (
         <>
             <Row>
-                {!isLoading &&
+                {
 
                     isDoc && (
                         <Form

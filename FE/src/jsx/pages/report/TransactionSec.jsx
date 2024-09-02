@@ -182,14 +182,25 @@ const TransactionSec = () => {
                                                                 <Card.Text className="mb-1 transaction-amount">
                                                                     {Transaction.amount.toFixed(8)}{' '}
                                                                     <small>
-                                                                        {`(${Transaction.trxName === 'bitcoin'
-                                                                            ? (Transaction.amount * liveBtc).toFixed(2)
-                                                                            : Transaction.trxName === 'ethereum'
-                                                                                ? (Transaction.amount * 2241.86).toFixed(2)
-                                                                                : Transaction.trxName === 'tether'
-                                                                                    ? Transaction.amount.toFixed(2)
-                                                                                    : (0).toFixed(2)
-                                                                            })`}
+                                                                        {Transaction.type === 'deposit' ? (
+                                                                            <td className="text-success font-w600">{`(+$${Transaction.trxName === 'bitcoin'
+                                                                                    ? (Transaction.amount * liveBtc).toFixed(2)
+                                                                                    : Transaction.trxName === 'ethereum'
+                                                                                        ? (Transaction.amount * 2241.86).toFixed(2)
+                                                                                        : Transaction.trxName === 'tether'
+                                                                                            ? Transaction.amount.toFixed(2)
+                                                                                            : (0).toFixed(2)
+                                                                                })`}</td>
+                                                                        ) : Transaction.type === 'withdraw' ? (
+                                                                            <td className="text-danger font-w600"> {`(-$${Transaction.trxName === 'bitcoin'
+                                                                                ? Math.abs((Transaction.amount * liveBtc)).toFixed(2)
+                                                                                : Transaction.trxName === 'ethereum'
+                                                                                    ? Math.abs((Transaction.amount * 2241.86)).toFixed(2)
+                                                                                    : Transaction.trxName === 'tether'
+                                                                                        ? Math.abs(Transaction.amount).toFixed(2)
+                                                                                        : (0).toFixed(2)
+                                                                                })`}</td>
+                                                                        ) : null}
                                                                     </small>
                                                                 </Card.Text>
                                                                 <Card.Text className="transaction-date d-md-none">
