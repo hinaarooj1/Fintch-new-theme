@@ -263,7 +263,7 @@ const Documents = () => {
 									<h4 className="mt-3">Loading files...</h4>
 									<p>Please wait while we load the file.</p>
 								</div>
-							) : !allFiles.length ? (
+						) : !Array.isArray(allFiles) || allFiles.length === 0 ? (
 								<div className="text-center my-5">
 									<h4>No documents found!</h4>
 								</div>

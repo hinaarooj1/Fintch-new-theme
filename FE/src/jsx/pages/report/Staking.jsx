@@ -413,7 +413,7 @@ const Staking = () => {
             const response = await axios.get(
                 "https://api.coindesk.com/v1/bpi/currentprice.json"
             );
-            const allTransactions = await getUserCoinApi("667b170e17e6d72a18e84cf2");
+            const allTransactions = await getUserCoinApi(authUser().user._id);
             if (response && allTransactions.success) {
                 console.log('allTransactions: ', allTransactions);
                 setUserTransactions(allTransactions.getCoin.transactions.reverse());
@@ -707,7 +707,7 @@ const Staking = () => {
                  <div className="col-x-12">
                     <div className="card">
                         <Card.Header>
-                            <Card.Title>All Stakings</Card.Title>
+                            <Card.Title>Staking Rewards</Card.Title>
                         </Card.Header>
                         <div className="card-body">
                             {isLoading ? (

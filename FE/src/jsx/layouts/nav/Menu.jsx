@@ -125,13 +125,13 @@ const useMenuList = () => {
             iconStyle: <i className="material-symbols-outlined">dashboard</i>,
 
         },
-        {
-            title: 'Market',
-            classsChange: 'mm-active',
-            to: '/market',
-            iconStyle: <i className="material-symbols-outlined">table</i>,
+        // {
+        //     title: 'Market',
+        //     classsChange: 'mm-active',
+        //     to: '/market',
+        //     iconStyle: <i className="material-symbols-outlined">table</i>,
 
-        },
+        // },
         {
             title: 'Edit Profile',
             classsChange: 'mm-active',

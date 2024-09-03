@@ -10431,7 +10431,7 @@ code,
 /* Small menu. */
 .menu-toggle,
 .main-navigation.toggled ul {
-    display: block;
+    display: block !important;
 }
 
 @media screen and (min-width: 37.5em) {

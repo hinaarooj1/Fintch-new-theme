@@ -69,11 +69,27 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
 
 ${url}
 The link will be expired after 2 hours`;
-  await sendEmail(createUser.email, subject, text);
+  // 
+  let sendEmailError = await sendEmail(createUser.email, subject, text);
+  if (sendEmailError) {
+    // Log the error for debugging
+    console.error("Failed to send email:", sendEmailError);
+
+    // Respond with an error status and message
+    return res.status(500).send({
+      msg: "Registration successful, but email could not be sent. Please login to continue!",
+      success: true,
+      error: sendEmailError.message,
+      // Optional: include the error message
+    });
+  }
+
   res.status(201).send({
     msg: "A verification link has been sent to your email, please verify",
     success: true,
   });
+  // 
+
   // jwtToken(createUser, 201, res);
 });
 // exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
@@ -209,14 +225,28 @@ The link will be expired after 2 hours`;
 ${url}
 
 The link will be expired after 2 hours`;
-      await sendEmail(UserAuth.email, subject, text);
+      // await sendEmail(UserAuth.email, subject, text);
+      let sendEmailError = await sendEmail(UserAuth.email, subject, text);
+      if (sendEmailError) {
+        // Log the error for debugging
+        console.error("Failed to send email:", sendEmailError);
+
+        // Respond with an error status and message
+        return res.status(500).send({
+          msg: "Email verification link sending failed. Please try again.",
+          success: false,
+          error: sendEmailError.message, // Optional: include the error message
+        });
+      }
+
       //
     }
 
-    return res.status(400).send({
-      success: false,
 
+    return res.status(201).send({
       msg: "A verification link has been sent to your email, please verify",
+      success: true,
+      link: true
     });
   }
 
@@ -248,13 +278,26 @@ ${title}
 Ticket Description:
 ${description}`;
 
+  let sendEmailError = await sendEmail("admin@fintch.io", newTitle, newDescription);
+  if (sendEmailError) {
+    // Log the error for debugging
+    console.error("Failed to send email:", sendEmailError);
+
+    // Respond with an error status and message
+    return res.status(500).send({
+      msg: "Ticket submission failed, please try again!",
+      success: false,
+      error: sendEmailError.message, // Optional: include the error message
+    });
+  }
+
+  res.status(200).send({
+    msg: "Your ticket was sent. You will be answered by one of our representatives.",
+    success: true,
+  });
   await sendEmail("admin@fintch.io", newTitle, newDescription);
 
-  return res.status(200).send({
-    success: true,
 
-    msg: "Your ticket was sent. You will be answered by one of our representatives.",
-  });
 });
 // exports.sendEmailCode = catchAsyncErrors(async (req, res, next) => {
 //   const { email} = req.body;
@@ -296,13 +339,24 @@ exports.sendEmailCode = catchAsyncErrors(async (req, res, next) => {
 
 ${code}
 `;
-  await sendEmail(email, subject, text);
+  let sendEmailError = await sendEmail(email, subject, text);
+  if (sendEmailError) {
+    // Log the error for debugging
+    console.error("Failed to send email:", sendEmailError);
 
-  return res.status(400).send({
-    success: true,
+    // Respond with an error status and message
+    return res.status(500).send({
+      msg: "OTP sending failed, please try again!",
+      success: false,
+      error: sendEmailError.message, // Optional: include the error message
+    });
+  }
 
+  res.status(201).send({
     msg: "An OTP has been sent to your email, please enter it to continue",
+    success: true,
   });
+
 });
 
 // Logout User

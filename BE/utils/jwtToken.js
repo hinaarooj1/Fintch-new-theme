@@ -15,6 +15,7 @@ const jwtToken = (user, statusCode, res) => {
     success: true,
     token,
     user,
+    link: false,
   });
 };
 

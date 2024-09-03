@@ -54,7 +54,9 @@ function Login(props) {
 
 			const updateHeader = await loginApi(data);
 			let newData = updateHeader;
-			if (updateHeader.success === true) {
+			if (updateHeader.success === true && updateHeader.link ===false) {
+				
+				
 				newData = {
 					success: updateHeader.success,
 					token: updateHeader.token,
@@ -78,7 +80,7 @@ function Login(props) {
 				};
 			}
 			if (
-				updateHeader.success &&
+				updateHeader.success && updateHeader.link === false &&
 				signIn({
 					token: updateHeader.token.token,
 					expiresIn: 4317,
@@ -99,14 +101,21 @@ function Login(props) {
 					updateHeader.user.role === "subadmin"
 				) {
 					window.location.href = "/admin/dashboard";
+					return
 				}
-			} else {
+			} else if (updateHeader.success === true && updateHeader.link === true) {
 				toast.dismiss();
 				toast.info(updateHeader.msg);
-				setEmail("");
+				console.log(updateHeader);
 				setPassword("");
+				return
+			}else{
+				toast.dismiss();
+				toast.error(updateHeader.msg);
+				console.log(updateHeader);
 			}
 		} catch (error) {
+			console.log('error: ', error);
 			toast.dismiss();
 			toast.error(error?.data?.msg || "Something went wrong");
 		} finally {
