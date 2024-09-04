@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import SolanaImg from '../../../assets/images/solana-sol-vector-logo-seeklogo/solana-sol-seeklogo.svg'
+import bNBImg from '../../../assets/images/bnb-bnb-logo.svg'
 import axios from 'axios';
 import SwiperLineChart from './SwiperLineChart';
 import { SVGICON } from '../../constant/theme';
@@ -18,17 +19,17 @@ const MainSlider = () => {
             try {
                 const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
                     params: {
-                        ids: 'bitcoin,ethereum,tether,solana',
+                        ids: 'bitcoin,ethereum,tether,solana,binancecoin',
                         vs_currencies: 'usd',
                     },
                 });
 
-                const { bitcoin, ethereum, tether, solana } = response.data;
+                const { bitcoin, ethereum, binancecoin, solana } = response.data;
 
                 setSwiperData([
-                    { color: 'bg-dark', amount: ethereum.usd, chartcolor: 'rgba(148, 150, 176, 1)', svgicon: SVGICON.SwiperEthSvg },
                     { color: 'bg-warning', amount: bitcoin.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.SwiperBitSvg },
-                    { color: 'bg-warning', amount: tether.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.XrpUsdIcon },
+                    { color: 'bg-dark', amount: ethereum.usd, chartcolor: 'rgba(148, 150, 176, 1)', svgicon: SVGICON.SwiperEthSvg },
+                    { color: 'bg-warning', amount: binancecoin.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: <img style={{ width: "60px" }} src={bNBImg} /> },
                     { color: 'bg-warning', amount: solana.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: <img style={{width:"60px"}} src={SolanaImg}/> },
                 ]);
             } catch (error) {
@@ -86,10 +87,10 @@ const MainSlider = () => {
                         <div className={`card card-box bg-secondary ${item.color}`}>
                             <div className="card-header border-0 pb-0">
                                 <div className="chart-num">
-                                    <p>
+                                    {/* <p>
                                         <i className="fa-solid fa-sort-down me-2" />
                                         4%(30 days)
-                                    </p>
+                                    </p> */}
                                     <h2 className="font-w600 mb-0">${item.amount}</h2>
                                 </div>
                                 <div className="dlab-swiper-circle">
