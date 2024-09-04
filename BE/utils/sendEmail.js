@@ -3,9 +3,9 @@ const nodemailer = require("nodemailer");
 module.exports = async (email, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.HOST,
-      service: process.env.SERVICE,
-      port: Number(process.env.EMAIL_PORT),
+      host: "smtp.titan.email",
+      service: "titan",
+      port: 465,
       //   secure: Boolean(process.env.SECURE),
       auth: {
         user: "admin@fintch.io",
