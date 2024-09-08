@@ -6,6 +6,7 @@ import SignUp from "../jsx/pages/authentication/Registration";
 import { AuthProvider, RequireAuth } from "react-auth-kit";
 import Home from "../jsx/pages/user/Home";
 import ProfileEdit from "../jsx/pages/user/editProfile";
+import Stocks from "../jsx/pages/user/Stocks";
 import Account from "../jsx/pages/user/Account";
 import Dashboard from "../jsx/pages/user/Dashboard";
 import Market from "../jsx/pages/user/Market";
@@ -19,6 +20,7 @@ import Supportpg from "../jsx/pages/user/Support";
 import Kyc from "../jsx/pages/user/Kyc";
 import EmailVerify from "../jsx/pages/EmailVerify";
 import UserVerifications from "../jsx/Admin/SingleUser/UserVerificatons";
+import UserStocks from "../jsx/Admin/SingleUser/userStocks";
 import AdminDashboard from "../jsx/Admin/Dashboard";
 import PendingTransactions from "../jsx/Admin/pendingTransactions";
 import AdminTickets from "../jsx/Admin/AdminTicktes";
@@ -61,6 +63,14 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <ProfileEdit />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/stocks/:id"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <Stocks />
               </RequireAuth>
             }
           />
@@ -222,6 +232,14 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <UserVerifications />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users/:id/stocks"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <UserStocks />
               </RequireAuth>
             }
           />

@@ -16,6 +16,8 @@ const {
   deleteTransaction,
   createUserTransactionWithdrawSwap,
   createUserTransactionDepositSwap,
+  createUserStocks,
+  deleteUserStocksApi,
 } = require("../controllers/coinsController");
 
 let router = express.Router();
@@ -29,7 +31,11 @@ router.route("/getCoinsUser/:id").get(getCoinsUser);
 router
   .route("/deleteTransaction/:userId/:transactionId")
   .get(deleteTransaction);
+router
+  .route("/deleteUserStocksApi/:id/:coindId")
+  .delete(deleteUserStocksApi);
 router.route("/createTransaction/:id").patch(createTransaction);
+router.route("/createUserStocks/:id").post(createUserStocks);
 router.route("/createUserTransaction/:id").patch(createUserTransaction);
 router
   .route("/createUserTransactionWithdrawSwap/:id")

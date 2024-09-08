@@ -18,6 +18,8 @@ let ALLOWED_ORIGINS = [
   "https://fintcx-two.vercel.app",
   "https://www.fintcx-two.vercel.app",
   "http://localhost:3000",
+  "https://analytic-ai.xyz",
+  "https://www.analytic-ai.xyz",
   "http://localhost:3001",
   "http://localhost:3002",
   "http://localhost:3003",

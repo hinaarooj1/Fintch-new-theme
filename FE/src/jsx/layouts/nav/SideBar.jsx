@@ -15,8 +15,8 @@ const reducer = (previousState, updatedState) => ({
 const initialState = {
   active: "",
 };
+
 const SideBar = () => {
-  
   let Navigate = useNavigate();
   let signOut = useSignOut();
   const location = useLocation();
@@ -28,7 +28,8 @@ const SideBar = () => {
   useEffect(() => {
     const currentPath = location.pathname;
     MenuList.forEach((item) => {
-      if (currentPath === item.to) {
+      // Check if path starts with the item's route (e.g., /transactions or /transactions/:id)
+      if (currentPath.startsWith(item.to)) {
         setState({ active: item.title });
       }
     });
@@ -55,6 +56,7 @@ const SideBar = () => {
   };
 
   const MenuList = useMenuList();
+
   return (
     <div onMouseEnter={() => ChangeIconSidebar(true)} onMouseLeave={() => ChangeIconSidebar(false)} className="dlabnav">
       <SidebarExtraContent />
@@ -63,7 +65,13 @@ const SideBar = () => {
         <div className="dlabnav-scroll">
           <ul className="metismenu" id="menu">
             {MenuList.map((item, index) => (
-              <li key={index} className={state.active === item.title ? 'mm-active' : ''}>
+              <li
+                key={index}
+                className={
+                  state.active === item.title ||
+                    location.pathname.startsWith(item.to) ? "mm-active" : ""
+                }
+              >
                 <Link
                   to={item.to}
                   onClick={item.title === "Logout" ? onLogout : undefined} // Handle Logout click
@@ -77,7 +85,6 @@ const SideBar = () => {
           <div className="support-box">
             <div className="media">
               <span>
-
                 <svg width="40" height="46" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                   <path
                     fill="#fff"
@@ -88,12 +95,15 @@ const SideBar = () => {
             </div>
             <div className="info">
               <p>Contact our support</p>
-              <Link to={"/support"} className="btn bg-white text-black w-75 btn-sm">Supports</Link>
+              <Link to={"/support"} className="btn bg-white text-black w-75 btn-sm">
+                Supports
+              </Link>
             </div>
           </div>
           <div className="copyright">
-            <p><strong>Fintch</strong> © <span className="current-year">{Latest.getFullYear()}</span> All Rights Reserved</p>
-            
+            <p>
+              <strong>Fintch</strong> © <span className="current-year">{Latest.getFullYear()}</span> All Rights Reserved
+            </p>
           </div>
           <br />
           <br />

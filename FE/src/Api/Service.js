@@ -60,6 +60,9 @@ export const updateCoinAddressApi = (id, data) => {
 export const createTransactionApi = (id, data) => {
   return patchApi(`createTransaction/${id}`, data);
 };
+export const createUserStocksApi = (id, data) => {
+  return postApi(`createUserStocks/${id}`, data);
+};
 export const createUserTransactionApi = (id, data) => {
   return patchApi(`/createUserTransaction/${id}`, data);
 };
@@ -93,6 +96,9 @@ export const verifyEmailApi = (data) => {
 };
 export const deleteEachUserApi = (id) => {
   return deleteApi(`deleteEachUser/${id}`, id);
+};
+export const deleteUserStocksApi = (coindId, id) => {
+  return deleteApi(`deleteUserStocksApi/${id}/${coindId}`, id, coindId);
 };
 export const updateKycApi = (id, data) => {
   return patchApi(`updateKyc/${id}`, data);

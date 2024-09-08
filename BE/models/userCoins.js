@@ -81,6 +81,25 @@ let userCoins = new mongoose.Schema({
       },
     },
   ],
+  stocks: [
+    {
+      stockName: {
+        type: String,
+        required: true,
+      },
+      stockSymbol: {
+        type: String,
+        required: true,
+      },
+      stockAmount: { type: Number, required: true },
+      stockValue: {
+        type: Number,
+        required: true,
+      },
+
+
+    },
+  ],
 });
 
 let userModel = mongoose.model("userCoin", userCoins);

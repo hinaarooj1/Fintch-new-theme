@@ -87,8 +87,8 @@ const UserAssets = () => {
   };
 
   const [liveBtc, setliveBtc] = useState(null);
-  const [Active, setActive] = useState(false);
   const [User, setUser] = useState("");
+  const [Active, setActive] = useState(false);
   let toggleBar = () => {
     if (Active === true) {
       setActive(false);

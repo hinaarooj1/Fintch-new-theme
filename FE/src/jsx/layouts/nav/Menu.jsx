@@ -140,6 +140,15 @@ const useMenuList = () => {
 
         },
         {
+            title: 'My Stocks',
+            classsChange: 'mm-active',
+           
+
+            to: Admin ? `/stocks/${Admin._id}` : '#',
+            iconStyle: <i className="material-symbols-outlined">table</i>,
+
+        },
+        {
             title: 'Documents',
             classsChange: 'mm-active',
             to: '/all-files',
@@ -167,7 +176,7 @@ const useMenuList = () => {
             iconStyle: <i className="material-symbols-outlined">widgets</i>,
 
         },
-     
+
         {
             title: 'Swap',
             classsChange: 'mm-active',

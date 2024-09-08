@@ -118,6 +118,76 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
     Transaction,
   });
 });
+exports.createUserStocks = catchAsyncErrors(async (req, res, next) => {
+  let { id } = req.params;
+  let {
+    stockName,
+    stockSymbol,
+    stockAmount,
+    stockValue,
+
+  } = req.body;
+  if (!stockName || !stockSymbol || !stockAmount || !stockValue) {
+    return next(new errorHandler("Please fill all the required fields", 500));
+  }
+  let StocksUpdate = await userCoins.findOneAndUpdate(
+    { user: id },
+    {
+      $push: {
+        stocks: {
+          stockName,
+          stockSymbol,
+          stockAmount,
+          stockValue,
+        },
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+    }
+  );
+  res.status(200).send({
+    success: true,
+    msg: "Stocks Updated successfully",
+    StocksUpdate,
+  });
+});
+exports.deleteUserStocksApi = catchAsyncErrors(async (req, res, next) => {
+  const { id, coindId } = req.params; // User ID
+  console.log('id: ', id);
+  console.log('coindId: ', coindId); // The specific stock's ID or identifier
+
+  // Check if stockId is provided
+  if (!coindId) {
+    return next(new errorHandler("Stock ID is required for deletion", 400));
+  }
+
+  // Find the user and pull (remove) the specific stock from the array
+  let StocksUpdate = await userCoins.findOneAndUpdate(
+    { user: id },
+    {
+      $pull: {
+        stocks: { _id: coindId } // Assuming each stock has a unique _id
+      }
+    },
+    {
+      new: true
+    }
+  );
+
+  // If no user is found or no stock removed
+  if (!StocksUpdate) {
+    return next(new errorHandler("No stock found with the provided ID", 404));
+  }
+
+  res.status(200).send({
+    success: true,
+    msg: "Stock deleted successfully",
+    StocksUpdate
+  });
+});
+
 exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let { trxName, amount, txId, selectedPayment, e, status } = req.body;
