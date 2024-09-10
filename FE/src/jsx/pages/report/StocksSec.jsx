@@ -105,11 +105,13 @@ const StocksSec = () => {
                 axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`)
             );
             const responses = await Promise.all(stockValuePromises);
+            console.log('responses: ', responses);
 
             const values = {};
             responses.forEach((response, index) => {
                 const symbol = symbols[index];
                 const timeSeries = response.data['Time Series (5min)'];
+                console.log('timeSeries: ', timeSeries);
                 if (timeSeries) {
                     const latestTime = Object.keys(timeSeries)[0];
                     const latestData = timeSeries[latestTime]['1. open'];

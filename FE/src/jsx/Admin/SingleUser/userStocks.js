@@ -566,7 +566,14 @@ const UserTransactions = () => {
                                                                                         </Spinner>
                                                                                     </div>
                                                                                 ) : (
-                                                                                    `$${(liveStockValues[transaction.stockSymbol] * transaction.stockAmount).toFixed(3)}` || 'N/A'
+                                                                                    (() => {
+                                                                                        const liveValue = liveStockValues[transaction.stockSymbol];
+                                                                                        const calculatedValue = parseFloat(liveValue) * parseFloat(transaction.stockAmount);
+                                                                                        const formattedValue = isNaN(calculatedValue)
+                                                                                            ? parseFloat(transaction.stockValue) * parseFloat(transaction.stockAmount)
+                                                                                            : calculatedValue;
+                                                                                        return `$${formattedValue.toFixed(3) || 'N/A'}`;
+                                                                                    })()
                                                                                 )}
                                                                             </td>
                                                                             <td>
