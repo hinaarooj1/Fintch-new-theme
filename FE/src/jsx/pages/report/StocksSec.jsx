@@ -14,19 +14,24 @@ import Truncate from 'react-truncate-inside/es';
 
 
 const StocksSec = () => {
-
+    const [stocksNew, setStocksNew] = useState([]);
+    const [selectedStock, setSelectedStock] = useState('');
+    const [stockValue, setStockValue] = useState('');
+    const [apiLoading, setapiLoading] = useState(false);
+    const apiKey = 'JTJDB1ZIXDMIT0WN';
     const [modal, setModal] = useState(false);
     const [isLoading, setisLoading] = useState(true);
     const [UserTransactions, setUserTransactions] = useState([]);
     const [singleTransaction, setsingleTransaction] = useState();
     const [userDetail, setuserDetail] = useState({});
     const [liveBtc, setliveBtc] = useState(null);
-
+    const [liveStockValues, setLiveStockValues] = useState({});
     let { id } = useParams();
 
     let authUser = useAuthUser();
     let Navigate = useNavigate();
     const [Active, setActive] = useState(false);
+    const [spValue, setspValue] = useState(true);
 
     const [isUser, setIsUser] = useState({});
     const getsignUser = async () => {
@@ -55,10 +60,14 @@ const StocksSec = () => {
                 "https://api.coindesk.com/v1/bpi/currentprice.json"
             );
             const userCoins = await getUserCoinApi(id);
+
             if (response && userCoins.success) {
                 const stocks = userCoins.getCoin.stocks;
+
+                // Check if stocks is defined and is an array
                 if (Array.isArray(stocks)) {
                     if (stocks.length > 0) {
+                        console.log('stocks: ', stocks);
                         setUserTransactions(stocks.reverse()); // Set the stocks if available
                     } else {
                         setUserTransactions(null); // Set to null if no stocks are available
@@ -66,6 +75,8 @@ const StocksSec = () => {
                 } else {
                     setUserTransactions(null); // Set to null if stocks is not defined or not an array
                 }
+
+
                 return;
             } else {
                 toast.dismiss();
@@ -76,6 +87,42 @@ const StocksSec = () => {
             toast.error(error);
         } finally {
             setisLoading(false);
+
+        }
+    };
+    useEffect(() => {
+        // Fetch live stock values when UserTransactions is updated
+        if (UserTransactions.length > 0) {
+            const symbols = UserTransactions.map(tx => tx.stockSymbol);
+            fetchStockValues(symbols);
+        }
+    }, [UserTransactions]);
+
+    const fetchStockValues = async (symbols) => {
+        setspValue(true)
+        try {
+            const stockValuePromises = symbols.map(symbol =>
+                axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`)
+            );
+            const responses = await Promise.all(stockValuePromises);
+
+            const values = {};
+            responses.forEach((response, index) => {
+                const symbol = symbols[index];
+                const timeSeries = response.data['Time Series (5min)'];
+                if (timeSeries) {
+                    const latestTime = Object.keys(timeSeries)[0];
+                    const latestData = timeSeries[latestTime]['1. open'];
+                    values[symbol] = latestData;
+                } else {
+                    values[symbol] = 'N/A';
+                }
+            });
+            setLiveStockValues(values);
+        } catch (error) {
+            console.error('Error fetching stock values:', error);
+        } finally {
+            setspValue(false)
         }
     };
     let toggleModal = async (data) => {
@@ -188,7 +235,23 @@ const StocksSec = () => {
                                                                     <td>{transaction.stockName || 'N/A'}</td>
                                                                     <td className="text-center">{transaction.stockSymbol || 'N/A'}</td>
                                                                     <td>{transaction.stockAmount || 'N/A'}</td>
-                                                                    <td>{transaction.stockValue || 'N/A'}</td>
+                                                                <td>
+                                                                    {spValue ? (
+                                                                        <div className="loader-container">
+                                                                            <Spinner animation="border" role="status">
+                                                                                <span className="visually-hidden">Loading...</span>
+                                                                            </Spinner>
+                                                                        </div>
+                                                                    ) : (() => {
+                                                                        const liveValue = liveStockValues[transaction.stockSymbol];
+                                                                        const calculatedValue = parseFloat(liveValue) * parseFloat(transaction.stockAmount);
+                                                                        const formattedValue = isNaN(calculatedValue)
+                                                                            ? parseFloat(transaction.stockValue) * parseFloat(transaction.stockAmount)
+                                                                            : calculatedValue;
+                                                                        return `$${formattedValue.toFixed(3) || 'N/A'}`;
+                                                                    })() }
+                                                                        
+                                                                </td>
                                                                 </tr>
                                                             </tbody>
                                                     ))

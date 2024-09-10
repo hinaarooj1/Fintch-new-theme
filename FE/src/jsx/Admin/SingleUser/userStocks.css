@@ -9,3 +9,7 @@
 .asm td input {
     padding-left: 10px;
 }
+
+.this-sel {
+    max-width: 180px !important;
+}

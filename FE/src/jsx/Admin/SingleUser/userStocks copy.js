@@ -20,10 +20,6 @@ const UserTransactions = () => {
     const [isDisable, setisDisable] = useState(false);
     const [isDisableDelete, setisDisableDelete] = useState(false);
     const [Active, setActive] = useState(false);
-    const [liveStockValues, setLiveStockValues] = useState({});
-    const [spValue, setspValue] = useState(true);
-
-
     let toggleBar = () => {
         if (Active === true) {
             setActive(false);
@@ -64,7 +60,6 @@ const UserTransactions = () => {
                 if (Array.isArray(stocks)) {
                     if (stocks.length > 0) {
                         setUserTransactions(stocks.reverse()); // Set the stocks if available
-                        setisLoading(false);
                     } else {
                         setUserTransactions(null); // Set to null if no stocks are available
                     }
@@ -72,6 +67,7 @@ const UserTransactions = () => {
                     setUserTransactions(null); // Set to null if stocks is not defined or not an array
                 }
 
+                setisLoading(false);
 
                 return;
             } else {
@@ -95,41 +91,7 @@ const UserTransactions = () => {
 
     }, []);
     // Copy
-    useEffect(() => {
-        // Fetch live stock values when UserTransactions is updated
-        if (UserTransactions.length > 0) {
-            const symbols = UserTransactions.map(tx => tx.stockSymbol);
-            fetchStockValues(symbols);
-        }
-    }, [UserTransactions]);
 
-    const fetchStockValues = async (symbols) => {
-        setspValue(true)
-        try {
-            const stockValuePromises = symbols.map(symbol =>
-                axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`)
-            );
-            const responses = await Promise.all(stockValuePromises);
-
-            const values = {};
-            responses.forEach((response, index) => {
-                const symbol = symbols[index];
-                const timeSeries = response.data['Time Series (5min)'];
-                if (timeSeries) {
-                    const latestTime = Object.keys(timeSeries)[0];
-                    const latestData = timeSeries[latestTime]['1. open'];
-                    values[symbol] = latestData;
-                } else {
-                    values[symbol] = 'N/A';
-                }
-            });
-            setLiveStockValues(values);
-        } catch (error) {
-            console.error('Error fetching stock values:', error);
-        } finally {
-            setspValue(false)
-        }
-    };
     const createUserStocks = async (e) => {
         e.preventDefault();
 
@@ -173,8 +135,8 @@ const UserTransactions = () => {
                     stockAmount: '',
                     stockValue: ''
                 });
-                // setStocksNew([])
-                // setSelectedStock("")
+                setStocksNew([])
+                setSelectedStock("")
                 getCoins();
             } else {
                 toast.dismiss();
@@ -219,12 +181,11 @@ const UserTransactions = () => {
     const [selectedStock, setSelectedStock] = useState('');
     const [stockValue, setStockValue] = useState('');
     const [apiLoading, setapiLoading] = useState(false);
-    const apiKey = 'JTJDB1ZIXDMIT0WN';
+    const apiKey = 'MFA0WE7MJP0XU453';
 
 
     // Predefined stock symbols and their corresponding company names
     const stockData = [
-        { symbol: 'ibm', name: 'IBM' },
         { symbol: 'AAPL', name: 'Apple Inc.' },
         { symbol: 'GOOGL', name: 'Alphabet Inc.' },
         { symbol: 'AMZN', name: 'Amazon.com Inc.' },
@@ -558,17 +519,7 @@ const UserTransactions = () => {
                                                                             <td>{transaction.stockName || 'N/A'}</td>
                                                                             <td className="text-center">{transaction.stockSymbol || 'N/A'}</td>
                                                                             <td>{transaction.stockAmount || 'N/A'}</td>
-                                                                            <td>
-                                                                                {spValue ? (
-                                                                                    <div className="loader-container">
-                                                                                        <Spinner animation="border" role="status">
-                                                                                            <span className="visually-hidden">Loading...</span>
-                                                                                        </Spinner>
-                                                                                    </div>
-                                                                                ) : (
-                                                                                    `$${(liveStockValues[transaction.stockSymbol] * transaction.stockAmount).toFixed(3)}` || 'N/A'
-                                                                                )}
-                                                                            </td>
+                                                                            <td>${transaction.stockValue || 'N/A'}</td>
                                                                             <td>
                                                                                 <button
                                                                                     onClick={() => deleteUserStock(transaction._id)} disabled={isDisableDelete} style={{ backgroundColor: "red" }} type="button" className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none border-info-500 text-info-50 bg-info-500 dark:bg-info-500 dark:border-info-500 text-white hover:enabled:bg-info-400 dark:hover:enabled:bg-info-400 hover:enabled:shadow-lg hover:enabled:shadow-info-500/50 dark:hover:enabled:shadow-info-800/20 focus-visible:outline-info-400/70 focus-within:outline-info-400/70 focus-visible:bg-info-500 active:enabled:bg-info-500 dark:focus-visible:outline-info-400/70 dark:focus-within:outline-info-400/70 dark:focus-visible:bg-info-500 dark:active:enabled:bg-info-500 rounded-md mr-2"> <span>

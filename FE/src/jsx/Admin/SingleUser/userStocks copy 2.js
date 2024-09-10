@@ -21,15 +21,8 @@ const UserTransactions = () => {
     const [isDisableDelete, setisDisableDelete] = useState(false);
     const [Active, setActive] = useState(false);
     const [liveStockValues, setLiveStockValues] = useState({});
-    const [spValue, setspValue] = useState(true);
-
-
     let toggleBar = () => {
-        if (Active === true) {
-            setActive(false);
-        } else {
-            setActive(true);
-        }
+        setActive(!Active);
     };
     const [stocks, setStocks] = useState({
         stockName: '',
@@ -46,7 +39,6 @@ const UserTransactions = () => {
     };
 
     let { id } = useParams();
-
     let authUser = useAuthUser();
     let Navigate = useNavigate();
 
@@ -59,21 +51,12 @@ const UserTransactions = () => {
 
             if (response && userCoins.success) {
                 const stocks = userCoins.getCoin.stocks;
-
-                // Check if stocks is defined and is an array
                 if (Array.isArray(stocks)) {
-                    if (stocks.length > 0) {
-                        setUserTransactions(stocks.reverse()); // Set the stocks if available
-                        setisLoading(false);
-                    } else {
-                        setUserTransactions(null); // Set to null if no stocks are available
-                    }
+                    setUserTransactions(stocks.reverse()); // Set the stocks if available
                 } else {
-                    setUserTransactions(null); // Set to null if stocks is not defined or not an array
+                    setUserTransactions(null); // Set to null if no stocks are available
                 }
-
-
-                return;
+                setisLoading(false);
             } else {
                 toast.dismiss();
                 toast.error(userCoins.msg);
@@ -81,20 +64,17 @@ const UserTransactions = () => {
         } catch (error) {
             toast.dismiss();
             toast.error(error);
-        } finally {
         }
     };
 
-    //
     useEffect(() => {
         if (authUser().user.role === "user") {
             Navigate("/dashboard");
             return;
         }
         getCoins();
-
     }, []);
-    // Copy
+
     useEffect(() => {
         // Fetch live stock values when UserTransactions is updated
         if (UserTransactions.length > 0) {
@@ -104,7 +84,6 @@ const UserTransactions = () => {
     }, [UserTransactions]);
 
     const fetchStockValues = async (symbols) => {
-        setspValue(true)
         try {
             const stockValuePromises = symbols.map(symbol =>
                 axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`)
@@ -126,32 +105,24 @@ const UserTransactions = () => {
             setLiveStockValues(values);
         } catch (error) {
             console.error('Error fetching stock values:', error);
-        } finally {
-            setspValue(false)
         }
     };
+
     const createUserStocks = async (e) => {
         e.preventDefault();
-
-        console.log(stocks);
-        console.log(selectedStock);
         try {
             setisDisable(true);
-
             if (stocks.stockName === "" || stocks.stockAmount === "" || stockValue === null) {
                 toast.dismiss();
                 toast.error("All the fields are required!");
                 return;
             }
-
             let body = {
                 stockName: stocks.stockName,
                 stockSymbol: selectedStock,
                 stockValue: stockValue,
                 stockAmount: stocks.stockAmount,
             };
-
-            console.log('body: ', body);
             if (
                 !body.stockName ||
                 !body.stockSymbol ||
@@ -163,7 +134,6 @@ const UserTransactions = () => {
                 return;
             }
             const newStocks = await createUserStocksApi(id, body);
-
             if (newStocks.success) {
                 toast.dismiss();
                 toast.success(newStocks.msg);
@@ -173,8 +143,8 @@ const UserTransactions = () => {
                     stockAmount: '',
                     stockValue: ''
                 });
-                // setStocksNew([])
-                // setSelectedStock("")
+                setStocksNew([]);
+                setSelectedStock("");
                 getCoins();
             } else {
                 toast.dismiss();
@@ -187,19 +157,14 @@ const UserTransactions = () => {
             setisDisable(false);
         }
     };
+
     const deleteUserStock = async (coindId) => {
-
-
         try {
             setisDisableDelete(true);
-
-
             const deleteStock = await deleteUserStocksApi(coindId, id);
-
             if (deleteStock.success) {
                 toast.dismiss();
                 toast.success(deleteStock.msg);
-
                 getCoins();
             } else {
                 toast.dismiss();
@@ -210,21 +175,16 @@ const UserTransactions = () => {
             toast.error(error);
         } finally {
             setisDisableDelete(false);
-
         }
     };
 
-    // Copy 
     const [stocksNew, setStocksNew] = useState([]);
     const [selectedStock, setSelectedStock] = useState('');
     const [stockValue, setStockValue] = useState('');
     const [apiLoading, setapiLoading] = useState(false);
-    const apiKey = 'JTJDB1ZIXDMIT0WN';
+    const apiKey = 'MFA0WE7MJP0XU453';
 
-
-    // Predefined stock symbols and their corresponding company names
     const stockData = [
-        { symbol: 'ibm', name: 'IBM' },
         { symbol: 'AAPL', name: 'Apple Inc.' },
         { symbol: 'GOOGL', name: 'Alphabet Inc.' },
         { symbol: 'AMZN', name: 'Amazon.com Inc.' },
@@ -293,44 +253,30 @@ const UserTransactions = () => {
     ];
 
     useEffect(() => {
-        // Sort stock data alphabetically by company name
         const sortedStocks = stockData.sort((a, b) => a.name.localeCompare(b.name));
         setStocksNew(sortedStocks);
     }, []);
 
-    // Function to get stock price
-    const getStockValue = (symbol) => {
-        setapiLoading(true)
-        axios
-            .get(
-                `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`
-            )
-            .then((response) => {
-                console.log('response: ', response);
-                const timeSeries = response.data['Time Series (5min)'];
-                if (timeSeries) {
-                    setapiLoading(false)
-                    // Get the latest stock price
-                    const latestTime = Object.keys(timeSeries)[0];
-                    const latestData = timeSeries[latestTime]['1. open'];
-                    setStockValue(latestData);
-                    console.log('latestData: ', latestData);
-                } else {
-                    alert('Stock data not available');
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching stock data:', error);
-            });
-    };
+    useEffect(() => {
+        if (stocks.stockAmount && stockValue) {
+            const calculatedValue = parseFloat(stocks.stockAmount) * parseFloat(stockValue);
+            setStocks((prevStocks) => ({
+                ...prevStocks,
+                stockValue: calculatedValue.toFixed(2)
+            }));
+        } else if (stocks.stockAmount === '' || parseFloat(stocks.stockAmount) === 0) {
+            setStocks((prevStocks) => ({
+                ...prevStocks,
+                stockValue: ''
+            }));
+        }
+    }, [stocks.stockAmount, stockValue]);
 
-    // Handle dropdown selection
     const handleStockChange = (event) => {
         const selectedSymbol = event.target.value;
         setSelectedStock(selectedSymbol);
         getStockValue(selectedSymbol);
 
-        // Find the stock name based on the selected symbol
         const stock = stockData.find(stock => stock.symbol === selectedSymbol);
         if (stock) {
             setStocks(prevStocks => ({
@@ -339,21 +285,6 @@ const UserTransactions = () => {
             }));
         }
     };
-    useEffect(() => {
-        if (stocks.stockAmount && stockValue) {
-            const calculatedValue = parseFloat(stocks.stockAmount) * parseFloat(stockValue);
-            setStocks((prevStocks) => ({
-                ...prevStocks,
-                stockValue: calculatedValue.toFixed(2) // Rounded to 2 decimal places
-            }));
-        } else if (stocks.stockAmount === '' || parseFloat(stocks.stockAmount) === 0) {
-            // If the stock amount is cleared (backspace) or set to zero, reset stock value
-            setStocks((prevStocks) => ({
-                ...prevStocks,
-                stockValue: '' // Reset the stockValue to an empty string
-            }));
-        }
-    }, [stocks.stockAmount, stockValue]);
     return (
         <>
 
@@ -365,164 +296,14 @@ const UserTransactions = () => {
                         <SideBar state={Active} toggle={toggleBar} />
                         <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
                             <div className="mx-auto w-full max-w-7xl">
-                                <div className="relative z-50 mb-5 flex h-16 items-center gap-2">
-                                    <button
-                                        type="button"
-                                        className="flex h-10 w-10 items-center justify-center -ms-3"
-                                    >
-                                        <div className="relative h-5 w-5 scale-90">
-                                            <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 top-1 max-w-[75%] -rotate-45 top-0.5" />
-                                            <span className="bg-primary-500 absolute top-1/2 block h-0.5 w-full max-w-[50%] transition-all duration-300 translate-x-4 opacity-0" />
-                                            <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 bottom-1 max-w-[75%] rotate-45 bottom-0" />
-                                        </div>
-                                    </button>
-                                    <h1 className="font-heading text-2xl font-light leading-normal leading-normal text-muted-800 hidden dark:text-white md:block">
-                                        User Management
-                                    </h1>
-                                    <div className="ms-auto" />
 
-                                    <div className="group inline-flex items-center justify-center text-right">
-                                        <div
-                                            data-headlessui-state
-                                            className="relative h-9 w-9 text-left"
-                                        >
-                                            <button
-                                                className="group-hover:ring-primary-500 dark:ring-offset-muted-900 inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4"
-                                                id="headlessui-menu-button-25"
-                                                aria-haspopup="menu"
-                                                aria-expanded="false"
-                                                type="button"
-                                            >
-                                                <div className="relative inline-flex h-9 w-9 items-center justify-center rounded-full">
-                                                    <img
-                                                        src={Log}
-                                                        className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                                                        alt=""
-                                                    />
-                                                </div>
-                                            </button>
-                                            {/**/}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    className="nuxt-loading-indicator"
-                                    style={{
-                                        position: "fixed",
-                                        top: "0px",
-                                        right: "0px",
-                                        left: "0px",
-                                        pointerEvents: "none",
-                                        width: "auto",
-                                        height: "3px",
-                                        opacity: 0,
-                                        background: "var(--color-primary-500)",
-                                        transform: "scaleX(0)",
-                                        transformOrigin: "left center",
-                                        transition:
-                                            "transform 0.1s ease 0s, height 0.4s ease 0s, opacity 0.4s ease 0s",
-                                        zIndex: 999999,
-                                    }}
-                                />
+
                                 <seokit />
                                 <div className="min-h-screen overflow-hidden">
                                     <div className="grid gap-8 sm:grid-cols-12">
                                         <UserSideBar userid={id} />
                                         <div className="col-span-12 sm:col-span-8">
-                                            <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md">
-                                                <div className="flex items-center justify-between p-4">
-                                                    <div>
-                                                        <p
-                                                            className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                                                            tag="h2"
-                                                        >
-                                                            {" "}
-                                                            Add New Stock
-                                                        </p>
-                                                    </div>
-                                                </div>
 
-                                                <div className="pt-6 asm">
-                                                    <Table striped bordered hover>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Stock Name</th>
-                                                                <th>Stock Symbol</th>
-                                                                <th>Quantity</th>
-                                                                <th>Total Value</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-
-                                                                    <select className="this-sel" value={selectedStock} onChange={handleStockChange}>
-                                                                        <option value="">Select a stock</option>
-                                                                        {stocksNew.map((stock, index) => (
-                                                                            <option key={index} value={stock.symbol}>
-                                                                                {stock.name}
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
-                                                                </td>
-                                                                <td className="text-center">
-                                                                    <Form.Control
-                                                                        type="text"
-                                                                        placeholder="Enter stock symbol"
-                                                                        name="stockSymbol"
-                                                                        readOnly={true}
-                                                                        value={selectedStock}
-
-                                                                    />
-                                                                </td>
-                                                                <td>
-                                                                    <Form.Control
-                                                                        type="number"
-                                                                        placeholder="Enter amount"
-                                                                        name="stockAmount"
-                                                                        value={stocks.stockAmount}
-                                                                        onChange={handleChange}
-                                                                    />
-                                                                </td>
-                                                                <td>
-                                                                    {apiLoading ? <div className="loader-container">
-                                                                        <Spinner animation="border" role="status">
-                                                                            <span className="visually-hidden">Loading...</span>
-                                                                        </Spinner>
-                                                                    </div> :
-                                                                        <Form.Control
-                                                                            type="number"
-                                                                            placeholder="Enter amount"
-                                                                            name="stockAmount"
-                                                                            value={stocks.stockValue}
-                                                                            readOnly={true}
-                                                                            onChange={handleChange}
-                                                                        />
-                                                                    }
-
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </Table>
-                                                    <div style={{ textAlign: "center", padding: "5px 10px" }}>
-
-                                                        <button disabled={isDisable || apiLoading}
-                                                            onClick={createUserStocks}
-                                                            type="button"
-                                                            className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none border-info-500 text-info-50 bg-info-500 dark:bg-info-500 dark:border-info-500 text-white hover:enabled:bg-info-400 dark:hover:enabled:bg-info-400 hover:enabled:shadow-lg hover:enabled:shadow-info-500/50 dark:hover:enabled:shadow-info-800/20 focus-visible:outline-info-400/70 focus-within:outline-info-400/70 focus-visible:bg-info-500 active:enabled:bg-info-500 dark:focus-visible:outline-info-400/70 dark:focus-within:outline-info-400/70 dark:focus-visible:bg-info-500 dark:active:enabled:bg-info-500 rounded-md mr-2"> <span>
-                                                                {isDisable ? (
-                                                                    <div>
-                                                                        <div className="nui-placeload animate-nui-placeload h-4 w-8 rounded mx-auto"></div>
-                                                                    </div>
-                                                                ) : (
-                                                                    "Add Stock"
-                                                                )}
-
-                                                            </span></button>
-                                                    </div>
-                                                </div>
-
-                                            </div>
                                             <br />
                                             <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md">
                                                 <div className="flex items-center justify-between p-4">
@@ -558,17 +339,7 @@ const UserTransactions = () => {
                                                                             <td>{transaction.stockName || 'N/A'}</td>
                                                                             <td className="text-center">{transaction.stockSymbol || 'N/A'}</td>
                                                                             <td>{transaction.stockAmount || 'N/A'}</td>
-                                                                            <td>
-                                                                                {spValue ? (
-                                                                                    <div className="loader-container">
-                                                                                        <Spinner animation="border" role="status">
-                                                                                            <span className="visually-hidden">Loading...</span>
-                                                                                        </Spinner>
-                                                                                    </div>
-                                                                                ) : (
-                                                                                    `$${(liveStockValues[transaction.stockSymbol] * transaction.stockAmount).toFixed(3)}` || 'N/A'
-                                                                                )}
-                                                                            </td>
+                                                                            <td>${transaction.stockValue || 'N/A'}</td>
                                                                             <td>
                                                                                 <button
                                                                                     onClick={() => deleteUserStock(transaction._id)} disabled={isDisableDelete} style={{ backgroundColor: "red" }} type="button" className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none border-info-500 text-info-50 bg-info-500 dark:bg-info-500 dark:border-info-500 text-white hover:enabled:bg-info-400 dark:hover:enabled:bg-info-400 hover:enabled:shadow-lg hover:enabled:shadow-info-500/50 dark:hover:enabled:shadow-info-800/20 focus-visible:outline-info-400/70 focus-within:outline-info-400/70 focus-visible:bg-info-500 active:enabled:bg-info-500 dark:focus-visible:outline-info-400/70 dark:focus-within:outline-info-400/70 dark:focus-visible:bg-info-500 dark:active:enabled:bg-info-500 rounded-md mr-2"> <span>
