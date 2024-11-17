@@ -104,6 +104,23 @@
     cursor: pointer;
 }
 
+.lefg {
+    color: #FFFFFF !important;
+    background-color: #FF5300 !important;
+
+    text-align: center;
+    border-radius: 100px !important;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: inherit;
+    max-height: 76px;
+    min-width: 178px;
+    padding: 10px 20px;
+    margin-top: 10px;
+    display: inline-block;
+}
 
 .gdPmLE {
     background-color: transparent;

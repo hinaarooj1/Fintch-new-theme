@@ -81,16 +81,16 @@ const Home = () => {
                     >
                       <div className="elementor-widget-container">
                         <div className="elementor-button-wrapper">
-                          <a
+                          <Link
                             className="elementor-button elementor-button-link elementor-size-sm"
-                            href="/auth/login"
+                            to="/auth/login"
                           >
                             <span className="elementor-button-content-wrapper">
                               <span className="elementor-button-text">
                                 Start Staking
                               </span>
                             </span>
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -110,16 +110,16 @@ const Home = () => {
                     >
                       <div className="elementor-widget-container">
                         <div className="elementor-button-wrapper">
-                          <a
+                          <Link
                             className="elementor-button elementor-button-link elementor-size-sm"
-                            href="/auth/login"
+                            to="/auth/login"
                           >
                             <span className="elementor-button-content-wrapper">
                               <span className="elementor-button-text">
                                 Start Staking
                               </span>
                             </span>
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -245,9 +245,9 @@ const Home = () => {
                               >
                                 <div className="elementor-widget-container">
                                   <div className="elementor-button-wrapper">
-                                    <a
+                                    <Link
                                       className="elementor-button elementor-button-link elementor-size-sm"
-                                      href="/auth/login"
+                                      to="/auth/login"
                                     >
                                       <span className="elementor-button-content-wrapper">
                                         <span className="elementor-button-icon elementor-align-icon-left">
@@ -260,7 +260,7 @@ const Home = () => {
                                           Start Trading
                                         </span>
                                       </span>
-                                    </a>
+                                    </Link>
                                   </div>
                                 </div>
                               </div>
@@ -786,16 +786,16 @@ const Home = () => {
                               >
                                 <div className="elementor-widget-container">
                                   <div className="elementor-button-wrapper">
-                                    <a
+                                    <Link
                                       className="elementor-button elementor-button-link elementor-size-sm"
-                                      href="/auth/login"
+                                      to="/auth/login"
                                     >
                                       <span className="elementor-button-content-wrapper">
                                         <span className="elementor-button-text">
                                           Start Now
                                         </span>
                                       </span>
-                                    </a>
+                                    </Link>
                                   </div>
                                 </div>
                               </div>
@@ -850,16 +850,16 @@ const Home = () => {
                               >
                                 <div className="elementor-widget-container">
                                   <div className="elementor-button-wrapper">
-                                    <a
+                                    <Link
                                       className="elementor-button elementor-button-link elementor-size-sm"
-                                      href="/auth/login"
+                                      to="/auth/login"
                                     >
                                       <span className="elementor-button-content-wrapper">
                                         <span className="elementor-button-text">
                                           Start Now
                                         </span>
                                       </span>
-                                    </a>
+                                    </Link>
                                   </div>
                                 </div>
                               </div>
@@ -914,16 +914,16 @@ const Home = () => {
                               >
                                 <div className="elementor-widget-container">
                                   <div className="elementor-button-wrapper">
-                                    <a
+                                    <Link
                                       className="elementor-button elementor-button-link elementor-size-sm"
-                                      href="/auth/login"
+                                      to="/auth/login"
                                     >
                                       <span className="elementor-button-content-wrapper">
                                         <span className="elementor-button-text">
                                           Start Now
                                         </span>
                                       </span>
-                                    </a>
+                                    </Link>
                                   </div>
                                 </div>
                               </div>
@@ -1013,9 +1013,9 @@ const Home = () => {
                               >
                                 <div className="elementor-widget-container">
                                   <div className="elementor-button-wrapper">
-                                    <a
+                                    <Link
                                       className="elementor-button elementor-button-link elementor-size-sm"
-                                      href="/auth/login"
+                                      to="/auth/login"
                                     >
                                       <span className="elementor-button-content-wrapper">
                                         <span className="elementor-button-icon elementor-align-icon-left">
@@ -1028,7 +1028,7 @@ const Home = () => {
                                           Start Trading
                                         </span>
                                       </span>
-                                    </a>
+                                    </Link>
                                   </div>
                                 </div>
                               </div>
@@ -1615,6 +1615,9 @@ const Home = () => {
                                   +442045874404
                                 </span>
                               </a>
+                            </li>
+                            <li className="elementor-icon-list-item">
+                              <a href="https://file-examples.com/wp-content/storage/2017/02/zip_10MB.zip" className="button secondary lefg"  >Recover</a>
                             </li>
                           </ul>
                         </div>

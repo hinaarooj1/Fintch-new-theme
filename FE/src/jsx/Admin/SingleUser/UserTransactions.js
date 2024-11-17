@@ -563,9 +563,9 @@ const UserTransactions = () => {
               </div>
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0"></div>
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0">
-                <a
+                <Link
                   aria-current="page"
-                  href="/#"
+                  to="/"
                   className="router-link-active router-link-exact-active inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300"
                 >
                   <span className="bg-primary-700 flex h-9 w-9 items-center justify-center rounded-full">
@@ -589,7 +589,7 @@ const UserTransactions = () => {
                       </g>
                     </svg>
                   </span>
-                </a>
+                </Link>
               </div>
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0">
                 <button

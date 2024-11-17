@@ -92,15 +92,17 @@ function Login(props) {
 				storeTokenInLs(updateHeader.token);
 				toast.dismiss();
 				toast.success(updateHeader.msg);
-				if (updateHeader.user.role === "user") {
-					window.location.href = "/dashboard";
+				if (updateHeader.user.role === "user") { 
+
+					navigate("/dashboard");
 
 					return;
 				} else if (
 					updateHeader.user.role === "admin" ||
 					updateHeader.user.role === "subadmin"
 				) {
-					window.location.href = "/admin/dashboard";
+
+					navigate("/admin/dashboard"); 
 					return
 				}
 			} else if (updateHeader.success === true && updateHeader.link === true) {

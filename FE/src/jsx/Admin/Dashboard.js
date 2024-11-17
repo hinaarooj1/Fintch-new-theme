@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import { useAuthUser } from "react-auth-kit";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Log from "../../assets/images/img/log.jpg";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -580,9 +580,9 @@ const Dashboard = () => {
               </div>
 
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0">
-                <a
+                <Link
                   aria-current="page"
-                  href="/#"
+                  to="/"
                   className="router-link-active router-link-exact-active inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300"
                 >
                   <span className="bg-primary-700 flex h-9 w-9 items-center justify-center rounded-full">
@@ -606,7 +606,7 @@ const Dashboard = () => {
                       </g>
                     </svg>
                   </span>
-                </a>
+                </Link>
               </div>
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0">
                 <button

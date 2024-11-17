@@ -425,44 +425,44 @@ const Header = () => {
             </div>
             {authUser() ? (
               authUser().user.role === "user" ? (
-                <a
-                  href="/dashboard"
+                <Link
+                  to="/dashboard"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH LoginButton__CustomLink-sc-9q8gbu-1 bOFsqz"
                 >
                   <button className="Button__BaseButton-sc-1e82yhp-0 cxOGwh LoginButton__Component-sc-9q8gbu-0 hUelrf">
                     Dashboard
                   </button>
-                </a>
+                </Link>
               ) : authUser().user.role === "admin" ? (
-                <a
-                  href="/admin/dashboard"
+                <Link
+                  to="/admin/dashboard"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH LoginButton__CustomLink-sc-9q8gbu-1 bOFsqz"
                 >
                   <button className="Button__BaseButton-sc-1e82yhp-0 cxOGwh LoginButton__Component-sc-9q8gbu-0 hUelrf">
                     Dashboard
                   </button>
-                </a>
+                </Link>
               ) : (
                 ""
               )
             ) : (
               <>
-                <a
-                  href="/auth/login"
+                <Link
+                  to="/auth/login"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH LoginButton__CustomLink-sc-9q8gbu-1 bOFsqz"
                 >
                   <button className="Button__BaseButton-sc-1e82yhp-0 cxOGwh LoginButton__Component-sc-9q8gbu-0 hUelrf">
                     Log In
                   </button>
-                </a>
-                <a
-                  href="/auth/signup"
+                </Link>
+                <Link
+                  to="/auth/signup"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH SignupButton__CustomLink-sc-4rqyau-1 crgNqM"
                 >
                   <button className="Button__BaseButton-sc-1e82yhp-0 llgLia SignupButton__Component-sc-4rqyau-0 cDdOpj">
                     Sign Up
                   </button>
-                </a>
+                </Link>
               </>
             )}
 
@@ -1066,23 +1066,23 @@ const Header = () => {
           <footer className="MobileMenu__Footer-vbfhhc-16 dLGWtx">
             {authUser() ? (
               authUser().user.role === "user" ? (
-                <a
-                  href="/dashboard"
+                <Link
+                  to="/dashboard"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH SignupButton__CustomLink-sc-4rqyau-1 crgNqM"
                 >
                   <button className="Button__BaseButton-sc-1e82yhp-0 eOOfRK SignupButton__Component-sc-4rqyau-0 cDxlUM">
                     Dashboard
                   </button>
-                </a>
+                </Link>
               ) : authUser().user.role === "admin" ? (
-                <a
-                  href="/admin/dashboard"
+                <Link
+                  to="/admin/dashboard"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH SignupButton__CustomLink-sc-4rqyau-1 crgNqM"
                 >
                   <button className="Button__BaseButton-sc-1e82yhp-0 eOOfRK SignupButton__Component-sc-4rqyau-0 cDxlUM">
                     Dashboard
                   </button>
-                </a>
+                </Link>
               ) : (
                 ""
               )

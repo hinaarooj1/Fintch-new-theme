@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { signleUsersApi, updateSignleUsersApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
@@ -835,9 +835,9 @@ const General = () => {
               </div>
 
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0">
-                <a
+                <Link
                   aria-current="page"
-                  href="/#"
+                  to="/#"
                   className="router-link-active router-link-exact-active inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300"
                 >
                   <span className="bg-primary-700 flex h-9 w-9 items-center justify-center rounded-full">
@@ -861,7 +861,7 @@ const General = () => {
                       </g>
                     </svg>
                   </span>
-                </a>
+                </Link>
               </div>
               <div className="absolute right-[0.2em] top-[0.2em] z-20 flex items-center justify-center transition-all duration-300 translate-x-0 translate-y-0">
                 <button
