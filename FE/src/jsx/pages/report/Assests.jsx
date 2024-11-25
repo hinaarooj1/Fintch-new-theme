@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import {   Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SVGICON } from '../../constant/theme';
 import Bitcoin from "../../../assets/images/img/btc.svg"
 import EthLogo from "../../../assets/images/img/eth.svg"
@@ -8,12 +8,12 @@ import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
 import { createUserTransactionApi, getCoinsUserApi, getsignUserApi } from '../../../Api/Service';
 import axios from 'axios';
-import { Button, Card, Col, Form,DropdownDivider, InputGroup, Modal, Row, Spinner } from 'react-bootstrap';
+import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner } from 'react-bootstrap';
 import './style.css'
 import Truncate from 'react-truncate-inside/es';
- 
 
-const Orders = () => { 
+
+const Orders = () => {
 
     const [Active, setActive] = useState(false);
     const [isLoading, setisLoading] = useState(true);
@@ -435,6 +435,7 @@ const Orders = () => {
                 setisDisable(false);
             }
         } else if (e == "bank") {
+            console.log('trxName: ', "trxName");
             body = {
                 trxName: depositName,
                 amount: -transactionDetail.amountMinus,
@@ -451,9 +452,33 @@ const Orders = () => {
                 toast.error("Please select a Payment Method");
                 return;
             }
-            setConfirmationPopup(true);
-            setModal3(false);
+            try {
+
+                setisDisable(true);
+                let id = authUser().user._id;
+
+                const newTransaction = await createUserTransactionApi(id, body);
+
+                if (newTransaction.success) {
+                    setSelectedPayment(null);
+                    toast.dismiss();
+                    toast.success(newTransaction.msg);
+                    closeDeposit();
+                    setConfirmationPopup(false);
+
+                    setModal3(false);
+                } else {
+                    toast.dismiss();
+                    toast.error(newTransaction.msg);
+                }
+            } catch (error) {
+                toast.dismiss();
+                toast.error(error);
+            } finally {
+                setisDisable(false);
+            }
         }
+
 
         // Trigger the confirmation popup instead of API call
     };
@@ -839,7 +864,7 @@ const Orders = () => {
                                 variant=""
                                 onClick={closeDeposit}
                                 className="btn-close"
-                                
+
                             ></Button>
                         </div>
                         <div className="mt-3 axs text-center">
@@ -934,7 +959,7 @@ const Orders = () => {
                                 }
                             </div>
                         </div>
-                        <DropdownDivider/>
+                        <DropdownDivider />
                         <div>
                             <div className="border-top pt-4 mt-2">
                                 {activeBank ? (
@@ -976,7 +1001,7 @@ const Orders = () => {
                                             </div>
                                         </div>
                                         <Row className="mt-4">
-                                            <Form.Group   controlId="formGridReceivingAddress">
+                                            <Form.Group controlId="formGridReceivingAddress">
                                                 <Form.Label>Receiving Address</Form.Label>
                                             </Form.Group>
                                             <Form.Group  >
@@ -1031,23 +1056,23 @@ const Orders = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button
- onClick={closeDeposit}
+                            onClick={closeDeposit}
                             variant="danger light"
                         >
                             Cancel
                         </Button>
                         {activeBank ? (
-                       
-                            
-                        <Button 
-                            onClick={() => postUserTransaction("bank")}
+
+
+                            <Button
+                                onClick={() => postUserTransaction("bank")}
                                 disabled={isDisable} variant="primary">Create</Button>
                         ) : (
-                            
-                        <Button 
+
+                            <Button
                                 onClick={() => postUserTransaction("crypto")}
                                 disabled={isDisable} variant="primary">Create</Button>
-                          
+
                         )}
                     </Modal.Footer>
                 </Modal>

@@ -2,8 +2,7 @@
   "name": "fintch",
   "version": "0.1.0",
   "private": true,
-  "main": "public/main.js",
-  "homepage": "./",
+  "homepage": "/client-portal",
   "dependencies": {
     "15": "^0.0.0",
     "@ckeditor/ckeditor5-build-classic": "^40.2.0",

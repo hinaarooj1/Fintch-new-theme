@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../jsx/pages/authentication/Login";
 import SignUp from "../jsx/pages/authentication/Registration";
 // import Login from "../jsx/pages/authentication/Test";
@@ -35,9 +35,11 @@ import UserDocs from "../jsx/Admin/SingleUser/UserDocs";
 export default function Router() {
   return (
     <AuthProvider authType={"localstorage"} authName={"auth"}>
-      <HashRouter>
+      <BrowserRouter basename="/client-portal">
         <Routes>
-          <Route index path="/" element={<Home />} />{" "}
+          {/* <Route index path="/client-portal" element={<Home />} />{" "} */}
+          <Route path="/" element={<Login />} />{" "}
+          <Route path="/client-portal" element={<Login />} />{" "}
           <Route path="/auth/login" element={<Login />} />{" "}
           <Route path="/auth/signup" element={<SignUp />} />
 
@@ -245,7 +247,7 @@ export default function Router() {
           />
           <Route path="*" element={<Error404 />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
