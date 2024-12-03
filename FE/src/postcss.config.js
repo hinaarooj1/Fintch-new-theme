@@ -2,7 +2,7 @@
 module.exports = {
     plugins: [
         require('postcss-prefix-selector')({
-            prefix: '.admin',
+            prefix: '.homepg',
             transform: function (prefix, selector, prefixedSelector, filePath) {
                 if (selector.startsWith('.exclude-this')) {
                     return selector; // Skip prefixing for these selectors

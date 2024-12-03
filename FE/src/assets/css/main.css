@@ -14,6 +14,39 @@
     outline-style: dashed
 }
 
+.logo-to-show2,
+.logo-to-show {
+    width: 300px !important;
+    display: block;
+    margin: 10px auto;
+}
+
+.menu-toggle .for-dk {
+    display: none !important;
+}
+
+.for-dk {
+    display: block;
+}
+
+.menu-toggle .for-ml {
+    display: block !important;
+}
+
+.for-ml {
+    display: none
+}
+
+@media (max-width: 767px) {
+    .for-dk {
+        display: none !important;
+    }
+
+    .for-ml {
+        display: block !important;
+    }
+}
+
 .admin [data-v-71bb21a6]:is(.dark .is-button:focus-within) {
     outline-color: #475569
 }

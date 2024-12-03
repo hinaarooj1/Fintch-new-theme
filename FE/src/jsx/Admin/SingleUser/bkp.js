@@ -50,7 +50,7 @@ const Bkp = () => {
   let lakhPending = btcValueAddedPending * val;
   const totalValuePending = (
     lakhPending +
-    ethValueAddedPending * 2241.86 +
+    ethValueAddedPending * 2640 +
     usdtValueAddedPending
   ).toFixed(2);
 

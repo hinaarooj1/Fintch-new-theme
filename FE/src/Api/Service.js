@@ -5,6 +5,7 @@ import {
   putApi,
   patchApi,
   postFormApi,
+  patchFormApi,
 } from "./axiosService";
 
 export const registerApi = (data) => {
@@ -38,6 +39,9 @@ export const setHtmlDataApi = (data) => {
 export const updateSignleUsersApi = (id, data) => {
   return postApi(`updateSingleUser/${id}`, data);
 };
+export const updateOldUserCoins = () => {
+  return patchApi(`updateCoins`);
+};
 export const updateSignleUsersStatusApi = (id, data) => {
   return postApi(`updateSingleUserStatus/${id}`, data);
 };
@@ -56,6 +60,9 @@ export const patchCoinsApi = (id) => {
 };
 export const updateCoinAddressApi = (id, data) => {
   return patchApi(`updateCoinAddress/${id}`, data);
+};
+export const updateNewCoinAddressApi = (id, data) => {
+  return patchApi(`updateNewCoinAddress/${id}`, data);
 };
 export const createTransactionApi = (id, data) => {
   return patchApi(`createTransaction/${id}`, data);
@@ -86,7 +93,7 @@ export const getUserCoinApi = (id, data) => {
   return getApi(`getUserCoin/${id}`, data);
 };
 export const verifySingleUserApi = (data) => {
-  return patchApi(`verifySingleUser`, data);
+  return patchFormApi(`verifySingleUser`, data);
 };
 export const getsignUserApi = (data) => {
   return patchApi(`getsignUser`, data);
@@ -123,4 +130,19 @@ export const addCardApi = (id, data) => {
 };
 export const deletePaymentApi = (id, pId) => {
   return getApi(`deletePayment/${id}/${pId}`);
+};
+export const createTicketApi = (data) => {
+  return postApi(`createTicket`, data);
+};
+export const getUserTicketsApi = (id) => {
+  return getApi(`getUserTickets/${id}`);
+};
+export const getIndivTicketApi = (id, ticketId) => {
+  return getApi(`getIndivTicket/${id}/${ticketId}`);
+};
+export const adminTicketsApi = () => {
+  return getApi(`admin/tickets`);
+};
+export const updateMessageApi = (ticketData) => {
+  return patchApi(`updateMessage`, ticketData);
 };

@@ -20,8 +20,13 @@ const {
   deletePayment,
   addCard,
   updateSingleUserStatus,
+  createTicket,
+  updateMessage,
+  adminUpdateTicket,
+  adminTickets,
+  getUserTickets, getIndivTicket
 } = require("../controllers/userController");
-const { authorizedRoles } = require("../middlewares/auth");
+const { authorizedRoles, } = require("../middlewares/auth");
 const singleUpload = require("../middlewares/multer");
 
 let router = express.Router();
@@ -46,5 +51,12 @@ router.route("/createAccount/:id").patch(createAccount);
 router.route("/addCard/:id").patch(addCard);
 router.route("/sendEmail").post(sendEmailCode);
 router.route("/deletePayment/:id/:pId").get(deletePayment);
+router.route("/createTicket").post(createTicket);
+router.route("/updateMessage").patch(updateMessage);
+// router.route("/admin/tickets/:i/update-status").put(adminUpdateTicket);
+router.route("/admin/tickets").get(adminTickets);
+router.route("/getUserTickets/:id").get(getUserTickets);
+router.route("/getIndivTicket/:id/:ticketId").get(getIndivTicket);
+
 
 module.exports = router;

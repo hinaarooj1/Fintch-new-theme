@@ -78,10 +78,10 @@ import "./assets/css/stylemain.css";
 //         </AuthProvider>
 //     );
 // };
- 
+
 
 // export default withRouter(connect(App));
-import React from 'react'; 
+import React from 'react';
 import Router from './config/router';
 // import Login from './jsx/pages/authentication/Login';
 

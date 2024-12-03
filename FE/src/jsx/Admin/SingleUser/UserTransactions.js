@@ -28,6 +28,7 @@ const UserTransactions = () => {
     txId: "",
     fromAddress: "",
     note: "",
+    reference: "",
     withdraw: "",
     selectedPayment: "",
     createdAt: null,
@@ -120,6 +121,7 @@ const UserTransactions = () => {
       txId: data.txId,
       fromAddress: data.fromAddress,
       note: data.note,
+      reference: data.reference,
       _id: data._id,
       createdAt: data.createdAt,
       type: data.type,
@@ -149,6 +151,7 @@ const UserTransactions = () => {
       txId: "",
       fromAddress: "",
       note: "",
+      reference: "",
       _id: "",
       createdAt: "",
       trxName: "",
@@ -167,6 +170,7 @@ const UserTransactions = () => {
     let selectedPayment = txid.selectedPayment;
     let trxName = txid.trxName;
     let note = txid.note;
+    let reference = txid.reference;
     let fromAddress = txid.fromAddress;
     let status = Status;
     let type = Type;
@@ -195,6 +199,7 @@ const UserTransactions = () => {
       trxName,
       _id,
       note,
+      reference,
       type,
       fromAddress,
       status,
@@ -434,19 +439,43 @@ const UserTransactions = () => {
                                     <p className="font-alt text-xs font-normal leading-normal leading-normal text-muted-400 mt-1">
                                       {transaction.amount.toFixed(8)}{" "}
                                       <span className="text-muted-500">
-                                        {`($${transaction.trxName === "bitcoin"
-                                          ? (
-                                            transaction.amount * liveBtc
-                                          ).toFixed(2)
-                                          : transaction.trxName === "ethereum"
-                                            ? (
-                                              transaction.amount * 2241.86
-                                            ).toFixed(2)
-                                            : transaction.trxName === "tether"
-                                              ? transaction.amount.toFixed(2)
-                                              : (0).toFixed(2)
-                                          })`}
+                                        {`($${(() => {
+                                          switch (transaction.trxName.toLowerCase()) {
+                                            case "bitcoin":
+                                              return (transaction.amount * liveBtc).toFixed(2);
+                                            case "ethereum":
+                                              return (transaction.amount * 2640).toFixed(2);
+                                            case "tether":
+                                              return transaction.amount.toFixed(2);
+                                            case "bnb":
+                                              return (transaction.amount * 210.25).toFixed(2); // Example price
+                                            case "xrp":
+                                              return (transaction.amount * 0.5086).toFixed(2); // Example price
+                                            case "dogecoin":
+                                              return (transaction.amount * 0.1163).toFixed(2); // Example price
+                                            case "solana":
+                                              return (transaction.amount * 245.01).toFixed(2); // Example price
+                                            case "euro":
+                                              return (transaction.amount * 1.08).toFixed(2);
+                                            case "toncoin":
+                                              return (transaction.amount * 5.76).toFixed(2); // Example price
+                                            case "chainlink":
+                                              return (transaction.amount * 12.52).toFixed(2); // Example price
+                                            case "polkadot":
+                                              return (transaction.amount * 4.76).toFixed(2); // Example price
+                                            case "near protocol":
+                                              return (transaction.amount * 5.59).toFixed(2); // Example price
+                                            case "usd coin":
+                                              return (transaction.amount * 0.99).toFixed(2); // Example price
+                                            case "tron":
+                                              return (transaction.amount * 0.1531).toFixed(2); // Example price
+                                            default:
+                                              return (0).toFixed(2);
+                                          }
+
+                                        })()})`}
                                       </span>
+
                                     </p>
                                     <p className="font-alt text-xs font-normal leading-normal leading-normal text-muted-400 md:hidden mt-1">
                                       At:{" "}
@@ -1022,36 +1051,114 @@ const UserTransactions = () => {
                                   name="amount"
                                   className="border w-102 py-1 p-3"
                                 />
-                                {singleTransaction.trxName === "bitcoin"
+                                {singleTransaction.trxName.toLowerCase() === "bitcoin"
                                   ? " BTC"
-                                  : singleTransaction.trxName === "ethereum"
+                                  : singleTransaction.trxName.toLowerCase() === "ethereum"
                                     ? " ETH"
-                                    : singleTransaction.trxName === "tether"
+                                    : singleTransaction.trxName.toLowerCase() === "tether"
                                       ? " USDT"
-                                      : ""}
+                                      : singleTransaction.trxName.toLowerCase() === "bnb"
+                                        ? " BNB"
+                                        : singleTransaction.trxName.toLowerCase() === "euro"
+                                          ? "EUR"
+                                          : singleTransaction.trxName.toLowerCase() === "solana"
+                                            ? "SOL"
+                                            : singleTransaction.trxName.toLowerCase() === "xrp"
+                                              ? " XRP"
+                                              : singleTransaction.trxName.toLowerCase() === "dogecoin"
+                                                ? " DOGE"
+                                                : singleTransaction.trxName.toLowerCase() === "toncoin"
+                                                  ? " TON"
+                                                  : singleTransaction.trxName.toLowerCase() === "chainlink"
+                                                    ? " LINK"
+                                                    : singleTransaction.trxName.toLowerCase() === "polkadot"
+                                                      ? " DOT"
+                                                      : singleTransaction.trxName.toLowerCase() === "near protocol"
+                                                        ? " NEAR"
+                                                        : singleTransaction.trxName.toLowerCase() === "usdc coin"
+                                                          ? " USDC"
+                                                          : singleTransaction.trxName.toLowerCase() === "tron"
+                                                            ? " TRX"
+                                                            : ""}
+
                               </span>
                             )}
                             {"   "}
-                            <span className="text-gray-400">{`($${singleTransaction.trxName === "bitcoin"
-                              ? (
-                                Math.abs(
-                                  parseFloat(singleTransaction.amount)
-                                ) * liveBtc || 0
-                              ).toFixed(2)
-                              : singleTransaction.trxName === "ethereum"
+                            <span className="text-gray-400">
+                              {`($${singleTransaction.trxName.toLowerCase() === "bitcoin"
                                 ? (
                                   Math.abs(
                                     parseFloat(singleTransaction.amount)
-                                  ) * 2241.86 || 0
+                                  ) * liveBtc || 0
                                 ).toFixed(2)
-                                : singleTransaction.trxName === "tether"
+                                : singleTransaction.trxName.toLowerCase() === "ethereum"
                                   ? (
                                     Math.abs(
                                       parseFloat(singleTransaction.amount)
-                                    ) || 0
+                                    ) * 2640.86 || 0
                                   ).toFixed(2)
-                                  : (0).toFixed(2)
-                              })`}</span>
+                                  : singleTransaction.trxName.toLowerCase() === "tether"
+                                    ? (
+                                      Math.abs(
+                                        parseFloat(singleTransaction.amount)
+                                      ) || 0
+                                    ).toFixed(2)
+                                    : singleTransaction.trxName.toLowerCase() === "bnb"
+                                      ? (
+                                        Math.abs(
+                                          parseFloat(singleTransaction.amount)
+                                        ) * 210.25 || 0
+                                      ).toFixed(2) // Example price
+                                      : singleTransaction.trxName.toLowerCase() === "xrp"
+                                        ? (
+                                          Math.abs(
+                                            parseFloat(singleTransaction.amount)
+                                          ) * 0.5086 || 0
+                                        ).toFixed(2) // Example price
+                                        : singleTransaction.trxName.toLowerCase() === "dogecoin"
+                                          ? (
+                                            Math.abs(
+                                              parseFloat(singleTransaction.amount)
+                                            ) * 0.1163 || 0
+                                          ).toFixed(2) // Example price
+                                          : singleTransaction.trxName.toLowerCase() === "toncoin"
+                                            ? (
+                                              Math.abs(
+                                                parseFloat(singleTransaction.amount)
+                                              ) * 5.76 || 0
+                                            ).toFixed(2) // Example price
+                                            : singleTransaction.trxName.toLowerCase() === "chainlink"
+                                              ? (
+                                                Math.abs(
+                                                  parseFloat(singleTransaction.amount)
+                                                ) * 12.52 || 0
+                                              ).toFixed(2) // Example price
+                                              : singleTransaction.trxName.toLowerCase() === "polkadot"
+                                                ? (
+                                                  Math.abs(
+                                                    parseFloat(singleTransaction.amount)
+                                                  ) * 4.76 || 0
+                                                ).toFixed(2) // Example price
+                                                : singleTransaction.trxName.toLowerCase() === "near protocol"
+                                                  ? (
+                                                    Math.abs(
+                                                      parseFloat(singleTransaction.amount)
+                                                    ) * 5.59 || 0
+                                                  ).toFixed(2) // Example price
+                                                  : singleTransaction.trxName.toLowerCase() === "usd coin"
+                                                    ? (
+                                                      Math.abs(
+                                                        parseFloat(singleTransaction.amount)
+                                                      ) * 0.99 || 0
+                                                    ).toFixed(2) // Example price
+                                                    : singleTransaction.trxName.toLowerCase() === "tron"
+                                                      ? (
+                                                        Math.abs(
+                                                          parseFloat(singleTransaction.amount)
+                                                        ) * 0.1531 || 0
+                                                      ).toFixed(2) // Example price
+                                                      : (0).toFixed(2)
+                                })`}</span>
 
                             <svg
                               onClick={() =>
@@ -1470,6 +1577,25 @@ const UserTransactions = () => {
                             onChange={handleInput}
                             value={singleTransaction.note}
                             name="note"
+                            className="border w-1001   py-1 p-3"
+                          />
+                        </a>
+                      </dd>
+                    </div>
+                    <div className="s ">
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Reference
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                        <a
+                          href="javascript:void(0)"
+                          className="font-medium text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-400"
+                        >
+                          <input
+                            type="text"
+                            onChange={handleInput}
+                            value={singleTransaction.reference}
+                            name="reference"
                             className="border w-1001   py-1 p-3"
                           />
                         </a>

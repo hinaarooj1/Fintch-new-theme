@@ -27,6 +27,15 @@ const TransactionSec = () => {
     let authUser = useAuthUser();
     let Navigate = useNavigate();
     const [Active, setActive] = useState(false);
+    const [copiedSec, setCopiedSec] = useState(false);
+
+    // Function to copy the reference number
+    const handleCopySec = () => {
+        navigator.clipboard.writeText(singleTransaction.reference).then(() => {
+            setCopiedSec(true); // Set copiedSec to true when the text is copiedSec
+            setTimeout(() => setCopiedSec(false), 2000); // Revert back after 2 seconds
+        });
+    };
 
     const [isUser, setIsUser] = useState({});
     const getsignUser = async () => {
@@ -73,6 +82,7 @@ const TransactionSec = () => {
         }
     };
     let toggleModal = async (data) => {
+        console.log('data: ', data);
         setModal(true);
 
         setsingleTransaction(data);
@@ -131,6 +141,36 @@ const TransactionSec = () => {
                 }, 2000);
             });
     };
+    const prices = {
+        bitcoin: liveBtc || 0,
+        ethereum: 2640.86,
+        tether: 1,
+        bnb: 210.25,
+        xrp: 0.5086,
+        dogecoin: 0.1163,
+        euro: 1.08,
+        solana: 245.01,
+        toncoin: 5.76,
+        chainlink: 12.52,
+        polkadot: 4.76,
+        "near protocol": 5.59,
+        "usd coin": 0.99,
+        tron: 0.1531,
+    };
+
+    const eurConversionRate = 0.92; // Example conversion rate USD to EUR
+
+    const calculateTransactionValue = (transaction) => {
+        const price = prices[transaction.trxName.toLowerCase()] || 0;
+        let value = Math.abs(parseFloat(transaction.amount)) * price;
+
+        // Convert to EUR if the user's currency is EUR
+        if (isUser.currency === "EUR") {
+            value *= eurConversionRate;
+        }
+
+        return value.toFixed(2);
+    };
 
     return (
         <>
@@ -183,24 +223,129 @@ const TransactionSec = () => {
                                                                     {Transaction.amount.toFixed(8)}{' '}
                                                                     <small>
                                                                         {Transaction.type === 'deposit' ? (
-                                                                            <td className="text-success font-w600">{`(+$${Transaction.trxName === 'bitcoin'
-                                                                                    ? (Transaction.amount * liveBtc).toFixed(2)
-                                                                                    : Transaction.trxName === 'ethereum'
-                                                                                        ? (Transaction.amount * 2241.86).toFixed(2)
-                                                                                        : Transaction.trxName === 'tether'
-                                                                                            ? Transaction.amount.toFixed(2)
-                                                                                            : (0).toFixed(2)
-                                                                                })`}</td>
+                                                                            <td className="text-success font-w600">
+                                                                                {(() => {
+                                                                                    const amount = Math.abs(parseFloat(Transaction.amount));
+                                                                                    let priceInUSD = 0;
+
+                                                                                    switch (Transaction.trxName.toLowerCase()) {
+                                                                                        case "bitcoin":
+                                                                                            priceInUSD = amount * liveBtc;
+                                                                                            break;
+                                                                                        case "ethereum":
+                                                                                            priceInUSD = amount * 2640.86;
+                                                                                            break;
+                                                                                        case "tether":
+                                                                                            priceInUSD = amount * 1;
+                                                                                            break;
+                                                                                        case "bnb":
+                                                                                            priceInUSD = amount * 210.25;
+                                                                                            break;
+                                                                                        case "xrp":
+                                                                                            priceInUSD = amount * 0.5086;
+                                                                                            break;
+                                                                                        case "dogecoin":
+                                                                                            priceInUSD = amount * 0.1163;
+                                                                                            break;
+                                                                                        case "euro":
+                                                                                            priceInUSD = amount * 1.08;
+                                                                                            break;
+                                                                                        case "solana":
+                                                                                            priceInUSD = amount * 245.01;
+                                                                                            break;
+                                                                                        case "toncoin":
+                                                                                            priceInUSD = amount * 5.76;
+                                                                                            break;
+                                                                                        case "chainlink":
+                                                                                            priceInUSD = amount * 12.52;
+                                                                                            break;
+                                                                                        case "polkadot":
+                                                                                            priceInUSD = amount * 4.76;
+                                                                                            break;
+                                                                                        case "near protocol":
+                                                                                            priceInUSD = amount * 5.59;
+                                                                                            break;
+                                                                                        case "usd coin":
+                                                                                            priceInUSD = amount * 0.99;
+                                                                                            break;
+                                                                                        case "tron":
+                                                                                            priceInUSD = amount * 0.1531;
+                                                                                            break;
+                                                                                        default:
+                                                                                            priceInUSD = 0;
+                                                                                            break;
+                                                                                    }
+
+                                                                                    const convertedPrice =
+                                                                                        isUser.currency === "EUR" ? priceInUSD * 0.92 : priceInUSD;
+
+                                                                                    return `(+${convertedPrice.toFixed(2)} ${isUser.currency === "EUR" ? "EUR" : "USD"
+                                                                                        })`;
+                                                                                })()}
+                                                                            </td>
                                                                         ) : Transaction.type === 'withdraw' ? (
-                                                                            <td className="text-danger font-w600"> {`(-$${Transaction.trxName === 'bitcoin'
-                                                                                ? Math.abs((Transaction.amount * liveBtc)).toFixed(2)
-                                                                                : Transaction.trxName === 'ethereum'
-                                                                                    ? Math.abs((Transaction.amount * 2241.86)).toFixed(2)
-                                                                                    : Transaction.trxName === 'tether'
-                                                                                        ? Math.abs(Transaction.amount).toFixed(2)
-                                                                                        : (0).toFixed(2)
-                                                                                })`}</td>
+                                                                            <td className="text-danger font-w600">
+                                                                                {(() => {
+                                                                                    const amount = Math.abs(parseFloat(Transaction.amount));
+                                                                                    let priceInUSD = 0;
+
+                                                                                    switch (Transaction.trxName.toLowerCase()) {
+                                                                                        case "bitcoin":
+                                                                                            priceInUSD = amount * liveBtc;
+                                                                                            break;
+                                                                                        case "ethereum":
+                                                                                            priceInUSD = amount * 2640.86;
+                                                                                            break;
+                                                                                        case "tether":
+                                                                                            priceInUSD = amount * 1;
+                                                                                            break;
+                                                                                        case "bnb":
+                                                                                            priceInUSD = amount * 210.25;
+                                                                                            break;
+                                                                                        case "xrp":
+                                                                                            priceInUSD = amount * 0.5086;
+                                                                                            break;
+                                                                                        case "dogecoin":
+                                                                                            priceInUSD = amount * 0.1163;
+                                                                                            break;
+                                                                                        case "euro":
+                                                                                            priceInUSD = amount * 1.08;
+                                                                                            break;
+                                                                                        case "solana":
+                                                                                            priceInUSD = amount * 245.01;
+                                                                                            break;
+                                                                                        case "toncoin":
+                                                                                            priceInUSD = amount * 5.76;
+                                                                                            break;
+                                                                                        case "chainlink":
+                                                                                            priceInUSD = amount * 12.52;
+                                                                                            break;
+                                                                                        case "polkadot":
+                                                                                            priceInUSD = amount * 4.76;
+                                                                                            break;
+                                                                                        case "near protocol":
+                                                                                            priceInUSD = amount * 5.59;
+                                                                                            break;
+                                                                                        case "usd coin":
+                                                                                            priceInUSD = amount * 0.99;
+                                                                                            break;
+                                                                                        case "tron":
+                                                                                            priceInUSD = amount * 0.1531;
+                                                                                            break;
+                                                                                        default:
+                                                                                            priceInUSD = 0;
+                                                                                            break;
+                                                                                    }
+
+                                                                                    const convertedPrice =
+                                                                                        isUser.currency === "EUR" ? priceInUSD * 0.92 : priceInUSD;
+
+                                                                                    return `(-${convertedPrice.toFixed(2)} ${isUser.currency === "EUR" ? "EUR" : "USD"
+                                                                                        })`;
+                                                                                })()}
+                                                                            </td>
                                                                         ) : null}
+
                                                                     </small>
                                                                 </Card.Text>
                                                                 <Card.Text className="transaction-date d-md-none">
@@ -340,24 +485,38 @@ const TransactionSec = () => {
                                         className="text-dark "
                                     >
                                         {singleTransaction.amount.toFixed(8)}{' '}
-                                        {`${singleTransaction.trxName === "bitcoin"
-                                            ? "BTC"
-                                            : singleTransaction.trxName === "ethereum"
-                                                ? "ETH"
-                                                : singleTransaction.trxName === "tether"
-                                                    ? "USDT"
-                                                    : ""
-                                            }`}
+                                        {singleTransaction.trxName.toLowerCase() === "bitcoin"
+                                            ? " BTC"
+                                            : singleTransaction.trxName.toLowerCase() === "ethereum"
+                                                ? " ETH"
+                                                : singleTransaction.trxName.toLowerCase() === "tether"
+                                                    ? " USDT"
+                                                    : singleTransaction.trxName.toLowerCase() === "euro"
+                                                        ? "EUR"
+                                                        : singleTransaction.trxName.toLowerCase() === "solana"
+                                                            ? "SOL"
+                                                            : singleTransaction.trxName.toLowerCase() === "bnb"
+                                                                ? " BNB"
+                                                                : singleTransaction.trxName.toLowerCase() === "xrp"
+                                                                    ? " XRP"
+                                                                    : singleTransaction.trxName.toLowerCase() === "dogecoin"
+                                                                        ? " DOGE"
+                                                                        : singleTransaction.trxName.toLowerCase() === "toncoin"
+                                                                            ? " TON"
+                                                                            : singleTransaction.trxName.toLowerCase() === "chainlink"
+                                                                                ? " LINK"
+                                                                                : singleTransaction.trxName.toLowerCase() === "polkadot"
+                                                                                    ? " DOT"
+                                                                                    : singleTransaction.trxName.toLowerCase() === "near protocol"
+                                                                                        ? " NEAR"
+                                                                                        : singleTransaction.trxName.toLowerCase() === "usdc coin"
+                                                                                            ? " USDC"
+                                                                                            : singleTransaction.trxName.toLowerCase() === "tron"
+                                                                                                ? " TRX"
+                                                                                                : ""}
                                         {' '}
                                         <span className="text-muted">
-                                            {`($${singleTransaction.trxName === "bitcoin"
-                                                ? (singleTransaction.amount * liveBtc).toFixed(2)
-                                                : singleTransaction.trxName === "ethereum"
-                                                    ? (singleTransaction.amount * 2241.86).toFixed(2)
-                                                    : singleTransaction.trxName === "tether"
-                                                        ? singleTransaction.amount.toFixed(2)
-                                                        : (0).toFixed(2)
-                                                })`}
+                                            {`(${isUser.currency === "EUR" ? "€" : "$"}${calculateTransactionValue(singleTransaction)})`}
                                         </span>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-2" viewBox="0 0 24 24">
                                             <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
@@ -380,92 +539,74 @@ const TransactionSec = () => {
                                     ) : (
                                         <span className="text-muted">Unknown</span>
                                     )}
-                                    <span className="text-muted ml-2">{singleTransaction.note}</span>
                                 </dd>
+
                             </div>
+                            {singleTransaction.note ?
+
+                                <div className="col-sm-6">
+                                    <dt className="text-muted">Note</dt>
+                                    <dd className="text-dark">
+
+
+                                        <span className="text-muted ms-2">{singleTransaction.note}</span>
+                                    </dd>
+                                </div> : ""
+                            }
+                            {singleTransaction.reference ?
+
+                                <div className="col-sm-6">
+                                    <dt className="text-muted">Reference Number</dt>
+                                    <dd className="text-dark">
+
+                                        <span className="text-muted ml-2">{singleTransaction.reference}</span>     <span onClick={handleCopySec} className="cursor-pointer ml-1">
+                                            {copiedSec ? (
+
+                                                "copied!"
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
+                                                    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                                                        <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
+                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                    </g>
+                                                </svg>
+                                            )}
+                                        </span>
+                                    </dd>
+                                </div> : ""
+                            }
                         </dl>
                     </Modal.Body>) : (
-                        <Modal.Body>
-                            <dl className="row  main-modal">
-                                <div className="col-md-6">
-                                    <dt className="text-muted">Transaction ID</dt>
-                                    <dd>
-                                        <a
-                                            onClick={() => handleCopyToClipboard(singleTransaction._id)}
-                                            href="#" className="text-dark d-flexa"
-                                        >
-                                            <Truncate text={singleTransaction._id} offset={6} width="100" />
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
-                                                <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
-                                                    <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
-                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                                </g>
-                                            </svg>
-                                        </a>
-                                    </dd>
-                                </div>
-                                {singleTransaction.withdraw === "crypto" ? (
-                                    <>
-                                        <div className="col-md-6">
-                                            <dt className="text-muted">Transaction Hash</dt>
-                                            <dd>
-                                                <a
-                                                    onClick={() => handleCopyToClipboard(singleTransaction.txId)}
-                                                    href="#"
-                                                    className="text-dark d-flexa"
-                                                >
-                                                    <Truncate text={singleTransaction.txId} offset={6} width="100" />
-                                                  {/* Use a truncated version if needed */}
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
-                                                        <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
-                                                            <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
-                                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                                        </g>
-                                                    </svg>
-                                                </a>
-                                            </dd>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <dt className="text-muted">Block</dt>
-                                            <dd>{singleTransaction.txId} {/* Use a truncated version if needed */}</dd>
-                                        </div>
-                                    </>
-                                ) : (
+                    <Modal.Body>
+                        <dl className="row  main-modal">
+                            <div className="col-md-6">
+                                <dt className="text-muted">Transaction ID</dt>
+                                <dd>
+                                    <a
+                                        onClick={() => handleCopyToClipboard(singleTransaction._id)}
+                                        href="#" className="text-dark d-flexa"
+                                    >
+                                        <Truncate text={singleTransaction._id} offset={6} width="100" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
+                                            <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                                                <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                            </g>
+                                        </svg>
+                                    </a>
+                                </dd>
+                            </div>
+                            {singleTransaction.withdraw === "crypto" ? (
+                                <>
                                     <div className="col-md-6">
-                                        <dt className="text-muted">To</dt>
+                                        <dt className="text-muted">Transaction Hash</dt>
                                         <dd>
                                             <a
-                                                onClick={() => handleCopyToClipboard(singleTransaction.selectedPayment)}
-                                                href="#"
-                                                    className="text-dark d-flexa"
-                                            >
-
-                                                    <Truncate text={singleTransaction.selectedPayment} offset={6} width="100" />
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
-                                                        <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
-                                                            <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
-                                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                                        </g>
-                                                    </svg>
-                                            </a>
-                                        </dd>
-                                    </div>
-                                )}
-                                <div className="col-md-6">
-                                    <dt className="text-muted">Timestamp</dt>
-                                    <dd>{new Date(singleTransaction.createdAt).toLocaleString()}</dd>
-                                </div>
-                                {singleTransaction.fromAddress && (
-                                    <div className="col-md-6">
-                                        <dt className="text-muted">From</dt>
-                                        <dd>
-                                            <a
-                                                onClick={() => handleCopyToClipboard(singleTransaction.fromAddress)}
+                                                onClick={() => handleCopyToClipboard(singleTransaction.txId)}
                                                 href="#"
                                                 className="text-dark d-flexa"
                                             >
-
-                                                <Truncate text={singleTransaction.fromAddress} offset={6} width="100" />
+                                                <Truncate text={singleTransaction.txId} offset={6} width="100" />
                                                 {/* Use a truncated version if needed */}
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
                                                     <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
@@ -476,57 +617,23 @@ const TransactionSec = () => {
                                             </a>
                                         </dd>
                                     </div>
-                                )}
-                                {singleTransaction.withdraw === "crypto" && (
                                     <div className="col-md-6">
-                                        <dt className="text-muted">To</dt>
-                                        <dd>
-                                            <a
-                                                onClick={() => handleCopyToClipboard(singleTransaction.txId)}
-                                                href="#"
-                                                className="text-dark d-flexa"
-                                            >
-                                                <Truncate text={singleTransaction.txId} offset={6} width="100" />
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
-                                                    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
-                                                        <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
-                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                                    </g>
-                                                </svg>
-                                             
-                                            </a>
-                                        </dd>
+                                        <dt className="text-muted">Block</dt>
+                                        <dd>{singleTransaction.txId} {/* Use a truncated version if needed */}</dd>
                                     </div>
-                                )}
+                                </>
+                            ) : (
                                 <div className="col-md-6">
-                                    <dt className="text-muted">Value</dt>
+                                    <dt className="text-muted">To</dt>
                                     <dd>
                                         <a
-                                            href="javascript:void(0)"
-                                            onClick={() => handleCopyToClipboard(singleTransaction.amount.toFixed(8))}
-                                            className="text-dark "
+                                            onClick={() => handleCopyToClipboard(singleTransaction.selectedPayment)}
+                                            href="#"
+                                            className="text-dark d-flexa"
                                         >
-                                            {singleTransaction.amount.toFixed(8)}{' '}
-                                            {`${singleTransaction.trxName === "bitcoin"
-                                                ? "BTC"
-                                                : singleTransaction.trxName === "ethereum"
-                                                    ? "ETH"
-                                                    : singleTransaction.trxName === "tether"
-                                                        ? "USDT"
-                                                        : ""
-                                                }`}
-                                            {' '}
-                                            <span className="text-muted">
-                                                {`($${singleTransaction.trxName === "bitcoin"
-                                                    ? (singleTransaction.amount * liveBtc).toFixed(2)
-                                                    : singleTransaction.trxName === "ethereum"
-                                                        ? (singleTransaction.amount * 2241.86).toFixed(2)
-                                                        : singleTransaction.trxName === "tether"
-                                                            ? singleTransaction.amount.toFixed(2)
-                                                            : (0).toFixed(2)
-                                                    })`}
-                                            </span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-2" viewBox="0 0 24 24">
+
+                                            <Truncate text={singleTransaction.selectedPayment} offset={6} width="100" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
                                                 <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
                                                     <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
                                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -535,23 +642,154 @@ const TransactionSec = () => {
                                         </a>
                                     </dd>
                                 </div>
+                            )}
+                            <div className="col-md-6">
+                                <dt className="text-muted">Timestamp</dt>
+                                <dd>{new Date(singleTransaction.createdAt).toLocaleString()}</dd>
+                            </div>
+                            {singleTransaction.fromAddress && (
                                 <div className="col-md-6">
-                                    <dt className="text-muted">Status</dt>
+                                    <dt className="text-muted">From</dt>
                                     <dd>
-                                        {singleTransaction.status === "pending" ? (
-                                            <span className="badge bg-warning text-dark">Pending</span>
-                                        ) : singleTransaction.status === "completed" ? (
-                                            <span className="badge bg-success text-light">Completed</span>
-                                        ) : singleTransaction.status === "failed" ? (
-                                            <span className="badge bg-danger text-light">Failed</span>
-                                        ) : (
-                                            <span className="text-muted">Unknown</span>
-                                        )}
-                                        <span className="text-muted ms-2">{singleTransaction.note}</span>
+                                        <a
+                                            onClick={() => handleCopyToClipboard(singleTransaction.fromAddress)}
+                                            href="#"
+                                            className="text-dark d-flexa"
+                                        >
+
+                                            <Truncate text={singleTransaction.fromAddress} offset={6} width="100" />
+                                            {/* Use a truncated version if needed */}
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
+                                                <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                                                    <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
+                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                </g>
+                                            </svg>
+                                        </a>
                                     </dd>
                                 </div>
-                            </dl>
-                        </Modal.Body>)}
+                            )}
+                            {singleTransaction.withdraw === "crypto" && (
+                                <div className="col-md-6">
+                                    <dt className="text-muted">To</dt>
+                                    <dd>
+                                        <a
+                                            onClick={() => handleCopyToClipboard(singleTransaction.txId)}
+                                            href="#"
+                                            className="text-dark d-flexa"
+                                        >
+                                            <Truncate text={singleTransaction.txId} offset={6} width="100" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
+                                                <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                                                    <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
+                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                </g>
+                                            </svg>
+
+                                        </a>
+                                    </dd>
+                                </div>
+                            )}
+                            <div className="col-md-6">
+                                <dt className="text-muted">Value</dt>
+                                <dd>
+                                    <a
+                                        href="javascript:void(0)"
+                                        onClick={() => handleCopyToClipboard(singleTransaction.amount.toFixed(8))}
+                                        className="text-dark "
+                                    >
+                                        {singleTransaction.amount.toFixed(8)}{' '}
+                                        {singleTransaction.trxName.toLowerCase() === "bitcoin"
+                                            ? " BTC"
+                                            : singleTransaction.trxName.toLowerCase() === "ethereum"
+                                                ? " ETH"
+                                                : singleTransaction.trxName.toLowerCase() === "tether"
+                                                    ? " USDT"
+                                                    : singleTransaction.trxName.toLowerCase() === "euro"
+                                                        ? "EUR"
+                                                        : singleTransaction.trxName.toLowerCase() === "solana"
+                                                            ? "SOL"
+                                                            : singleTransaction.trxName.toLowerCase() === "bnb"
+                                                                ? " BNB"
+                                                                : singleTransaction.trxName.toLowerCase() === "xrp"
+                                                                    ? " XRP"
+                                                                    : singleTransaction.trxName.toLowerCase() === "dogecoin"
+                                                                        ? " DOGE"
+                                                                        : singleTransaction.trxName.toLowerCase() === "toncoin"
+                                                                            ? " TON"
+                                                                            : singleTransaction.trxName.toLowerCase() === "chainlink"
+                                                                                ? " LINK"
+                                                                                : singleTransaction.trxName.toLowerCase() === "polkadot"
+                                                                                    ? " DOT"
+                                                                                    : singleTransaction.trxName.toLowerCase() === "near protocol"
+                                                                                        ? " NEAR"
+                                                                                        : singleTransaction.trxName.toLowerCase() === "usdc coin"
+                                                                                            ? " USDC"
+                                                                                            : singleTransaction.trxName.toLowerCase() === "tron"
+                                                                                                ? " TRX"
+                                                                                                : ""}
+                                        {' '}
+                                        <span className="text-muted">
+                                            {`(${isUser.currency === "EUR" ? "€" : "$"}${calculateTransactionValue(singleTransaction)})`}
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-2" viewBox="0 0 24 24">
+                                            <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                                                <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                            </g>
+                                        </svg>
+                                    </a>
+                                </dd>
+                            </div>
+                            <div className="col-md-6">
+                                <dt className="text-muted">Status</dt>
+                                <dd>
+                                    {singleTransaction.status === "pending" ? (
+                                        <span className="badge bg-warning text-dark">Pending</span>
+                                    ) : singleTransaction.status === "completed" ? (
+                                        <span className="badge bg-success text-light">Completed</span>
+                                    ) : singleTransaction.status === "failed" ? (
+                                        <span className="badge bg-danger text-light">Failed</span>
+                                    ) : (
+                                        <span className="text-muted">Unknown</span>
+                                    )}
+                                </dd>
+                            </div>
+                            {singleTransaction.note ?
+
+                                <div className="col-sm-6">
+                                    <dt className="text-muted">Note</dt>
+                                    <dd className="text-dark">
+
+
+                                        <span className="text-muted ms-2">{singleTransaction.note}</span>
+                                    </dd>
+                                </div> : ""
+                            }
+                            {singleTransaction.reference ?
+
+                                <div className="col-sm-6">
+                                    <dt className="text-muted">Reference Number</dt>
+                                    <dd className="text-dark">
+
+                                        <span className="text-muted ml-2">{singleTransaction.reference}</span>     <span onClick={handleCopySec} className="cursor-pointer ml-1">
+                                            {copiedSec ? (
+
+                                                "copied!"
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="icon w-5 h-5 inline-block -mt-1 ml-1" viewBox="0 0 24 24">
+                                                    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                                                        <rect width={13} height={13} x={9} y={9} rx={2} ry={2} />
+                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                    </g>
+                                                </svg>
+                                            )}
+                                        </span>
+                                    </dd>
+                                </div> : ""
+                            }
+                        </dl>
+                    </Modal.Body>)}
 
                 <Modal.Footer>
                     <Button variant="secondary" onClick={toggleModalClose}>

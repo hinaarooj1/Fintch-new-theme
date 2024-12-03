@@ -10,7 +10,7 @@ import { createUserTransactionApi, createUserTransactionDepositSwapApi, createUs
 import axios from 'axios';
 import { Button, Card, Col, DropdownDivider, InputGroup, Modal, Row, Spinner, Form } from 'react-bootstrap';
 import './style.css'
-import Truncate from 'react-truncate-inside/es'; 
+import Truncate from 'react-truncate-inside/es';
 const Swap = () => {
     const [Active, setActive] = useState(false);
     let toggleBar = () => {
@@ -174,7 +174,7 @@ const Swap = () => {
 
                 const totalValue = (
                     btcValueAdded * liveBtc +
-                    ethValueAdded * 2241.86 +
+                    ethValueAdded * 2640 +
                     usdtValueAdded
                 ).toFixed(2);
 
@@ -748,7 +748,7 @@ const Swap = () => {
                                             ) : depositName === "ethereum" ? (
                                                 <span>
                                                     ETH {transactionDetail.amountMinus} ($
-                                                    {`${(transactionDetail.amountMinus * 2241.86).toFixed(2)}`})
+                                                    {`${(transactionDetail.amountMinus * 2640).toFixed(2)}`})
                                                 </span>
                                             ) : depositName === "tether" ? (
                                                 <span>
@@ -786,7 +786,7 @@ const Swap = () => {
                         )}
                     </Modal.Footer>
                 </Modal>
-            } */} 
+            } */}
 
         </>
 

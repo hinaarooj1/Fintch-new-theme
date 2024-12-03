@@ -1070,4 +1070,65 @@ body {
   }
 }
 
+.ttrr:hover td {
+  background-color: rgb(244, 244, 244) !important;
+}
+
+.ttrr {
+  cursor: pointer;
+}
+
+.badgea {
+  padding: 0.25em 0.375em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.badge-open {
+  color: #fff;
+  background-color: #E53E3E;
+}
+
+.badge-solved {
+  color: #fff;
+  background-color: #718096;
+  /* background-color: #07bc0c; */
+}
+
 /* Staking */
+.badge.badgea {
+  color: white !important;
+}
+
+.axa {
+  cursor: pointer !important;
+}
+
+.axa:hover {
+  text-decoration: underline !important;
+
+}
+
+@media (max-width:700px) {
+  .tbleas.tbls100 {
+
+    width: 100% !important;
+  }
+
+}
+
+@media (max-width:500px) {
+
+  .maxp,
+  .tleft {
+    max-width: 250px !important;
+  }
+
+  .tbleas,
+  .tbb {
+    width: max-content !important;
+  }
+}

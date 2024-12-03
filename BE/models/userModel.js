@@ -115,6 +115,11 @@ let userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  currency: {
+    type: String,
+    default: "USD",
+    enum: ["USD", "EUR"]
+  },
   payments: [
     {
       type: {

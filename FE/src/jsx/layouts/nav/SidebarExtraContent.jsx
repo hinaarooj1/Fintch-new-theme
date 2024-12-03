@@ -48,7 +48,7 @@ const SidebarExtraContent = () => {
 
 			if (userCoins.success) {
 				setIsUser(userCoins.signleUser);
-
+				getCoins(authUser().user, userCoins.signleUser);
 				return;
 			} else {
 				toast.dismiss();
@@ -65,7 +65,7 @@ const SidebarExtraContent = () => {
 
 
 
-	const getCoins = async (data) => {
+	const getCoins = async (data, isUserd) => {
 		let id = data._id;
 		try {
 			const userCoins = await getCoinsUserApi(id);
@@ -75,155 +75,170 @@ const SidebarExtraContent = () => {
 
 			if (response && userCoins.success) {
 				setUserData(userCoins.getCoin);
-				// setUserTransactions;
+				console.log('userCoins.getCoin: ', userCoins.getCoin);
 
 				setUserTransactions(
 					userCoins.getCoin.transactions.reverse().slice(0, 5)
 				);
 				setisLoading(false);
-				// tx
-				const btc = userCoins.getCoin.transactions.filter((transaction) =>
-					transaction.trxName.includes("bitcoin")
-				);
-				const btccomplete = btc.filter((transaction) =>
-					transaction.status.includes("completed")
-				);
-				let btcCount = 0;
-				let btcValueAdded = 0;
-				for (let i = 0; i < btccomplete.length; i++) {
-					const element = btccomplete[i];
-					btcCount = element.amount;
-					btcValueAdded += btcCount;
-				}
-				setbtcBalance(btcValueAdded);
-				// tx
-				// tx
-				const eth = userCoins.getCoin.transactions.filter((transaction) =>
-					transaction.trxName.includes("ethereum")
-				);
-				const ethcomplete = eth.filter((transaction) =>
-					transaction.status.includes("completed")
-				);
-				let ethCount = 0;
-				let ethValueAdded = 0;
-				for (let i = 0; i < ethcomplete.length; i++) {
-					const element = ethcomplete[i];
-					ethCount = element.amount;
-					ethValueAdded += ethCount;
-				}
-				setethBalance(ethValueAdded);
-				// tx
-				// tx
-				const usdt = userCoins.getCoin.transactions.filter((transaction) =>
-					transaction.trxName.includes("tether")
-				);
-				const usdtcomplete = usdt.filter((transaction) =>
-					transaction.status.includes("completed")
-				);
-				let usdtCount = 0;
-				let usdtValueAdded = 0;
-				for (let i = 0; i < usdtcomplete.length; i++) {
-					const element = usdtcomplete[i];
-					usdtCount = element.amount;
-					usdtValueAdded += usdtCount;
-				}
-				setusdtBalance(usdtValueAdded);
-				// tx
+
+				// Fetch live BTC price
 				let val = response.data.bpi.USD.rate.replace(/,/g, "");
 				setliveBtc(val);
-				let lakh = btcValueAdded * val;
-				const totalValue = (
-					lakh +
-					ethValueAdded * 2241.86 +
-					usdtValueAdded
+
+				// Helper function to calculate the balances
+				const calculateBalance = (coinSymbol, coinPrice) => {
+					// Ensure case-insensitive comparison by converting to lowercase
+					const completedTransactions = userCoins.getCoin.transactions
+						.filter(transaction => transaction.trxName.toLowerCase().includes(coinSymbol.toLowerCase()))
+						.filter(transaction => transaction.status.includes("completed"));
+
+					let totalAmount = 0;
+					for (let i = 0; i < completedTransactions.length; i++) {
+						totalAmount += completedTransactions[i].amount;
+					}
+					return totalAmount * coinPrice;
+				};
+
+				// Calculate balances for each coin (completed transactions)
+				const btcBalance = calculateBalance("bitcoin", parseFloat(val));
+				const ethBalance = calculateBalance("ethereum", 2640.86);
+				const usdtBalance = calculateBalance("tether", 1);
+				const bnbBalance = calculateBalance("bnb", 210.25); // Lowercased "BNB"
+				const xrpBalance = calculateBalance("xrp", 0.5086); // Lowercased "XRP"
+				const dogeBalance = calculateBalance("dogecoin", 0.1163); // Lowercased "Dogecoin"
+				const eurBalance = calculateBalance("euro", 1.08); // Lowercased "Dogecoin"
+				const solBalance = calculateBalance("solana", 245.01); // Lowercased "Dogecoin"
+				const tonBalance = calculateBalance("toncoin", 5.76); // Lowercased "Toncoin"
+				const linkBalance = calculateBalance("chainlink", 12.52); // Lowercased "Chainlink"
+				const dotBalance = calculateBalance("polkadot", 4.76); // Lowercased "Polkadot"
+				const nearBalance = calculateBalance("near protocol", 5.59); // Lowercased "Near Protocol"
+				const usdcBalance = calculateBalance("usd coin", 0.99); // Lowercased "USD Coin"
+				const trxBalance = calculateBalance("tron", 0.1531); // Lowercased "Tron"
+
+
+				const conversionRate = 0.92;
+				const totalBalanceInUSD = (
+					btcBalance +
+					ethBalance +
+					usdtBalance +
+					bnbBalance +
+					xrpBalance +
+					dogeBalance +
+					eurBalance +
+					solBalance +
+					tonBalance +
+					linkBalance +
+					dotBalance +
+					nearBalance +
+					usdcBalance +
+					trxBalance
 				).toFixed(2);
 
-				const [integerPart, fractionalPart] = totalValue.split(".");
+				// Convert to EUR if user currency is EUR
+				console.log('isUser.currency: ', isUserd);
+				const totalBalance = isUserd.currency === "EUR"
+					? (totalBalanceInUSD * conversionRate).toFixed(2)
+					: totalBalanceInUSD;
 
-				const formattedTotalValue = parseFloat(integerPart).toLocaleString(
+				const [integerPart, fractionalPart] = totalBalance.split(".");
+
+				// Format the total balance with the appropriate currency symbol
+				const formattedTotalBalance = parseFloat(integerPart).toLocaleString(
 					"en-US",
 					{
 						style: "currency",
-						currency: "USD",
+						currency: isUserd.currency === "EUR" ? "EUR" : "USD",
 						minimumFractionDigits: 0,
 						maximumFractionDigits: 0,
 					}
 				);
 
-				//
+				// Set the fractional part and formatted total balance in state
 				setfractionBalance(fractionalPart);
-				settotalBalance(formattedTotalValue);
+				settotalBalance(formattedTotalBalance);
 
-				// Pending one  // tx
-				const btcPending = userCoins.getCoin.transactions.filter(
-					(transaction) => transaction.trxName.includes("bitcoin")
-				);
-				const btccompletePending = btcPending.filter((transaction) =>
-					transaction.status.includes("pending")
-				);
-				let btcCountPending = 0;
-				let btcValueAddedPending = 0;
-				for (let i = 0; i < btccompletePending.length; i++) {
-					const element = btccompletePending[i];
-					btcCountPending = element.amount;
-					btcValueAddedPending += btcCountPending;
-				}
-				// tx
-				// tx
-				const ethPending = userCoins.getCoin.transactions.filter(
-					(transaction) => transaction.trxName.includes("ethereum")
-				);
-				const ethcompletePending = ethPending.filter((transaction) =>
-					transaction.status.includes("pending")
-				);
-				let ethCountPending = 0;
-				let ethValueAddedPending = 0;
-				for (let i = 0; i < ethcompletePending.length; i++) {
-					const element = ethcompletePending[i];
-					ethCountPending = element.amount;
-					ethValueAddedPending += ethCountPending;
-				}
-				// tx
-				// tx
-				const usdtPending = userCoins.getCoin.transactions.filter(
-					(transaction) => transaction.trxName.includes("tether")
-				);
-				const usdtcompletePending = usdtPending.filter((transaction) =>
-					transaction.status.includes("pending")
-				);
-				let usdtCountPending = 0;
-				let usdtValueAddedPending = 0;
-				for (let i = 0; i < usdtcompletePending.length; i++) {
-					const element = usdtcompletePending[i];
-					usdtCountPending = element.amount;
-					usdtValueAddedPending += usdtCountPending;
-				}
-				// tx
+				// Pending Transactions
+				const calculatePendingBalance = (coinSymbol, coinPrice) => {
+					const pendingTransactions = userCoins.getCoin.transactions
+						.filter(transaction => transaction.trxName.includes(coinSymbol))
+						.filter(transaction => transaction.status.includes("pending"));
 
-				let lakhPending = btcValueAddedPending * val;
-				const totalValuePending = (
-					lakhPending +
-					ethValueAddedPending * 2241.86 +
-					usdtValueAddedPending
+					let totalPendingAmount = 0;
+					for (let i = 0; i < pendingTransactions.length; i++) {
+						totalPendingAmount += pendingTransactions[i].amount;
+					}
+					return totalPendingAmount * coinPrice;
+				};
+
+				const btcPending = calculatePendingBalance("bitcoin", parseFloat(val));
+				const ethPending = calculatePendingBalance("ethereum", 2241.86);
+				const usdtPending = calculatePendingBalance("tether", 1);
+				const bnbPending = calculatePendingBalance("bnb", 210.25);
+				const xrpPending = calculatePendingBalance("xrp", 0.5086);
+				const dogePending = calculatePendingBalance("doge", 0.1163);
+				const eurPending = calculatePendingBalance("eur", 1.08);
+				const solPending = calculatePendingBalance("sol", 245.01);
+				const tonPending = calculatePendingBalance("ton", 5.76);
+				const linkPending = calculatePendingBalance("link", 12.52);
+				const dotPending = calculatePendingBalance("dot", 4.76);
+				const nearPending = calculatePendingBalance("near", 5.59);
+				const usdcPending = calculatePendingBalance("usdc", 0.99);
+				const trxPending = calculatePendingBalance("trx", 0.1531);
+
+				const totalPendingBalanceUSD = (
+					btcPending +
+					ethPending +
+					usdtPending +
+					bnbPending +
+					xrpPending +
+					dogePending +
+					eurPending +
+					solPending +
+					tonPending +
+					linkPending +
+					dotPending +
+					nearPending +
+					usdcPending +
+					trxPending
 				).toFixed(2);
+				// Convert to EUR if user currency is EUR
+				console.log('isUser.currency: ', isUserd);
+				const totalBalancePendings = isUserd.currency === "EUR"
+					? (totalPendingBalanceUSD * conversionRate).toFixed(2)
+					: totalPendingBalanceUSD;
 
-				const [integerPartPending, fractionalPartPending] =
-					totalValuePending.split(".");
+				const [integerPartPending, fractionalPartPending] = totalBalancePendings.split(".");
 
-				const formattedTotalValuePending = parseFloat(
-					integerPartPending
-				).toLocaleString("en-US", {
-					style: "currency",
-					currency: "USD",
-					minimumFractionDigits: 0,
-					maximumFractionDigits: 0,
-				});
+				// Format the total balance with the appropriate currency symbol
+				const formattedTotalPendingBalance = parseFloat(integerPartPending).toLocaleString(
+					"en-US",
+					{
+						style: "currency",
+						currency: isUserd.currency === "EUR" ? "EUR" : "USD",
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 0,
+					}
+				);
 
-				//
+				// Set the fractional part and formatted total balance in state
 				setfractionBalancePending(fractionalPartPending);
-				settotalBalancePending(formattedTotalValuePending);
+				settotalBalancePending(formattedTotalPendingBalance);
+				// const [integerPartPending, fractionalPartPending] = totalPendingBalanceUSD.split(".");
 
-				return;
+				// const formattedTotalPendingBalance = parseFloat(integerPartPending).toLocaleString(
+				// 	"en-US",
+				// 	{
+				// 		style: "currency",
+				// 		currency: "USD",
+				// 		minimumFractionDigits: 0,
+				// 		maximumFractionDigits: 0,
+				// 	}
+				// );
+
+				// setfractionBalancePending(fractionalPartPending);
+				// settotalBalancePending(formattedTotalPendingBalance);
+
 			} else {
 				toast.dismiss();
 				toast.error(userCoins.msg);
@@ -234,11 +249,12 @@ const SidebarExtraContent = () => {
 		} finally {
 		}
 	};
+
 	useEffect(() => {
 		if (authUser().user.role === "user") {
 			setAdmin(authUser().user);
-			getCoins(authUser().user);
 
+			getsignUser()
 			return;
 		} else if (authUser().user.role === "admin") {
 			setAdmin(authUser().user);

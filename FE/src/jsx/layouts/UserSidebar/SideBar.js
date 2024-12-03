@@ -549,7 +549,7 @@ const SideBar = (props) => {
               </li>
               <li className="Header__ListItem-ra9ecu-9 kRTKLx">
                 <NavLink
-                  to="/exchange"
+                  to="/exchanges"
                   className="Link__CustomLink-sc-1p80yfz-0 hDjhKH Text__Body1-sc-1fwf07x-7 Text__Body1Highlight-sc-1fwf07x-8 Header__Link-ra9ecu-10 vvWMe kmtyGJ kIWMbY"
                   target="_self"
                 >

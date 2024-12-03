@@ -42,61 +42,83 @@ const Documents = ({ isLoading, setisLoading }) => {
     let changeBanner1 = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
             const fileSize = file.size;
 
-            const maxSize = 3 * 1024 * 1024;
-
+            const maxSize = 10 * 1024 * 1024; // 3MB max size
             if (fileSize > maxSize) {
                 setNewSlider1("");
                 setSlide1(""); // Clear the input field
-                toast.error(
-                    "File size exceeds 3MB limit. Please choose a smaller file."
-                );
+                toast.error("File size exceeds 10MB limit. Please choose a smaller file.");
                 return;
             }
-            reader.onloadend = () => {
-                // reader.result contains the base64 representation of the image
-                setNewSlider1(reader.result);
-                setSlide1(URL.createObjectURL(file));
-            };
 
-            // Read the file as data URL
-            reader.readAsDataURL(file);
+            // Directly set the File object
+            setNewSlider1(file);
+            setSlide1(URL.createObjectURL(file)); // Display preview
         } else {
             setNewSlider1("");
             setSlide1("");
         }
     };
+
     let changeBanner2 = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
             const fileSize = file.size;
 
-            // Limit file size to
-            const maxSize = 3 * 1024 * 1024;
+            const maxSize = 10 * 1024 * 1024;
             if (fileSize > maxSize) {
-                toast.error(
-                    "File size exceeds 3MB limit. Please choose a smaller file."
-                );
+                toast.error("File size exceeds 10MB limit. Please choose a smaller file.");
                 setNewSlider2("");
                 setSlide2(""); // Clear the input field
                 return;
             }
-            reader.onloadend = () => {
-                // reader.result contains the base64 representation of the image
-                setNewSlider2(reader.result);
-                setSlide2(URL.createObjectURL(file));
-            };
 
-            // Read the file as data URL
-            reader.readAsDataURL(file);
+            // Directly set the File object
+            setNewSlider2(file);
+            setSlide2(URL.createObjectURL(file)); // Display preview
         } else {
             setNewSlider2("");
             setSlide2("");
         }
     };
+
+    const verifyUser = async () => {
+        try {
+            if (!newSlider1 || !newSlider2) {
+                toast.dismiss();
+                toast.info("Please upload both the documents");
+                return;
+            }
+
+            setisDisable(true);
+            const formData = new FormData();
+            formData.append("cnic", newSlider1); // File object
+
+            formData.append("id", isUser._id);
+            formData.append("bill", newSlider2); // File object
+
+            const updateHeader = await verifySingleUserApi(formData); // FormData is being sent here
+
+            if (updateHeader.success) {
+                setIsDoc(false);
+                toast.dismiss();
+                toast.success(updateHeader.msg);
+                setTimeout(() => {
+                    Navigate("/dashboard");
+                }, 100);
+            } else {
+                toast.dismiss();
+                toast.error(updateHeader.msg);
+            }
+        } catch (error) {
+            toast.dismiss();
+            toast.error(error?.data?.msg || error?.message || "Something went wrong");
+        } finally {
+            setisDisable(false);
+        }
+    };
+
     const getsignUser = async () => {
         try {
             const formData = new FormData();
@@ -123,6 +145,7 @@ const Documents = ({ isLoading, setisLoading }) => {
 
         }
     };
+
     useEffect(() => {
         const mockAsyncOperation = () => {
             setTimeout(() => {
@@ -133,39 +156,7 @@ const Documents = ({ isLoading, setisLoading }) => {
         console.log(isLoading);
     }, [setisLoading]);
     console.log(isLoading);
-    const verifyUser = async () => {
-        try {
-            if (!newSlider1 || !newSlider2) {
-                toast.dismiss();
-                toast.info("Please upload both the documents");
-                return;
-            }
-            setisDisable(true);
-            const formData = new FormData();
-            formData.append("cnic", newSlider1);
-            formData.append("id", isUser._id);
-            formData.append("bill", newSlider2);
 
-            const updateHeader = await verifySingleUserApi(formData);
-
-            if (updateHeader.success) {
-                setIsDoc(false);
-                toast.dismiss();
-                toast.success(updateHeader.msg);
-                setTimeout(() => {
-                    Navigate("/dashboard");
-                }, 100);
-            } else {
-                toast.dismiss();
-                toast.error(updateHeader.msg);
-            }
-        } catch (error) {
-            toast.dismiss();
-            toast.error(error?.data?.msg || error?.message || "Something went wrong");
-        } finally {
-            setisDisable(false);
-        }
-    };
     let sendEmail = async () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -287,9 +278,7 @@ const Documents = ({ isLoading, setisLoading }) => {
                                                     <p className="font-alt text-xs text-muted">
                                                         Please upload a clear image of a valid government-issued identification document (e.g., passport, national ID, or driver's license).
                                                     </p>
-                                                    <p className="font-alt text-xs font-bold mt-2 text-white">
-                                                        *max size should be 3MB
-                                                    </p>
+
                                                 </div>
                                                 <div className="position-absolute top-0 end-0 opacity-0">
                                                     <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon text-primary h-7 w-7" viewBox="0 0 256 256">
@@ -324,9 +313,7 @@ const Documents = ({ isLoading, setisLoading }) => {
                                                     <p className="font-alt text-xs text-muted">
                                                         Please upload a clear image of a recent utility bill (e.g., electricity, water, or gas bill) in your name.
                                                     </p>
-                                                    <p className="font-alt text-xs font-bold mt-2 text-white">
-                                                        *max size should be 3MB
-                                                    </p>
+
                                                 </div>
                                                 <div className="position-absolute top-0 end-0 opacity-0">
                                                     <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon text-primary h-7 w-7" viewBox="0 0 256 256">
@@ -366,6 +353,9 @@ const Documents = ({ isLoading, setisLoading }) => {
                                         )}
                                     </Button>
                                 </div>
+                                <br />
+                                <br />
+                                <br />
                             </Container>
                         </Form>
                     )}

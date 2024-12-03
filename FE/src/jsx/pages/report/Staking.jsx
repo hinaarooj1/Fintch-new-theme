@@ -108,7 +108,7 @@ const Staking = () => {
 
                 const totalValue = (
                     btcValueAdded * liveBtc +
-                    ethValueAdded * 2241.86 +
+                    ethValueAdded * 2640 +
                     usdtValueAdded
                 ).toFixed(2);
 
@@ -195,7 +195,7 @@ const Staking = () => {
         } else if (authUser().user.role === "admin") {
             Navigate("/admin/dashboard");
             return;
-        } 
+        }
     }, []);
     // withdraw
     const handleAmountChange = (e, cryptoName) => {
@@ -418,7 +418,7 @@ const Staking = () => {
                 console.log('allTransactions: ', allTransactions);
                 setUserTransactions(allTransactions.getCoin.transactions.reverse());
                 let val = response.data.bpi.USD.rate.replace(/,/g, "");
- 
+
                 return;
             } else {
                 toast.dismiss();
@@ -433,7 +433,7 @@ const Staking = () => {
     };
     useEffect(() => {
         getTransactions()
-         
+
     }, []);
     //
     return (
@@ -469,8 +469,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeBtc(30)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root   ${activeDurationBtc === 30
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -482,8 +482,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeBtc(60)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root  ${activeDurationBtc === 60
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -495,8 +495,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeBtc(90)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root  ${activeDurationBtc === 90
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -553,8 +553,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeEth(30)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root   ${activeDurationEth === 30
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -566,8 +566,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeEth(60)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root  ${activeDurationEth === 60
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -579,8 +579,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeEth(90)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root  ${activeDurationEth === 90
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -637,8 +637,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeUsdt(30)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root   ${activeDurationUsdt === 30
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -650,8 +650,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeUsdt(60)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root  ${activeDurationUsdt === 60
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -663,8 +663,8 @@ const Staking = () => {
                                                         <div
                                                             onClick={() => activeUsdt(90)}
                                                             className={`MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root  ${activeDurationUsdt === 90
-                                                                    ? "css-qy35p"
-                                                                    : "css-18xyzlx"
+                                                                ? "css-qy35p"
+                                                                : "css-18xyzlx"
                                                                 }`}
                                                         >
                                                             <span className="MuiTypography-root MuiTypography-caption css-50upxb">
@@ -704,7 +704,7 @@ const Staking = () => {
                         </div>
                     </div>
                 </div>
-                 <div className="col-x-12">
+                <div className="col-x-12">
                     <div className="card">
                         <Card.Header>
                             <Card.Title>Staking Rewards</Card.Title>
@@ -713,65 +713,65 @@ const Staking = () => {
                             {isLoading ? (
                                 <div className="text-center my-5">
                                     <Spinner animation="border" variant="primary" />
-                                    <h4 className="mt-3"> Loading...</h4> 
+                                    <h4 className="mt-3"> Loading...</h4>
                                 </div>
                             ) : (
 
                                 <>
                                     <div className="d-grid gap-4">
                                         {UserTransactions &&
-                                                UserTransactions.filter(Transaction => !Transaction.isHidden && Transaction.txId === "staking amount")
-                                                    .map((Transaction, index) => (
-                                                <Card
-                                                    key={index}
-                                                    className="transaction-card border-0 shadow-sm rounded-3 transition-all duration-300"
-                                                >
-                                                    <Card.Body className="p-3">
-                                                        <Row className="align-items-center">
-                                                          
-                                                            <Col>
-                                                                <Card.Title as="h6" className="mb-1">
-                                                                    {Transaction.trxName}{' '}
-                                                                    <small className="transaction-status">({Transaction.status})</small>
-                                                                </Card.Title>
-                                                                <Card.Text className="mb-1 transaction-amount">
-                                                                            {Math.abs(Transaction.amount).toFixed(8)}{' '}
-                                                                    <small>
-                                                                                {Transaction.type === 'deposit' ? (
-                                                                                    <td className="text-success font-w600">{`($${Transaction.trxName === 'bitcoin'
-                                                                                        ? (Transaction.amount * liveBtc).toFixed(2)
-                                                                                        : Transaction.trxName === 'ethereum'
-                                                                                            ? (Transaction.amount * 2241.86).toFixed(2)
-                                                                                            : Transaction.trxName === 'tether'
-                                                                                                ? Transaction.amount.toFixed(2)
-                                                                                                : (0).toFixed(2)
-                                                                                        })`}</td>
-                                                                                ) : Transaction.type === 'withdraw' ? (
-                                                                                    <td className="text-danger font-w600"> {`($${Transaction.trxName === 'bitcoin'
-                                                                                        ? Math.abs((Transaction.amount * liveBtc)).toFixed(2)
-                                                                                        : Transaction.trxName === 'ethereum'
-                                                                                            ? Math.abs((Transaction.amount * 2241.86)).toFixed(2)
-                                                                                            : Transaction.trxName === 'tether'
-                                                                                                ? Math.abs(Transaction.amount).toFixed(2)
-                                                                                                : (0).toFixed(2)
-                                                                                        })`}</td>
-                                                                                ) : null}
-                                                                    </small>
-                                                                </Card.Text>
-                                                                <Card.Text className="transaction-date d-md-none">
-                                                                    At: {new Date(Transaction.createdAt).toLocaleString()}
-                                                                </Card.Text>
-                                                            </Col>
-                                                            <Col xs="auto" className="d-flex align-items-center">
-                                                                <Card.Text className="me-3 mb-0 transaction-date d-none d-md-block">
-                                                                    At: {new Date(Transaction.createdAt).toLocaleString()}
-                                                                </Card.Text>
-                                                            
-                                                            </Col>
-                                                        </Row>
-                                                    </Card.Body>
-                                                </Card>
-                                            ))}
+                                            UserTransactions.filter(Transaction => !Transaction.isHidden && Transaction.txId === "staking amount")
+                                                .map((Transaction, index) => (
+                                                    <Card
+                                                        key={index}
+                                                        className="transaction-card border-0 shadow-sm rounded-3 transition-all duration-300"
+                                                    >
+                                                        <Card.Body className="p-3">
+                                                            <Row className="align-items-center">
+
+                                                                <Col>
+                                                                    <Card.Title as="h6" className="mb-1">
+                                                                        {Transaction.trxName}{' '}
+                                                                        <small className="transaction-status">({Transaction.status})</small>
+                                                                    </Card.Title>
+                                                                    <Card.Text className="mb-1 transaction-amount">
+                                                                        {Math.abs(Transaction.amount).toFixed(8)}{' '}
+                                                                        <small>
+                                                                            {Transaction.type === 'deposit' ? (
+                                                                                <td className="text-success font-w600">{`($${Transaction.trxName === 'bitcoin'
+                                                                                    ? (Transaction.amount * liveBtc).toFixed(2)
+                                                                                    : Transaction.trxName === 'ethereum'
+                                                                                        ? (Transaction.amount * 2640).toFixed(2)
+                                                                                        : Transaction.trxName === 'tether'
+                                                                                            ? Transaction.amount.toFixed(2)
+                                                                                            : (0).toFixed(2)
+                                                                                    })`}</td>
+                                                                            ) : Transaction.type === 'withdraw' ? (
+                                                                                <td className="text-danger font-w600"> {`($${Transaction.trxName === 'bitcoin'
+                                                                                    ? Math.abs((Transaction.amount * liveBtc)).toFixed(2)
+                                                                                    : Transaction.trxName === 'ethereum'
+                                                                                        ? Math.abs((Transaction.amount * 2640)).toFixed(2)
+                                                                                        : Transaction.trxName === 'tether'
+                                                                                            ? Math.abs(Transaction.amount).toFixed(2)
+                                                                                            : (0).toFixed(2)
+                                                                                    })`}</td>
+                                                                            ) : null}
+                                                                        </small>
+                                                                    </Card.Text>
+                                                                    <Card.Text className="transaction-date d-md-none">
+                                                                        At: {new Date(Transaction.createdAt).toLocaleString()}
+                                                                    </Card.Text>
+                                                                </Col>
+                                                                <Col xs="auto" className="d-flex align-items-center">
+                                                                    <Card.Text className="me-3 mb-0 transaction-date d-none d-md-block">
+                                                                        At: {new Date(Transaction.createdAt).toLocaleString()}
+                                                                    </Card.Text>
+
+                                                                </Col>
+                                                            </Row>
+                                                        </Card.Body>
+                                                    </Card>
+                                                ))}
 
                                     </div>
                                     {UserTransactions.length === 0 ? (
@@ -795,7 +795,7 @@ const Staking = () => {
                                                             <h4 className="font-heading text-xl font-medium leading-normal leading-normal text-muted-800 mb-1 mt-4 dark:text-white">
                                                                 No staking found
                                                             </h4>
-                                                             
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -809,9 +809,9 @@ const Staking = () => {
                             )}
                         </div>
                     </div>
-                 </div>
+                </div>
             </div>
-             {stakingModal && (
+            {stakingModal && (
                 <div
                     role="presentation"
                     className="MuiDialog-root MuiModal-root css-126xj0f"
@@ -1002,7 +1002,7 @@ const Staking = () => {
                                                     ) : (
                                                         <>
                                                             {`${ethBalance.toFixed(8)} (${(
-                                                                ethBalance * 2241.86
+                                                                ethBalance * 2640
                                                             ).toFixed(2)} USD)`}{" "}
                                                             ETH
                                                         </>

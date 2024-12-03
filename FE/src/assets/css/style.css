@@ -14642,7 +14642,7 @@ h6,
 }
 
 .text-pink {
-  color: #ac4cbc !important;
+  color: var(--primary) !important;
 }
 
 .text-red {
@@ -31994,10 +31994,17 @@ a.ck.ck-button.ck-on:not(.ck-disabled):hover {
   border-color: #3ab67a;
 }
 
-.alert.alert-warning.solid {
-  background: #ffab2d;
+.card-primary.card {
+
+  background-color: var(--headerbg) !important;
+  background: var(--headerbg) !important;
   color: #fff;
-  border-color: #ffab2d;
+}
+
+.alert.alert-warning.solid {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 
 .alert.alert-danger.solid {
@@ -37008,12 +37015,12 @@ code {
 }
 
 .table.bg-pink-hover th {
-  color: #ac4cbc;
+  color: var(--primary);
 }
 
 .table.bg-pink-hover tr:hover td,
 .table.bg-pink-hover tr:hover th {
-  background: #ac4cbc;
+  background: var(--primary);
   color: #fff;
   box-shadow: 10px 0 30px rgba(172, 76, 188, 0.3);
 }

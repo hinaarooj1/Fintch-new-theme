@@ -61,6 +61,24 @@ export const postFormApi = async (endpoint, data) => {
     );
   }
 };
+export const patchFormApi = async (endpoint, data) => {
+  try {
+    const response = await axiosService.patch(endpoint, data, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+
+      credentials: "include",
+    });
+    return response.data;
+  } catch (error) {
+    return (
+      error?.response?.data || {
+        success: false,
+        msg: error?.response?.data.msg,
+      }
+    );
+  }
+};
 
 export const putApi = async (endpoint, data) => {
   try {

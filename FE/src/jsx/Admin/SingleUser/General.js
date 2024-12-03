@@ -48,13 +48,17 @@ const General = () => {
       setActive(true);
     }
   };
+  const [currency, setCurrency] = useState("");
 
+  const handleCurrencyChange = (event) => {
+    setCurrency(event.target.value);
+  };
   const getSignleUser = async () => {
     try {
       const signleUser = await signleUsersApi(id);
 
       if (signleUser.success) {
-        setUserData(signleUser.signleUser);
+        setUserData(signleUser.signleUser); setCurrency(signleUser.signleUser.currency)
         setnewDescription(signleUser.signleUser.note);
       } else {
         toast.dismiss();
@@ -95,6 +99,7 @@ const General = () => {
         progress: userData.progress,
         country: userData.country,
         postalCode: userData.postalCode,
+        currency: currency,
       };
 
       if (
@@ -106,7 +111,8 @@ const General = () => {
         !body.city.trim() ||
         !body.country.trim() ||
         !body.phone ||
-        !body.postalCode
+        !body.postalCode ||
+        !currency
       ) {
         toast.error("Fields cannot be left blank except the note field!");
 
@@ -655,6 +661,59 @@ const General = () => {
                                         {/**/}
                                       </div>
                                     </div>
+                                  </div>
+                                  <div className="col-span-12">
+                                    <div className="relative">
+                                      <div className="group/nui-input relative">
+                                        {/* Label */}
+                                        <div className="text-sm text-gray-500 py-1 font-medium">
+                                          User Currency:
+                                        </div>
+
+                                        {/* Radio Options */}
+                                        <div className="flex items-center space-x-4 mt-2">
+                                          <label
+                                            htmlFor="eur"
+                                            className={`flex items-center space-x-2 cursor-pointer p-2 rounded-md ${currency === "EUR" ? "bg-blue-100" : "hover:bg-gray-100"
+                                              }`}
+                                          >
+                                            <input
+                                              type="radio"
+                                              id="eur"
+                                              name="currency"
+                                              value="EUR"
+                                              checked={currency === "EUR"}
+                                              onChange={handleCurrencyChange}
+                                              className=" me-2"
+                                            />
+                                            <div className="text-blue-600 font-medium">EUR</div>
+                                          </label>
+
+                                          <label
+                                            htmlFor="usd"
+                                            className={`flex items-center space-x-2 cursor-pointer p-2 rounded-md ${currency === "USD" ? "bg-blue-100" : "hover:bg-gray-100"
+                                              }`}
+                                          >
+                                            <input
+                                              type="radio"
+                                              id="usd"
+                                              name="currency"
+                                              value="USD"
+                                              checked={currency === "USD"}
+                                              onChange={handleCurrencyChange}
+                                              className=" me-2"
+                                            />
+                                            <div className="text-blue-600 font-medium">USD</div>
+                                          </label>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {/* Display Selected Value */}
+                                    {currency && (
+                                      <div className="mt-4 text-sm text-gray-600">
+                                        Selected Currency: <span className="font-semibold">{currency}</span>
+                                      </div>
+                                    )}
                                   </div>
                                   <div className="col-span-12">
                                     <div className="relative">

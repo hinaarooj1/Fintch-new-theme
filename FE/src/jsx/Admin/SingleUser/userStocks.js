@@ -62,7 +62,7 @@ const UserTransactions = () => {
 
                 // Check if stocks is defined and is an array
                 if (Array.isArray(stocks)) {
-                    if (stocks.length > 0) {
+                    if (Array.isArray(stocks) && stocks !== null && stocks !== undefined) {
                         setUserTransactions(stocks.reverse()); // Set the stocks if available
                         setisLoading(false);
                     } else {
@@ -97,7 +97,7 @@ const UserTransactions = () => {
     // Copy
     useEffect(() => {
         // Fetch live stock values when UserTransactions is updated
-        if (UserTransactions.length > 0) {
+        if (Array.isArray(UserTransactions) && UserTransactions.length > 0) {
             const symbols = UserTransactions.map(tx => tx.stockSymbol);
             fetchStockValues(symbols);
         }

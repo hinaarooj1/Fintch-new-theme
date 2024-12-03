@@ -4,13 +4,14 @@ import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
+import './styleNew.css'
 import {
   createTransactionApi,
   deletePaymentApi,
   getCoinsApi,
   patchCoinsApi,
   signleUsersApi,
-  updateCoinAddressApi,
+  updateCoinAddressApi, updateNewCoinAddressApi
 } from "../../../Api/Service";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -23,9 +24,15 @@ const UserAssets = () => {
   const [activeStatus, setactiveStatus] = useState(false);
   const [usdtAddressModal, setusdtAddressModal] = useState(false);
   const [ethAddressModal, setethAddressModal] = useState(false);
+  const [newModal, setnewModal] = useState({
+    state: false,
+    Coinname: "", address: ""
+
+  });
   const [isLoading, setisLoading] = useState(true);
   const [allCoins, setallCoins] = useState("");
   const [userData, setUserData] = useState(null);
+  const [newUserCoins, setnewUserCoins] = useState(null);
 
   const [status, setStatus] = useState("");
   const [btcBalance, setbtcBalance] = useState(0);
@@ -36,6 +43,11 @@ const UserAssets = () => {
     btcAddress: "",
     ehtAddress: "",
     usdtAddress: "",
+  });
+
+  const [newCoinAddress, setnewCoinAddress] = useState({
+    coinSymbol: "",  // Currently selected coin symbol
+    address: {},     // Object to store addresses for each coin
   });
   const getSignleUser = async () => {
     try {
@@ -58,12 +70,16 @@ const UserAssets = () => {
     amountMinus: "",
     txId: "",
     fromAddress: "",
-    note: "",
+    note: "", reference: '', clientMessage: ""
   });
   let handleInput = (e) => {
     let name = e.target.name;
     let value = e.target.value;
     setcoinAddress({ ...coinAddress, [name]: value });
+  };
+
+  const handleInputNewAddress = (e) => {
+    setnewCoinAddress(prev => ({ ...prev, address: e.target.value }));  // Update address in state
   };
   let handleTransaction = (e) => {
     let name = e.target.name;
@@ -84,9 +100,19 @@ const UserAssets = () => {
     setModal1(false);
     setusdtAddressModal(false);
     setethAddressModal(false);
+    setnewModal({ state: false, Coinname: "", address: "", coinId: '' });
+    setnewCoinAddress({ address: {}, coinSymbol: '' });
+
   };
+  let setNewModal = (e, name, tokenAddress, coinSymbol, coinid) => {
+    console.log('coinid: ', coinid);
+    setnewCoinAddress({ coinSymbol, address: tokenAddress });
+    setnewModal({ state: true, Coinname: name, address: tokenAddress, coinId: coinid })
+
+  }
 
   const [liveBtc, setliveBtc] = useState(null);
+  const [userCoins, setuserCoins] = useState('');
   const [User, setUser] = useState("");
   const [Active, setActive] = useState(false);
   let toggleBar = () => {
@@ -96,6 +122,7 @@ const UserAssets = () => {
       setActive(true);
     }
   };
+
   const getCoins = async () => {
     try {
       const response = await axios.get(
@@ -106,8 +133,11 @@ const UserAssets = () => {
         setisLoading(false);
         let val = response.data.bpi.USD.rate.replace(/,/g, "");
         setliveBtc(val);
-
+        setuserCoins(userCoins)
+        console.log('userCoins.getCoin.additionalCoins: ', userCoins.getCoin.additionalCoins);
+        setnewUserCoins(userCoins.getCoin.additionalCoins)
         // tx
+        console.log('userCoins.getCoin: ',);
         const btc = userCoins.getCoin.transactions.filter((transaction) =>
           transaction.trxName.includes("bitcoin")
         );
@@ -174,6 +204,43 @@ const UserAssets = () => {
     } finally {
     }
   };
+  const getCoinPrice = (coinSymbol) => {
+    switch (coinSymbol) {
+      case "bnb": return 210.25; // Example price
+      case "xrp": return 0.5086; // Example price
+      case "doge": return 0.1163; // Example price
+      case "sol": return 245.01; // Example price
+      case "eur": return 1.08; // Example price
+      case "ton": return 5.76; // Example price
+      case "link": return 12.52; // Example price
+      case "dot": return 4.76; // Example price
+      case "near": return 5.59; // Example price
+      case "usdc": return 0.99; // Example price
+      case "trx": return 0.1531; // Example price
+      default: return 0; // Unknown coin price
+    }
+  };
+  const getTransactionsForCoin = (coinSymbol, transactions) => {
+    console.log('coinSymbol: ', coinSymbol);
+    // Filter transactions for the specific coin symbol
+    const coinTransactions = transactions.filter((transaction) =>
+      transaction.trxName.includes(coinSymbol)
+    );
+    console.log("coinTransactionsas", coinTransactions);
+    // Filter completed transactions
+    const completedTransactions = coinTransactions.filter((transaction) =>
+      transaction.status.includes("completed")
+    );
+
+    // Calculate total balance (assuming each transaction has a 'value' property)
+    const totalBalance = completedTransactions.reduce((acc, transaction) => {
+      console.log('transactionsa: ', transaction);
+      console.log('acc: ', acc);
+      return acc + transaction.amount; // Adjust according to your transaction structure
+    }, 0);
+
+    return totalBalance;
+  };
   const patchCoins = async () => {
     try {
       const userCoins = await patchCoinsApi(id);
@@ -190,7 +257,33 @@ const UserAssets = () => {
     } finally {
     }
   };
+  let updateNewCoin = async (e) => {
+    e.preventDefault();
+    console.log(newCoinAddress);
+    try {
+      setisDisable(true);
+      let body = {
+        newCoinAddress
+      };
 
+      const newAddress = await updateNewCoinAddressApi(id, body);
+
+      if (newAddress.success) {
+        toast.dismiss();
+        toast.success(newAddress.msg);
+        closeToggle();
+        getCoins()
+      } else {
+        toast.dismiss();
+        toast.error(newAddress.msg);
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error);
+    } finally {
+      setisDisable(false);
+    }
+  }
   const updateCoinsAddress = async (e) => {
     e.preventDefault();
     try {
@@ -206,6 +299,7 @@ const UserAssets = () => {
       if (newAddress.success) {
         toast.dismiss();
         toast.success(newAddress.msg);
+
         closeToggle();
       } else {
         toast.dismiss();
@@ -222,6 +316,16 @@ const UserAssets = () => {
   let tetherDeposit = () => {
     setdepositName("tether");
     setModal2(true);
+  };
+  let NewCoinDeposit = (e) => {
+    console.log('e: ', e);
+    setdepositName(e.coinName);
+    setModal2(true);
+  };
+  let NewCoinDepositMinus = (e) => {
+    console.log('e: ', e);
+    setdepositName(e.coinName);
+    setModal3(true);
   };
 
   let btcDeposit = () => {
@@ -254,7 +358,7 @@ const UserAssets = () => {
       amount: 0,
       txId: "",
       fromAddress: "",
-      note: "",
+      note: "", reference: '', clientMessage: ""
     });
     setModal2(false);
     setModal3(false);
@@ -289,26 +393,36 @@ const UserAssets = () => {
       }
 
       let body = {
+
         trxName: depositName,
         amount: finalAmount,
         txId: transactionDetail.txId,
         fromAddress: transactionDetail.fromAddress,
         note: transactionDetail.note,
+        reference: transactionDetail.reference,
+        subjectLine: transactionDetail.clientMessage,
         status: status,
         type: type,
       };
+      console.log('body: ', body);
 
       if (
         !body.trxName ||
         !body.amount ||
-        !body.txId ||
         !body.status ||
-        !body.fromAddress ||
-        !body.type
+        !body.type ||
+
+        (depositName !== "Euro" && (!body.txId || !body.fromAddress))
       ) {
         toast.dismiss();
         toast.error("Fill all the required fields");
         return;
+      }
+      if (transactionDetail.note && transactionDetail.note.trim()) {
+        if (transactionDetail.clientMessage.trim() === "") {
+
+          return toast.error("Please add subject line for client email")
+        }
       }
       const newTransaction = await createTransactionApi(id, body);
 
@@ -448,7 +562,7 @@ const UserAssets = () => {
                         <div className="pt-6">
                           <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                              <div className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                              <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
                                 <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block">
                                   currency
                                 </span>
@@ -483,7 +597,7 @@ const UserAssets = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
                                 <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0">
                                     balance
@@ -574,7 +688,7 @@ const UserAssets = () => {
 
                           <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                              <div className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                              <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
                                 <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block sm:hidden">
                                   currency
                                 </span>
@@ -621,14 +735,14 @@ const UserAssets = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
                                 <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
                                     balance
                                   </span>
                                   <span className="text-muted-500 dark:text-muted-400 font-sans text-sm">
                                     {`${ethBalance.toFixed(8)} (${(
-                                      ethBalance * 2241.86
+                                      ethBalance * 2640
                                     ).toFixed(2)} USD)`}
                                   </span>
                                 </div>
@@ -711,7 +825,7 @@ const UserAssets = () => {
                           </div>
                           <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                              <div className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                              <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
                                 <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block sm:hidden">
                                   currency
                                 </span>
@@ -746,7 +860,7 @@ const UserAssets = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
                                 <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
                                     balance
@@ -834,6 +948,164 @@ const UserAssets = () => {
                               </div>
                             </div>
                           </div>
+
+                          {
+                            newUserCoins && newUserCoins.map((coin, index) => {
+                              const totalBalance = getTransactionsForCoin(coin.coinName, userCoins.getCoin.transactions);
+
+                              return (
+                                <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
+                                  <div className="flex w-full flex-col sm:flex-row sm:items-center">
+                                    <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                                      <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block sm:hidden">
+                                        currency
+                                      </span>
+                                      <div
+                                        className="relative inline-flex shrink-0 items-center justify-center h-10 w-10 rounded-lg bg-primary-500/20 text-primary-500"
+                                        icon="cryptocurrency:usdt"
+                                      >
+                                        <svg
+                                          data-v-cd102a71
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          xmlnsXlink="http://www.w3.org/1999/xlink"
+                                          aria-hidden="true"
+                                          role="img"
+                                          className="icon h-5 w-5"
+                                          width="1em"
+                                          height="1em"
+                                          viewBox="0 0 32 32"
+                                        >
+                                          <path
+                                            fill="currentColor"
+                                            fillRule="evenodd"
+                                            d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16s-7.163 16-16 16m1.922-18.207v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118c0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116c0-1.043-3.301-1.914-7.694-2.117m0 3.59v-.002c-.11.008-.677.042-1.942.042c-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658c0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061c1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658c0 .81-2.895 1.485-6.775 1.657"
+                                          />
+                                        </svg>
+                                      </div>
+                                      <div>
+                                        <h4 className="font-heading text-sm font-medium leading-tight text-muted-700 dark:text-muted-100">
+                                          <span>{coin.coinName}</span>
+                                        </h4>
+                                        <p className="font-alt text-xs font-normal leading-tight text-muted-500 dark:text-muted-400">
+                                          <span style={{ textTransform: "uppercase" }}>{coin.coinSymbol}</span>
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
+                                      <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
+                                        <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
+                                          balance
+                                        </span>
+                                        <span className="text-muted-500 dark:text-muted-400 font-sans text-sm">
+                                          {/* {
+                                            coin.coinSymbol === "bnb" ?
+                                              `${coin.balance.toFixed(8)} (${(coin.balance * 210.25).toFixed(2)} USD)` // Correct BNB price
+                                              : coin.coinSymbol === "xrp" ?
+                                                `${coin.balance.toFixed(8)} (${(coin.balance * 0.5086).toFixed(2)} USD)` // Correct XRP price
+                                                : coin.coinSymbol === "doge" ?
+                                                  `${coin.balance.toFixed(8)} (${(coin.balance * 0.1163).toFixed(2)} USD)` // Correct Dogecoin price
+                                                  : coin.coinSymbol === "ton" ?
+                                                    `${coin.balance.toFixed(8)} (${(coin.balance * 5.76).toFixed(2)} USD)`  // Correct Toncoin price
+                                                    : coin.coinSymbol === "link" ?
+                                                      `${coin.balance.toFixed(8)} (${(coin.balance * 12.52).toFixed(2)} USD)`  // Correct Chainlink price
+                                                      : coin.coinSymbol === "dot" ?
+                                                        `${coin.balance.toFixed(8)} (${(coin.balance * 4.76
+                                                        ).toFixed(2)} USD)`  // Correct Polkadot price
+                                                        : coin.coinSymbol === "near" ?
+                                                          `${coin.balance.toFixed(8)} (${(coin.balance * 5.59).toFixed(2)} USD)`  // Correct Near Protocol price
+                                                          : coin.coinSymbol === "usdc" ?
+                                                            `${coin.balance.toFixed(8)} (${(coin.balance * 0.99).toFixed(2)} USD)`  // Correct USDC price (stablecoin)
+                                                            : coin.coinSymbol === "trx" ?
+                                                              `${coin.balance.toFixed(8)} (${(coin.balance * 0.1531
+                                                              ).toFixed(2)} USD)` // Correct TRX price
+                                                              : "Unknown Coin"
+                                          } */}
+                                          {
+                                            `${totalBalance.toFixed(8)} (${(totalBalance * getCoinPrice(coin.coinSymbol)).toFixed(2)} USD)` // Function to get coin price
+                                          }
+                                        </span>
+                                      </div>
+                                      <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-60">
+                                        <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
+                                          action
+                                        </span>
+                                        <button
+                                          onClick={() => setNewModal(true, coin.coinName, coin.tokenAddress, coin.coinSymbol, coin._id)}
+                                          type="button"
+                                          className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none text-muted-500 bg-muted-200 border-muted-200 dark:text-white dark:bg-muted-700/40 dark:border-muted-700/40 dark:hover:enabled:bg-muted-700/60 hover:enabled:bg-muted-100 dark:active:enabled:border-muted-800 dark:active:enabled:bg-muted-800 active:enabled:bg-muted-200/50 rounded-md"
+                                        >
+                                          <svg
+                                            data-v-cd102a71
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                                            aria-hidden="true"
+                                            role="img"
+                                            className="icon h-5 w-5"
+                                            width="1em"
+                                            height="1em"
+                                            viewBox="0 0 256 256"
+                                          >
+                                            <path
+                                              fill="currentColor"
+                                              d="m230.14 70.54l-44.68-44.69a20 20 0 0 0-28.29 0L33.86 149.17A19.85 19.85 0 0 0 28 163.31V208a20 20 0 0 0 20 20h44.69a19.86 19.86 0 0 0 14.14-5.86L230.14 98.82a20 20 0 0 0 0-28.28M93 180l71-71l11 11l-71 71Zm-17-17l-11-11l71-71l11 11Zm-24 10l15.51 15.51L83 204H52Zm140-70l-39-39l18.34-18.34l39 39Z"
+                                            />
+                                          </svg>
+                                          <span>Update</span>
+                                        </button>
+                                        <button
+                                          onClick={() => NewCoinDeposit(coin)}
+                                          type="button"
+                                          className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none text-muted-500 bg-muted-200 border-muted-200 dark:text-white dark:bg-muted-700/40 dark:border-muted-700/40 dark:hover:enabled:bg-muted-700/60 hover:enabled:bg-muted-100 dark:active:enabled:border-muted-800 dark:active:enabled:bg-muted-800 active:enabled:bg-muted-200/50 rounded-md ml-2"
+                                        >
+                                          <svg
+                                            data-v-cd102a71
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                                            aria-hidden="true"
+                                            role="img"
+                                            className="icon h-5 w-5"
+                                            width="1em"
+                                            height="1em"
+                                            viewBox="0 0 256 256"
+                                          >
+                                            <path
+                                              fill="currentColor"
+                                              d="M204 88v104a12 12 0 0 1-12 12H88a12 12 0 0 1 0-24h75L55.51 72.48a12 12 0 0 1 17-17L180 163V88a12 12 0 0 1 24 0"
+                                            />
+                                          </svg>
+                                          <span>Deposit</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => NewCoinDepositMinus(coin)}
+                                          className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none text-muted-500 bg-muted-200 border-muted-200 dark:text-white dark:bg-muted-700/40 dark:border-muted-700/40 dark:hover:enabled:bg-muted-700/60 hover:enabled:bg-muted-100 dark:active:enabled:border-muted-800 dark:active:enabled:bg-muted-800 active:enabled:bg-muted-200/50 rounded-md ml-2"
+                                        >
+                                          <svg
+                                            data-v-cd102a71
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                                            aria-hidden="true"
+                                            role="img"
+                                            className="icon h-5 w-5"
+                                            width="1em"
+                                            height="1em"
+                                            viewBox="0 0 256 256"
+                                          >
+                                            <path
+                                              fill="currentColor"
+                                              d="M200.49 200.49a12 12 0 0 1-17 0L76 93v75a12 12 0 0 1-24 0V64a12 12 0 0 1 12-12h104a12 12 0 0 1 0 24H93l107.49 107.51a12 12 0 0 1 0 16.98"
+                                            />
+                                          </svg>
+                                          <span>Withdrawal</span>
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })
+                          }
+
                         </div>
                       )}
                     </div>
@@ -847,7 +1119,7 @@ const UserAssets = () => {
                     <div class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-3 css-v57kt1">
                       {isLoading ? (
                         <div>Loading...</div>
-                      ) : userData.payments ? (
+                      ) : userData && userData.payments ? (
                         userData.payments.length !== 0 ? (
                           userData.payments.map((item, key) => {
                             return (
@@ -1423,6 +1695,148 @@ const UserAssets = () => {
               </div>
             </div>
           )}
+          {newModal.state && (
+            <div>
+              <div
+                className="relative z-[9999]"
+                role="dialog"
+                aria-modal="true"
+                data-headlessui-state="open"
+              >
+                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
+                <div className="fixed inset-0 overflow-x-auto">
+                  <div className="flex min-h-full items-center justify-center p-4 text-center">
+                    <div
+                      id="headlessui-dialog-panel-21"
+                      data-headlessui-state="open"
+                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-md"
+                    >
+                      <div className="flex w-full items-center justify-between px-6 py-4">
+                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
+                          {" "}
+                          Update Asset{" "}
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={closeToggle}
+                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            className="h-4 w-4 fill-current"
+                          >
+                            <path
+                              fill="none"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M18 6 6 18M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="px-6 py-2">
+                        <form
+                          action
+                          method="POST"
+                          className="mx-auto w-full max-w-3xl"
+                        >
+                          <div className="bg-muted-50 dark:bg-muted-800/70 border-muted-200 dark:border-muted-700 border-t p-4">
+                            <h4 className="font-heading text-muted-400 text-sm font-medium leading-6">
+                              {" "}
+                              Selected Currency:{" "}
+                              <span
+                                className="inline-block px-3 font-sans transition-shadow duration-300 py-1.5 text-xs rounded-md bg-info-500 dark:bg-info-500 text-white"
+                                size="xs"
+                              >
+                                {newModal.Coinname}
+
+                              </span>
+                            </h4>
+                            <div className="grid grid-cols-12 gap-4 mt-2">
+                              <div className="col-span-12">
+                                <div className="relative">
+                                  <label
+                                    className="nui-label w-full pb-1 text-[0.825rem]"
+                                    htmlFor="ninja-input-26"
+                                  >
+                                    Address
+                                  </label>
+                                  <div className="group/nui-input relative">
+                                    <input
+                                      id="ninja-input-26"
+                                      type="text"
+                                      onChange={handleInputNewAddress}
+                                      value={newCoinAddress.address}
+                                      className="nui-focus border-muted-300 text-muted-600 placeholder:text-muted-300 dark:border-muted-700 dark:bg-muted-900/75 dark:text-muted-200 dark:placeholder:text-muted-500 dark:focus:border-muted-700 peer w-full border bg-white font-sans transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-75 px-2 h-10 py-2 text-sm leading-5 pe-4 ps-9 rounded"
+                                      placeholder="Ex: 0x1234567890"
+                                    />
+                                    {/**/}
+                                    {/**/}
+                                    <div className="text-muted-400 group-focus-within/nui-input:text-primary-500 absolute start-0 top-0 flex items-center justify-center transition-colors duration-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-75 h-10 w-10">
+                                      <svg
+                                        data-v-cd102a71
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                                        aria-hidden="true"
+                                        role="img"
+                                        className="icon h-[1.15rem] w-[1.15rem]"
+                                        width="1em"
+                                        height="1em"
+                                        viewBox="0 0 32 32"
+                                      >
+                                        <path
+                                          fill="currentColor"
+                                          d="M26 28h-4v-2h4V6h-4V4h4a2.002 2.002 0 0 1 2 2v20a2.002 2.002 0 0 1-2 2m-6-17h-2l-2 3.897L14 11h-2l2.905 5L12 21h2l2-3.799L18 21h2l-2.902-5zM10 28H6a2.002 2.002 0 0 1-2-2V6a2.002 2.002 0 0 1 2-2h4v2H6v20h4z"
+                                        />
+                                      </svg>
+                                    </div>
+                                    {/**/}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>{/**/}</div>
+                        </form>
+                      </div>
+                      <div className="flex w-full items-center gap-x-2 justify-end">
+                        <div className="p-4 md:p-6">
+                          <div className="flex gap-x-2">
+                            <button
+                              data-v-71bb21a6
+                              type="button"
+                              onClick={closeToggle}
+                              className="is-button rounded is-button-default"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              data-v-71bb21a6
+                              type="button"
+                              disabled={isDisable}
+                              onClick={updateNewCoin}
+                              className="is-button rounded bg-primary-500 dark:bg-primary-500 hover:enabled:bg-primary-400 dark:hover:enabled:bg-primary-400 text-white hover:enabled:shadow-lg hover:enabled:shadow-primary-500/50 dark:hover:enabled:shadow-primary-800/20 focus-visible:outline-primary-400/70 focus-within:outline-primary-400/70 focus-visible:bg-primary-500 active:enabled:bg-primary-500 dark:focus-visible:outline-primary-400 dark:focus-within:outline-primary-400 dark:focus-visible:bg-primary-500 dark:active:enabled:bg-primary-500"
+                            >
+                              {isDisable ? (
+                                <div>
+                                  <div className="nui-placeload animate-nui-placeload h-4 w-8 rounded mx-auto"></div>
+                                </div>
+                              ) : (
+                                "Update"
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* modal 2 */}
           {modal2 && (
@@ -1649,9 +2063,9 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         Txid is required
-                                      </span>
+                                      </span>}
                                     </div>
                                   </div>
                                 </div>
@@ -1695,9 +2109,10 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         From Address is required
-                                      </span>
+                                      </span>}
+
                                       {/**/}
                                     </div>
                                   </div>
@@ -1983,6 +2398,54 @@ const UserAssets = () => {
                                       {/**/}
                                       {/**/}
                                       {/**/}
+                                    </div>
+                                  </div>
+                                </div>
+
+                              </div>
+                              {transactionDetail.note && transactionDetail.note.trim() != "" && (
+                                <div className="col-span-12 grid grid-cols-12">
+                                  <div className="col-span-12 flex flex-col justify-start pt-2 sm:col-span-3">
+                                    <label className="mb-1 sm:mb-0 nui-label text-[0.825rem]">
+                                      Subject Line for Email
+                                    </label>
+                                  </div>
+                                  <div className="col-span-12 sm:col-span-9">
+                                    <div className="relative">
+                                      <div className="group/nui-textarea relative flex flex-col">
+                                        <textarea
+                                          id="ninja-input-47"
+                                          onChange={handleTransaction}
+                                          value={coinAddress.clientMessage}
+                                          name="clientMessage"
+                                          className="nui-focus border-muted-300 placeholder:text-muted-300 focus:border-muted-300 focus:shadow-muted-300/50 dark:border-muted-700 dark:bg-muted-900/75 dark:text-muted-200 dark:placeholder:text-muted-500 dark:focus:border-muted-700 dark:focus:shadow-muted-800/50 peer w-full border bg-white font-sans transition-all duration-300 focus:shadow-lg disabled:cursor-not-allowed disabled:opacity-75 min-h-[2.5rem] text-sm leading-[1.6] rounded resize-none p-2"
+                                          placeholder="Enter subject line for email send to client"
+                                          rows={4}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="col-span-12 grid grid-cols-12">
+                                <div className="col-span-12 flex flex-col justify-start pt-2 sm:col-span-3">
+                                  <label className="mb-1 sm:mb-0 nui-label text-[0.825rem]">
+                                    Reference number
+                                  </label>
+                                </div>
+                                <div className="col-span-12 sm:col-span-9">
+                                  <div className="relative">
+                                    {/**/}
+                                    <div className="group/nui-textarea relative flex flex-col">
+                                      <input
+                                        id="ninja-input-47"
+                                        onChange={handleTransaction}
+                                        value={coinAddress.reference}
+                                        name="reference"
+                                        className="nui-focus border-muted-300 placeholder:text-muted-300 focus:border-muted-300 focus:shadow-muted-300/50 dark:border-muted-700 dark:bg-muted-900/75 dark:text-muted-200 dark:placeholder:text-muted-500 dark:focus:border-muted-700 dark:focus:shadow-muted-800/50 peer w-full border bg-white font-sans transition-all duration-300 focus:shadow-lg disabled:cursor-not-allowed disabled:opacity-75 min-h-[2.5rem] text-sm leading-[1.6] rounded resize-none p-2"
+                                        placeholder="Enter reference number..."
+
+                                      />
                                     </div>
                                   </div>
                                 </div>
@@ -2251,9 +2714,10 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         Txid is required
-                                      </span>
+                                      </span>}
+
                                     </div>
                                   </div>
                                 </div>
@@ -2297,9 +2761,10 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         From Address is required
-                                      </span>
+                                      </span>}
+
                                       {/**/}
                                     </div>
                                   </div>
@@ -2585,6 +3050,54 @@ const UserAssets = () => {
                                       {/**/}
                                       {/**/}
                                       {/**/}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {transactionDetail.note && transactionDetail.note.trim() != "" && (
+                                <div className="col-span-12 grid grid-cols-12">
+                                  <div className="col-span-12 flex flex-col justify-start pt-2 sm:col-span-3">
+                                    <label className="mb-1 sm:mb-0 nui-label text-[0.825rem]">
+                                      Subject Line for Email
+                                    </label>
+                                  </div>
+                                  <div className="col-span-12 sm:col-span-9">
+                                    <div className="relative">
+                                      <div className="group/nui-textarea relative flex flex-col">
+                                        <textarea
+                                          id="ninja-input-47"
+                                          onChange={handleTransaction}
+                                          value={coinAddress.clientMessage}
+                                          name="clientMessage"
+                                          className="nui-focus border-muted-300 placeholder:text-muted-300 focus:border-muted-300 focus:shadow-muted-300/50 dark:border-muted-700 dark:bg-muted-900/75 dark:text-muted-200 dark:placeholder:text-muted-500 dark:focus:border-muted-700 dark:focus:shadow-muted-800/50 peer w-full border bg-white font-sans transition-all duration-300 focus:shadow-lg disabled:cursor-not-allowed disabled:opacity-75 min-h-[2.5rem] text-sm leading-[1.6] rounded resize-none p-2"
+                                          placeholder="Enter subject line for email send to client"
+                                          rows={4}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="col-span-12 grid grid-cols-12">
+                                <div className="col-span-12 flex flex-col justify-start pt-2 sm:col-span-3">
+                                  <label className="mb-1 sm:mb-0 nui-label text-[0.825rem]">
+                                    Reference number
+                                  </label>
+                                </div>
+                                <div className="col-span-12 sm:col-span-9">
+                                  <div className="relative">
+                                    {/**/}
+                                    <div className="group/nui-textarea relative flex flex-col">
+                                      <input
+                                        id="ninja-input-47"
+                                        onChange={handleTransaction}
+                                        value={coinAddress.reference}
+                                        name="reference"
+                                        className="nui-focus border-muted-300 placeholder:text-muted-300 focus:border-muted-300 focus:shadow-muted-300/50 dark:border-muted-700 dark:bg-muted-900/75 dark:text-muted-200 dark:placeholder:text-muted-500 dark:focus:border-muted-700 dark:focus:shadow-muted-800/50 peer w-full border bg-white font-sans transition-all duration-300 focus:shadow-lg disabled:cursor-not-allowed disabled:opacity-75 min-h-[2.5rem] text-sm leading-[1.6] rounded resize-none p-2"
+                                        placeholder="Enter reference number..."
+
+                                      />
                                     </div>
                                   </div>
                                 </div>

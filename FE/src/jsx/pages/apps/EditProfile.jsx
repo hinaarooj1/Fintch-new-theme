@@ -62,11 +62,13 @@ const EditProfile = () => {
         try {
             const signleUser = await signleUsersApi(authUser().user._id);
 
+            console.log('signleUser: ', signleUser);
             if (signleUser.success) {
                 setUserData(signleUser.signleUser);
             } else {
                 toast.dismiss();
-                toast.error(signleUser.msg);
+                toast.error(signleUser);
+                return
             }
         } catch (error) {
             toast.dismiss();
@@ -125,12 +127,12 @@ const EditProfile = () => {
 
     const updateSignleUser = async (e) => {
         e.preventDefault();
-console.log("ds");
+        console.log("ds");
         if (!validateForm()) {
             console.log("asa");
             return;
         }
-console.log("sa");
+        console.log("sa");
         try {
             setisDisable(true);
             const body = { ...userData };
@@ -143,7 +145,8 @@ console.log("sa");
                 toast.info("Profile Updated! Please login again with new details")
             } else {
                 toast.dismiss();
-                toast.error(signleUser.msg);
+                console.log('signleUsera: ', signleUser);
+                toast.error(signleUser);
             }
         } catch (error) {
             toast.dismiss();
@@ -238,13 +241,13 @@ console.log("sa");
                                             onChange={handleInput}
                                             disabled={isDisable}
                                         />
-                                        
+
                                         <span
                                             onClick={() => setShowPassword(!showPassword)} className=" eye">
                                             {showPassword ?
                                                 <i class="fa-solid fa-eye"></i> :
                                                 <i className="fa fa-eye-slash" />}
-                                            
+
 
                                         </span>
                                         {errors.password && <div className="text-danger fs-12">{errors.password}</div>}
@@ -259,12 +262,12 @@ console.log("sa");
                                             onChange={handleInput}
                                             disabled={isDisable}
                                         />
-                                          <span
+                                        <span
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)} className=" eye">
                                             {showConfirmPassword ?
                                                 <i class="fa-solid fa-eye"></i> :
                                                 <i className="fa fa-eye-slash" />}
-                                            
+
 
                                         </span>
                                         {errors.confirmPassword && <div className="text-danger fs-12">{errors.confirmPassword}</div>}
@@ -282,7 +285,7 @@ console.log("sa");
                                         {errors.phone && <div className="text-danger fs-12">{errors.phone}</div>}
 
                                     </div>
-                                
+
                                     <div className="col-sm-6 mb-3">
                                         <label className="form-label">Address</label>
                                         <input
@@ -344,7 +347,7 @@ console.log("sa");
                                     disabled={isDisable}
                                 >
                                     UPDATE
-                                </button> 
+                                </button>
                             </div>
                         </form>
                     </div>

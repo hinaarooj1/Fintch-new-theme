@@ -65,7 +65,7 @@ const StocksSec = () => {
                 const stocks = userCoins.getCoin.stocks;
 
                 // Check if stocks is defined and is an array
-                if (Array.isArray(stocks)) {
+                if (Array.isArray(stocks) && stocks !== null && stocks !== undefined) {
                     if (stocks.length > 0) {
                         console.log('stocks: ', stocks);
                         setUserTransactions(stocks.reverse()); // Set the stocks if available
@@ -92,7 +92,7 @@ const StocksSec = () => {
     };
     useEffect(() => {
         // Fetch live stock values when UserTransactions is updated
-        if (UserTransactions.length > 0) {
+        if (Array.isArray(UserTransactions) && UserTransactions.length > 0) {
             const symbols = UserTransactions.map(tx => tx.stockSymbol);
             fetchStockValues(symbols);
         }
@@ -204,39 +204,39 @@ const StocksSec = () => {
                                 </div>
                             ) : (
 
-                                    <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md">
-                                        <div className="flex items-center justify-between p-4">
-                                            <div>
-                                                <p
-                                                    className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                                                    tag="h2"
-                                                >
-                                                    {" "}
-                                                    All Stocks
-                                                </p>
-                                            </div>
+                                <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md">
+                                    <div className="flex items-center justify-between p-4">
+                                        <div>
+                                            <p
+                                                className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
+                                                tag="h2"
+                                            >
+                                                {" "}
+                                                All Stocks
+                                            </p>
                                         </div>
-                                        {isLoading && (
-                                            <div className="  p-5">Loading Stocks...</div>
-                                        )}
-                                        {!isLoading && (
-                                            <div className="pt-6 asm">
-                                                        <Table striped bordered hover>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Stock Name</th>
-                                                                    <th>Stock Symbol</th>
-                                                                    <th>Quantity</th>
-                                                                    <th>Total Value</th>
-                                                                </tr>
-                                                            </thead>
+                                    </div>
+                                    {isLoading && (
+                                        <div className="  p-5">Loading Stocks...</div>
+                                    )}
+                                    {!isLoading && (
+                                        <div className="pt-6 asm">
+                                            <Table striped bordered hover>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Stock Name</th>
+                                                        <th>Stock Symbol</th>
+                                                        <th>Quantity</th>
+                                                        <th>Total Value</th>
+                                                    </tr>
+                                                </thead>
                                                 {UserTransactions && Array.isArray(UserTransactions) && UserTransactions.length > 0 ? (
                                                     UserTransactions.map((transaction, index) => (
-                                                            <tbody>
-                                                                <tr key={index}>
-                                                                    <td>{transaction.stockName || 'N/A'}</td>
-                                                                    <td className="text-center">{transaction.stockSymbol || 'N/A'}</td>
-                                                                    <td>{transaction.stockAmount || 'N/A'}</td>
+                                                        <tbody>
+                                                            <tr key={index}>
+                                                                <td>{transaction.stockName || 'N/A'}</td>
+                                                                <td className="text-center">{transaction.stockSymbol || 'N/A'}</td>
+                                                                <td>{transaction.stockAmount || 'N/A'}</td>
                                                                 <td>
                                                                     {spValue ? (
                                                                         <div className="loader-container">
@@ -251,21 +251,21 @@ const StocksSec = () => {
                                                                             ? parseFloat(transaction.stockValue) * parseFloat(transaction.stockAmount)
                                                                             : calculatedValue;
                                                                         return `$${formattedValue.toFixed(3) || 'N/A'}`;
-                                                                    })() }
-                                                                        
+                                                                    })()}
+
                                                                 </td>
-                                                                </tr>
-                                                            </tbody>
+                                                            </tr>
+                                                        </tbody>
                                                     ))
                                                 ) : (
-                                                        <tr>
-                                                            <td colSpan="4" className="text-center">No stocks available</td>
-                                                        </tr>
+                                                    <tr>
+                                                        <td colSpan="4" className="text-center">No stocks available</td>
+                                                    </tr>
                                                 )}
-                                                </Table>
-                                            </div>
-                                        )}
-                                    </div>
+                                            </Table>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>
@@ -355,7 +355,7 @@ const StocksSec = () => {
                                             {`($${singleTransaction.trxName === "bitcoin"
                                                 ? (singleTransaction.amount * liveBtc).toFixed(2)
                                                 : singleTransaction.trxName === "ethereum"
-                                                    ? (singleTransaction.amount * 2241.86).toFixed(2)
+                                                    ? (singleTransaction.amount * 2640).toFixed(2)
                                                     : singleTransaction.trxName === "tether"
                                                         ? singleTransaction.amount.toFixed(2)
                                                         : (0).toFixed(2)
@@ -522,7 +522,7 @@ const StocksSec = () => {
                                             {`($${singleTransaction.trxName === "bitcoin"
                                                 ? (singleTransaction.amount * liveBtc).toFixed(2)
                                                 : singleTransaction.trxName === "ethereum"
-                                                    ? (singleTransaction.amount * 2241.86).toFixed(2)
+                                                    ? (singleTransaction.amount * 2640).toFixed(2)
                                                     : singleTransaction.trxName === "tether"
                                                         ? singleTransaction.amount.toFixed(2)
                                                         : (0).toFixed(2)

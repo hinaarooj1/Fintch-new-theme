@@ -188,7 +188,7 @@ const Header = ({ onNote }) => {
                       </Dropdown.Menu>
                   </Dropdown>
                   {/* end on mobile size */}
-                  <li className="nav-item dropdown notification_dropdown">
+                  {/* <li className="nav-item dropdown notification_dropdown">
                       <Link to={"#"} 
                         className={`nav-link bell dz-theme-mode ${background.value === "dark" ? "active" : ""}`}
                         onClick={()=>handleThemeMode()}
@@ -196,7 +196,7 @@ const Header = ({ onNote }) => {
                         {SVGICON.LightSvgIcon}
                         {SVGICON.DarkSvgIcon}
                       </Link>
-                  </li>	
+                  </li>	 */}
                   
                   <li className={`nav-item dropdown notification_dropdown ${path === "dashboard" || path ===  "index-2" ? '' : 'd-none'}`}>
                       <Link to={"#"} className="nav-link  menu-wallet"

@@ -14,11 +14,37 @@ import { ThemeContext } from '../../../context/ThemeContext';
 import btcLogo from "../../../assets/images/img/btc-logo.svg";
 import ethLogo from "../../../assets/images/img/ethereum-logo.svg";
 import usdtLogo from "../../../assets/images/img/usdt-logo.svg";
+import BNBcoin from '../../../assets/images/new/bnb.png';
+import Coin1 from '../../../assets/images/new/1.png';
+import Coin2 from '../../../assets/images/new/2.png';
+import Coin3 from '../../../assets/images/new/3.png';
+import Coin4 from '../../../assets/images/new/4.png';
+import Coin5 from '../../../assets/images/new/5.png';
+import Coin6 from '../../../assets/images/new/6.png';
+import Coin7 from '../../../assets/images/new/7.png';
+import Coin8 from '../../../assets/images/new/8.png';
+import eurIco from '../../../assets/images/new/euro.svg';
+import solIco from '../../../assets/images/new/solana.png';
 import { useAuthUser, useSignOut } from 'react-auth-kit';
 import { toast } from 'react-toastify';
 import { getCoinsUserApi, getsignUserApi } from '../../../Api/Service';
 import axios from 'axios';
 
+const coinLogos = {
+	euro: eurIco, // Replace with actual local path
+	bnb: BNBcoin, // Replace with actual local path
+	xrp: Coin1, // Replace with actual local path
+	solana: solIco, // Replace with actual local path
+	dogecoin: Coin2, // Replace with actual local path
+	toncoin: Coin3, // Replace with actual local path
+	chainlink: Coin4, // Replace with actual local path
+	polkadot: Coin5, // Replace with actual local path
+	'near protocol': Coin6, // Replace with actual local path
+	'usd coin': Coin7, // Replace with actual local path
+	tron: Coin8 // Replace with actual local path
+	// Replace with actual local path
+	// Add more coins as needed
+};
 export function MainComponent() {
 	const [modal, setModal] = useState(false);
 	const [Description, setDescription] = useState("");
@@ -102,6 +128,7 @@ export function MainComponent() {
 		}, 2000);
 	};
 	const [copySuccess3, setCopySuccess3] = useState(false);
+	const [copySuccessUnique, setcopySuccessUnique] = useState({});
 
 	const handleCopyClick3 = () => {
 		const textField = document.createElement("textarea");
@@ -189,7 +216,7 @@ export function MainComponent() {
 				let lakh = btcValueAdded * val;
 				const totalValue = (
 					lakh +
-					ethValueAdded * 2241.86 +
+					ethValueAdded * 2640 +
 					usdtValueAdded
 				).toFixed(2);
 
@@ -258,7 +285,7 @@ export function MainComponent() {
 				let lakhPending = btcValueAddedPending * val;
 				const totalValuePending = (
 					lakhPending +
-					ethValueAddedPending * 2241.86 +
+					ethValueAddedPending * 2640 +
 					usdtValueAddedPending
 				).toFixed(2);
 
@@ -314,11 +341,12 @@ export function MainComponent() {
 								<h4 className="card-title">Verify Your Identity for Enhanced Security</h4>
 							</div>
 							<div className="card-body">
-								<p>Welcome to our KYC (Know Your Customer) process! We prioritize the safety and security of our platform and aim to ensure a seamless experience for our users. The KYC process is a crucial step in maintaining a secure environment and complying with regulatory standards.</p>
-								<p>In order to activate the wallet, you are required to complete your identification process.</p>
+								<p>We prioritize the safety and security of our platform to ensure a seamless experience for all users.</p>
+								<p>Completing the KYC process is an essential step in maintaining a secure environment and complying with regulatory standards.</p>
+								<p>To activate your wallet, please complete the identification process.</p>
 								<Alert variant="warning" dismissible className="solid alert-right-icon">
 									<span><i className='mdi mdi-alert'></i></span>{" "}
-									Veryify your identity ASAP!
+									Please verify your identity
 								</Alert>
 								<Link to="/flows/kyc"><Button to="/flows/kyc" variant="primary" className="mt-3"  >
 									Start KYC
@@ -330,27 +358,27 @@ export function MainComponent() {
 
 				<Row>
 					<div className="col-xl-12">
-					
-							<div className="card price-list style-2 border-top border-style">
-								<div className="card-header border-0 pb-2 px-3">
-									<div>
-										<h4 className="text-pink mb-0 card-title">My Wallets</h4>
-									</div>
-									{/* <DropdownBlog color="btn-pink" /> */}
-									{/* <DropdownBlog /> */} <Link
-										to={`/assets`}
-										className="  sasa rounded-lg px-4 py-2 font-sans text-sm font-medium underline-offset-4 transition-colors duration-300 hover:underline"
-									>
-										Wallets
-									</Link>
+
+						<div className="card price-list style-2 border-top border-style">
+							<div className="card-header border-0 pb-2 px-3">
+								<div>
+									<h4 className="text-pink mb-0 card-title">My Wallets</h4>
 								</div>
-							{UserData && UserData.btcTokenAddress ?
+								{/* <DropdownBlog color="btn-pink" /> */}
+								{/* <DropdownBlog /> */} <Link
+									to={`/assets`}
+									className="  sasa rounded-lg px-4 py-2 font-sans text-sm font-medium underline-offset-4 transition-colors duration-300 hover:underline"
+								>
+									Wallets
+								</Link>
+							</div>
+							{UserData ?
 								<div className="card-body p-3 py-0">
 									<div className="table-responsive">
 										<table className="table text-center bg-pink-hover tr-rounded order-tbl mt-2">
 
 											<tbody>
-												<tr  >
+												<tr>
 
 
 
@@ -362,7 +390,7 @@ export function MainComponent() {
 															width="180"
 														/>
 													</p></td>
-													<td className="text-end" onClick={handleCopyClick}>  {copySuccess ? (
+													<td className="text-end" style={{ cursor: 'pointer' }} onClick={handleCopyClick}>  {copySuccess ? (
 														<svg
 															xmlns="http://www.w3.org/2000/svg"
 															x="0px"
@@ -409,7 +437,7 @@ export function MainComponent() {
 														</svg>
 													)}</td>
 												</tr>
-												<tr  >
+												<tr>
 
 
 
@@ -421,7 +449,7 @@ export function MainComponent() {
 															width="180"
 														/>
 													</p></td>
-													<td className="text-end" onClick={handleCopyClick2}>  {copySuccess2 ? (
+													<td className="text-end" style={{ cursor: 'pointer' }} onClick={handleCopyClick2}>  {copySuccess2 ? (
 														<svg
 															xmlns="http://www.w3.org/2000/svg"
 															x="0px"
@@ -468,7 +496,7 @@ export function MainComponent() {
 														</svg>
 													)}</td>
 												</tr>
-												<tr  >
+												<tr>
 
 
 
@@ -480,7 +508,7 @@ export function MainComponent() {
 															width="180"
 														/>
 													</p></td>
-													<td className="text-end" onClick={handleCopyClick3}>  {copySuccess3 ? (
+													<td className="text-end" style={{ cursor: 'pointer' }} onClick={handleCopyClick3}>  {copySuccess3 ? (
 														<svg
 															xmlns="http://www.w3.org/2000/svg"
 															x="0px"
@@ -527,6 +555,84 @@ export function MainComponent() {
 														</svg>
 													)}</td>
 												</tr>
+												{UserData && UserData.additionalCoins && UserData.additionalCoins.length > 0 ? (
+													UserData.additionalCoins.map((coin) => {
+														const handleCopyClickUnique = () => {
+															navigator.clipboard.writeText(coin.tokenAddress) // Copy the coin address to clipboard
+																.then(() => {
+																	setcopySuccessUnique((prev) => ({ ...prev, [coin._id]: true })); // Set copy success for this coin
+																	setTimeout(() => {
+																		setcopySuccessUnique((prev) => ({ ...prev, [coin._id]: false })); // Reset after 2 seconds
+																	}, 2000);
+																})
+																.catch((err) => console.error('Failed to copy: ', err));
+														};
+
+														return (
+															<tr key={coin.id}> {/* Ensure you have a unique key for each mapped item */}
+																<td className="text-start widn" >
+																	<img style={{ borderRadius: "100%" }} src={coinLogos[coin.coinName.toLowerCase()]} alt={`${coin.coinName} logo`} className="coin-logo" />
+																</td>
+																<td>
+																	<p style={{ margin: "0" }} className="txt sml">
+																		<Truncate
+																			offset={6}
+																			text={coin.tokenAddress} // Use the address from the coin object
+																			width="180"
+																		/>
+																	</p>
+																</td>
+																<td className="text-end" style={{ cursor: 'pointer' }} onClick={handleCopyClickUnique}>
+																	{copySuccessUnique[coin._id] ? ( // Check if copy was successful for this coin
+																		<svg
+																			xmlns="http://www.w3.org/2000/svg"
+																			className="icon w-5 h-5 inline-block -mt-1 ml-1"
+																			width="1em"
+																			height="1em"
+																			viewBox="0 0 30 30"
+																		>
+																			<path
+																				fill="white"
+																				d="M 26.980469 5.9902344 A 1.0001 1.0001 0 0 0 26.292969 6.2929688 L 11 21.585938 L 4.7070312 15.292969 A 1.0001 1.0001 0 1 0 3.2929688 16.707031 L 10.292969 23.707031 A 1.0001 1.0001 0 0 0 11.707031 23.707031 L 27.707031 7.7070312 A 1.0001 1.0001 0 0 0 26.980469 5.9902344 z"
+																			></path>
+																		</svg>
+																	) : (
+																		<svg
+																			xmlns="http://www.w3.org/2000/svg"
+																			aria-hidden="true"
+																			role="img"
+																			className="icon w-5 h-5 inline-block -mt-1 ml-1"
+																			width="1em"
+																			height="1em"
+																			viewBox="0 0 24 24"
+																		>
+																			<g
+																				fill="none"
+																				stroke="currentColor"
+																				strokeLinecap="round"
+																				strokeLinejoin="round"
+																				strokeWidth={2}
+																			>
+																				<rect
+																					width={13}
+																					height={13}
+																					x={9}
+																					y={9}
+																					rx={2}
+																					ry={2}
+																				/>
+																				<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+																			</g>
+																		</svg>
+																	)}
+																</td>
+															</tr>
+														);
+													})
+												) : ""}
+
+
+
 
 											</tbody>
 										</table>
@@ -534,7 +640,7 @@ export function MainComponent() {
 								</div>
 
 								: <p className='card-body p-3 py-4'>No wallet found</p>}
-							</div>
+						</div>
 					</div>
 					{/* <div className="col-xl-6">
 						<div className="card market-chart">

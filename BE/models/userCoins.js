@@ -13,7 +13,7 @@ let userCoins = new mongoose.Schema({
   },
   btcTokenAddress: {
     type: String,
-    default: "N/A",
+    default: "",
   },
 
   ethBalance: {
@@ -22,17 +22,39 @@ let userCoins = new mongoose.Schema({
   },
   ethTokenAddress: {
     type: String,
-    default: "N/A",
+    default: "",
   },
 
   usdtBalance: {
     type: Number,
     default: 0,
   },
-
+  additionalCoins: {
+    type: [
+      {
+        coinName: { type: String, required: true },
+        coinSymbol: { type: String, required: true },
+        balance: { type: Number, default: 0 },
+        tokenAddress: { type: String, default: "" },
+      }
+    ],
+    default: [
+      { coinName: "BNB", coinSymbol: "bnb", balance: 0, tokenAddress: "" },
+      { coinName: "XRP", coinSymbol: "xrp", balance: 0, tokenAddress: "" },
+      { coinName: "Dogecoin", coinSymbol: "doge", balance: 0, tokenAddress: "" },
+      { coinName: "Toncoin", coinSymbol: "ton", balance: 0, tokenAddress: "" },
+      { coinName: "Chainlink", coinSymbol: "link", balance: 0, tokenAddress: "" },
+      { coinName: "Polkadot", coinSymbol: "dot", balance: 0, tokenAddress: "" },
+      { coinName: "Near Protocol", coinSymbol: "near", balance: 0, tokenAddress: "" },
+      { coinName: "USD Coin", coinSymbol: "usdc", balance: 0, tokenAddress: "" },
+      { coinName: "Tron", coinSymbol: "trx", balance: 0, tokenAddress: "" },
+      { coinName: "Solana", coinSymbol: "sol", balance: 0, tokenAddress: "" },
+      { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "" }
+    ],
+  },
   usdtTokenAddress: {
     type: String,
-    default: "N/A",
+    default: "",
   },
   transactions: [
     {
@@ -67,6 +89,9 @@ let userCoins = new mongoose.Schema({
       note: {
         type: String,
       },
+      reference: {
+        type: String,
+      },
       createdAt: {
         type: Date,
         default: Date.now,
@@ -81,6 +106,7 @@ let userCoins = new mongoose.Schema({
       },
     },
   ],
+
   stocks: [
     {
       stockName: {

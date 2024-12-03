@@ -4,7 +4,20 @@ import Truncate from "react-truncate-inside";
 import Select from 'react-select';
 import btcLogo from "../../../assets/images/img/btc-logo.svg";
 import ethLogo from "../../../assets/images/img/ethereum-logo.svg";
+import BNBcoin from '../../../assets/images/new/bnb.png';
+import Coin1 from '../../../assets/images/new/1.png';
+import Coin2 from '../../../assets/images/new/2.png';
+import Coin3 from '../../../assets/images/new/3.png';
+import Coin4 from '../../../assets/images/new/4.png';
+import Coin5 from '../../../assets/images/new/5.png';
+import Coin6 from '../../../assets/images/new/6.png';
+import Coin7 from '../../../assets/images/new/7.png';
+import Coin8 from '../../../assets/images/new/8.png';
+import Dash from "../../../assets/images/svg/dash.svg"
+import Eth from "../../../assets/images/svg/eth.svg"
 import usdtLogo from "../../../assets/images/img/usdt-logo.svg";
+import EurIco from "../../../assets/images/new/euro.svg";
+import SolIco from "../../../assets/images/new/solana.png";
 import redArrow from "../../../assets/images/img/re-arriw.svg";
 import DropdownBlog from '../../elements/DropdownBlog';
 import { SVGICON } from '../../constant/theme';
@@ -35,7 +48,25 @@ const options1 = [
     { value: '3', label: 'Online' },
     { value: '4', label: 'Cash On Time' },
 ]
-
+const coinLogos = {
+    bitcoin: btcLogo,
+    tether: usdtLogo,
+    ethereum: Eth,
+    bnb: BNBcoin, // Replace with actual local path
+    xrp: Coin1, // Replace with actual local path
+    dogecoin: Coin2, // Replace with actual local path
+    euro: EurIco, // Replace with actual local path
+    solana: SolIco, // Replace with actual local path
+    // Replace with actual local path
+    toncoin: Coin3, // Replace with actual local path
+    chainlink: Coin4, // Replace with actual local path
+    polkadot: Coin5, // Replace with actual local path
+    'near protocol': Coin6, // Replace with actual local path
+    'usd coin': Coin7, // Replace with actual local path
+    tron: Coin8 // Replace with actual local path
+    // Replace with actual local path
+    // Add more coins as needed
+};
 const RightWalletBar = () => {
     const { setHeadWallet } = useContext(ThemeContext);
     const [depositModal, setDepositModal] = useState(false);
@@ -77,7 +108,7 @@ const RightWalletBar = () => {
 
             if (userCoins.success) {
                 setIsUser(userCoins.signleUser);
-
+                getCoins(authUser().user, userCoins.signleUser);
                 return;
             } else {
                 toast.dismiss();
@@ -94,7 +125,7 @@ const RightWalletBar = () => {
 
 
 
-    const getCoins = async (data) => {
+    const getCoins = async (data, isUserd) => {
         let id = data._id;
         try {
             const userCoins = await getCoinsUserApi(id);
@@ -104,72 +135,139 @@ const RightWalletBar = () => {
 
             if (response && userCoins.success) {
                 setUserData(userCoins.getCoin);
-                // setUserTransactions;
+                console.log('userCoins.getCoin: ', userCoins.getCoin);
 
                 setUserTransactions(
                     userCoins.getCoin.transactions.reverse().slice(0, 5)
                 );
                 setisLoading(false);
-                // tx
-                const btc = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes("bitcoin")
-                );
-                const btccomplete = btc.filter((transaction) =>
-                    transaction.status.includes("completed")
-                );
-                let btcCount = 0;
-                let btcValueAdded = 0;
-                for (let i = 0; i < btccomplete.length; i++) {
-                    const element = btccomplete[i];
-                    btcCount = element.amount;
-                    btcValueAdded += btcCount;
-                }
-                setbtcBalance(btcValueAdded);
-                // tx
-                // tx
-                const eth = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes("ethereum")
-                );
-                const ethcomplete = eth.filter((transaction) =>
-                    transaction.status.includes("completed")
-                );
-                let ethCount = 0;
-                let ethValueAdded = 0;
-                for (let i = 0; i < ethcomplete.length; i++) {
-                    const element = ethcomplete[i];
-                    ethCount = element.amount;
-                    ethValueAdded += ethCount;
-                }
-                setethBalance(ethValueAdded);
-                // tx
-                // tx
-                const usdt = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes("tether")
-                );
-                const usdtcomplete = usdt.filter((transaction) =>
-                    transaction.status.includes("completed")
-                );
-                let usdtCount = 0;
-                let usdtValueAdded = 0;
-                for (let i = 0; i < usdtcomplete.length; i++) {
-                    const element = usdtcomplete[i];
-                    usdtCount = element.amount;
-                    usdtValueAdded += usdtCount;
-                }
-                setusdtBalance(usdtValueAdded);
-                // tx
+
+                // Fetch live BTC price
                 let val = response.data.bpi.USD.rate.replace(/,/g, "");
                 setliveBtc(val);
-                let lakh = btcValueAdded * val;
-                const totalValue = (
-                    lakh +
-                    ethValueAdded * 2241.86 +
-                    usdtValueAdded
+
+                // Helper function to calculate the balances
+                const calculateBalance = (coinSymbol, coinPrice) => {
+                    // Ensure case-insensitive comparison by converting to lowercase
+                    const completedTransactions = userCoins.getCoin.transactions
+                        .filter(transaction => transaction.trxName.toLowerCase().includes(coinSymbol.toLowerCase()))
+                        .filter(transaction => transaction.status.includes("completed"));
+
+                    let totalAmount = 0;
+                    for (let i = 0; i < completedTransactions.length; i++) {
+                        totalAmount += completedTransactions[i].amount;
+                    }
+                    return totalAmount * coinPrice;
+                };
+
+                // Calculate balances for each coin (completed transactions)
+                const btcBalance = calculateBalance("bitcoin", parseFloat(val));
+                const ethBalance = calculateBalance("ethereum", 2640.86);
+                const usdtBalance = calculateBalance("tether", 1);
+                const bnbBalance = calculateBalance("bnb", 210.25); // Lowercased "BNB"
+                const xrpBalance = calculateBalance("xrp", 0.5086); // Lowercased "XRP"
+                const dogeBalance = calculateBalance("dogecoin", 0.1163); // Lowercased "Dogecoin"
+                const eurBalance = calculateBalance("euro", 1.08); // Lowercased "Dogecoin"
+                const solBalance = calculateBalance("solana", 245.01); // Lowercased "Dogecoin"
+                const tonBalance = calculateBalance("toncoin", 5.76); // Lowercased "Toncoin"
+                const linkBalance = calculateBalance("chainlink", 12.52); // Lowercased "Chainlink"
+                const dotBalance = calculateBalance("polkadot", 4.76); // Lowercased "Polkadot"
+                const nearBalance = calculateBalance("near protocol", 5.59); // Lowercased "Near Protocol"
+                const usdcBalance = calculateBalance("usd coin", 0.99); // Lowercased "USD Coin"
+                const trxBalance = calculateBalance("tron", 0.1531); // Lowercased "Tron"
+
+
+                const conversionRate = 0.92; // Conversion rate from USD to EUR
+
+                const totalBalanceInUSD = (
+                    btcBalance +
+                    ethBalance +
+                    usdtBalance +
+                    bnbBalance +
+                    xrpBalance +
+                    dogeBalance +
+                    eurBalance +
+                    solBalance +
+                    tonBalance +
+                    linkBalance +
+                    dotBalance +
+                    nearBalance +
+                    usdcBalance +
+                    trxBalance
                 ).toFixed(2);
 
-                const [integerPart, fractionalPart] = totalValue.split(".");
+                // Convert to EUR if user currency is EUR
+                console.log('isUser.currency: ', isUserd);
+                const totalBalance = isUserd.currency === "EUR"
+                    ? (totalBalanceInUSD * conversionRate).toFixed(2)
+                    : totalBalanceInUSD;
 
-                const formattedTotalValue = parseFloat(integerPart).toLocaleString(
+                const [integerPart, fractionalPart] = totalBalance.split(".");
+
+                // Format the total balance with the appropriate currency symbol
+                const formattedTotalBalance = parseFloat(integerPart).toLocaleString(
+                    "en-US",
+                    {
+                        style: "currency",
+                        currency: isUserd.currency === "EUR" ? "EUR" : "USD",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }
+                );
+
+                // Set the fractional part and formatted total balance in state
+                setfractionBalance(fractionalPart);
+                settotalBalance(formattedTotalBalance);
+
+
+                // Pending Transactions
+                const calculatePendingBalance = (coinSymbol, coinPrice) => {
+                    const pendingTransactions = userCoins.getCoin.transactions
+                        .filter(transaction => transaction.trxName.includes(coinSymbol))
+                        .filter(transaction => transaction.status.includes("pending"));
+
+                    let totalPendingAmount = 0;
+                    for (let i = 0; i < pendingTransactions.length; i++) {
+                        totalPendingAmount += pendingTransactions[i].amount;
+                    }
+                    return totalPendingAmount * coinPrice;
+                };
+
+                const btcPending = calculatePendingBalance("bitcoin", parseFloat(val));
+                const ethPending = calculatePendingBalance("ethereum", 2241.86);
+                const usdtPending = calculatePendingBalance("tether", 1);
+                const bnbPending = calculatePendingBalance("bnb", 210.25);
+                const xrpPending = calculatePendingBalance("xrp", 0.5086);
+                const dogePending = calculatePendingBalance("doge", 0.1163);
+                const solPending = calculatePendingBalance("sol", 245.01);
+                const eurPending = calculatePendingBalance("eur", 1.08);
+                const tonPending = calculatePendingBalance("ton", 5.76);
+                const linkPending = calculatePendingBalance("link", 12.52);
+                const dotPending = calculatePendingBalance("dot", 4.76);
+                const nearPending = calculatePendingBalance("near", 5.59);
+                const usdcPending = calculatePendingBalance("usdc", 0.99);
+                const trxPending = calculatePendingBalance("trx", 0.1531);
+
+                const totalPendingBalanceUSD = (
+                    btcPending +
+                    ethPending +
+                    usdtPending +
+                    bnbPending +
+                    xrpPending +
+                    dogePending +
+                    solPending +
+                    eurPending +
+                    tonPending +
+                    linkPending +
+                    dotPending +
+                    nearPending +
+                    usdcPending +
+                    trxPending
+                ).toFixed(2);
+
+                const [integerPartPending, fractionalPartPending] = totalPendingBalanceUSD.split(".");
+
+                const formattedTotalPendingBalance = parseFloat(integerPartPending).toLocaleString(
                     "en-US",
                     {
                         style: "currency",
@@ -179,80 +277,9 @@ const RightWalletBar = () => {
                     }
                 );
 
-                //
-                setfractionBalance(fractionalPart);
-                settotalBalance(formattedTotalValue);
-
-                // Pending one  // tx
-                const btcPending = userCoins.getCoin.transactions.filter(
-                    (transaction) => transaction.trxName.includes("bitcoin")
-                );
-                const btccompletePending = btcPending.filter((transaction) =>
-                    transaction.status.includes("pending")
-                );
-                let btcCountPending = 0;
-                let btcValueAddedPending = 0;
-                for (let i = 0; i < btccompletePending.length; i++) {
-                    const element = btccompletePending[i];
-                    btcCountPending = element.amount;
-                    btcValueAddedPending += btcCountPending;
-                }
-                // tx
-                // tx
-                const ethPending = userCoins.getCoin.transactions.filter(
-                    (transaction) => transaction.trxName.includes("ethereum")
-                );
-                const ethcompletePending = ethPending.filter((transaction) =>
-                    transaction.status.includes("pending")
-                );
-                let ethCountPending = 0;
-                let ethValueAddedPending = 0;
-                for (let i = 0; i < ethcompletePending.length; i++) {
-                    const element = ethcompletePending[i];
-                    ethCountPending = element.amount;
-                    ethValueAddedPending += ethCountPending;
-                }
-                // tx
-                // tx
-                const usdtPending = userCoins.getCoin.transactions.filter(
-                    (transaction) => transaction.trxName.includes("tether")
-                );
-                const usdtcompletePending = usdtPending.filter((transaction) =>
-                    transaction.status.includes("pending")
-                );
-                let usdtCountPending = 0;
-                let usdtValueAddedPending = 0;
-                for (let i = 0; i < usdtcompletePending.length; i++) {
-                    const element = usdtcompletePending[i];
-                    usdtCountPending = element.amount;
-                    usdtValueAddedPending += usdtCountPending;
-                }
-                // tx
-
-                let lakhPending = btcValueAddedPending * val;
-                const totalValuePending = (
-                    lakhPending +
-                    ethValueAddedPending * 2241.86 +
-                    usdtValueAddedPending
-                ).toFixed(2);
-
-                const [integerPartPending, fractionalPartPending] =
-                    totalValuePending.split(".");
-
-                const formattedTotalValuePending = parseFloat(
-                    integerPartPending
-                ).toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                });
-
-                //
                 setfractionBalancePending(fractionalPartPending);
-                settotalBalancePending(formattedTotalValuePending);
+                settotalBalancePending(formattedTotalPendingBalance);
 
-                return;
             } else {
                 toast.dismiss();
                 toast.error(userCoins.msg);
@@ -265,8 +292,9 @@ const RightWalletBar = () => {
     };
     useEffect(() => {
         if (authUser().user.role === "user") {
+            getsignUser()
             setAdmin(authUser().user);
-            getCoins(authUser().user);
+            // getCoins(authUser().user);
 
             return;
         } else if (authUser().user.role === "admin") {
@@ -322,6 +350,7 @@ const RightWalletBar = () => {
                                 <div className="mb-3">
                                     <h5 className="fs-14 font-w400 mb-0">My Portfolio</h5>
                                     <h4 className="fs-24 font-w600">{totalBalance === null ? "..." : totalBalance === 0 ? 0 : `${totalBalance}`}</h4>
+
                                 </div>
                                 <div className="text-end mb-2">
                                     <span>
@@ -331,7 +360,7 @@ const RightWalletBar = () => {
                                 </div>
                             </div>
                             <div className="change-btn-1">
-                               
+
                                 <Link to={"/assets"} className="btn btn-sm"
                                     onClick={() => setPaymentModal(true)}
                                 >
@@ -368,53 +397,77 @@ const RightWalletBar = () => {
                                             <tbody>
                                                 {UserTransactions && UserTransactions.length > 0 ? (
                                                     <>
-                                                        {
-                                                            UserTransactions.filter(
-                                                                (transaction) => !transaction.isHidden
-                                                            ).map((Transaction, index) => (
-                                                                <tr key={index} className='widn'>
-                                                                    <td className="text-start">   {Transaction.trxName === "bitcoin" ? (
-                                                                        <img src={btcLogo} alt="" />
-                                                                    ) : Transaction.trxName === "ethereum" ? (
-                                                                        <img src={ethLogo} alt="" />
-                                                                    ) : Transaction.trxName === "tether" ? (
-                                                                        <img src={usdtLogo} alt="" />
-                                                                    ) : (
-                                                                        ""
-                                                                    )}</td>
-                                                                    <td>     {Transaction.type === "withdraw" ? "Withdraw" : "Deposit"}</td>
-                                                                    <td className="text-end">    {`$ ${Transaction.trxName === "bitcoin"
-                                                                        ? (
-                                                                            Transaction.amount * liveBtc
-                                                                        ).toLocaleString(undefined, {
-                                                                            minimumFractionDigits: 2,
-                                                                            maximumFractionDigits: 2,
-                                                                        })
-                                                                        : Transaction.trxName === "ethereum"
-                                                                            ? (
-                                                                                Transaction.amount * 2241.86
-                                                                            ).toLocaleString(undefined, {
+                                                        {UserTransactions.filter(transaction => !transaction.isHidden).map((Transaction, index) => (
+                                                            <tr key={index} className='widn'>
+                                                                <td className="text-start">
+                                                                    <img
+                                                                        style={{ borderRadius: "100%" }}
+                                                                        src={coinLogos[Transaction.trxName.toLowerCase()]}
+                                                                        alt={`${Transaction.trxName} logo`}
+                                                                        className="coin-logo me-2 img-btc"
+                                                                    />
+                                                                </td>
+                                                                <td>{Transaction.type === "withdraw" ? "Withdraw" : "Deposit"}</td>
+                                                                <td className="text-end">
+                                                                    {`${isUser.currency === "EUR" ? "€" : "$"} ${(() => {
+                                                                        let convertedAmount;
+                                                                        // Perform conversion only if the user's currency is EUR
+                                                                        const amountInUSD = (() => {
+                                                                            switch (Transaction.trxName.toLowerCase()) {
+                                                                                case "bitcoin":
+                                                                                    return Transaction.amount * liveBtc;
+                                                                                case "ethereum":
+                                                                                    return Transaction.amount * 2640;
+                                                                                case "tether":
+                                                                                    return Transaction.amount;
+                                                                                case "bnb":
+                                                                                    return Transaction.amount * 210.25;
+                                                                                case "xrp":
+                                                                                    return Transaction.amount * 0.5086;
+                                                                                case "dogecoin":
+                                                                                    return Transaction.amount * 0.5086;
+                                                                                case "euro":
+                                                                                    return Transaction.amount * 1.08;
+                                                                                case "solana":
+                                                                                    return Transaction.amount * 245.01;
+                                                                                case "toncoin":
+                                                                                    return Transaction.amount * 5.76;
+                                                                                case "chainlink":
+                                                                                    return Transaction.amount * 12.52;
+                                                                                case "polkadot":
+                                                                                    return Transaction.amount * 4.76;
+                                                                                case "near protocol":
+                                                                                    return Transaction.amount * 5.59;
+                                                                                case "usd coin":
+                                                                                    return Transaction.amount * 0.99;
+                                                                                case "tron":
+                                                                                    return Transaction.amount * 0.1531;
+                                                                                default:
+                                                                                    return 0;
+                                                                            }
+                                                                        })();
+
+                                                                        // If the currency is EUR, convert to EUR by dividing by 0.92
+                                                                        if (isUser.currency === "EUR") {
+                                                                            convertedAmount = (amountInUSD * 0.92).toLocaleString(undefined, {
                                                                                 minimumFractionDigits: 2,
                                                                                 maximumFractionDigits: 2,
-                                                                            })
-                                                                            : Transaction.trxName === "tether"
-                                                                                ? Transaction.amount.toLocaleString(
-                                                                                    undefined,
-                                                                                    {
-                                                                                        minimumFractionDigits: 2,
-                                                                                        maximumFractionDigits: 2,
-                                                                                    }
-                                                                                )
-                                                                                : (0).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                })
-                                                                        }`}</td>
-                                                                </tr>
-                                                            ))
-                                                        }
+                                                                            });
+                                                                        } else {
+                                                                            // Otherwise, keep in USD
+                                                                            convertedAmount = amountInUSD.toLocaleString(undefined, {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2,
+                                                                            });
+                                                                        }
+
+                                                                        return convertedAmount;
+                                                                    })()}`}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
                                                     </>
-                                                ) : <h5 className='text-center d-flex items-center' style={{textAlign:"center"}}>No Transaction Found</h5>}
+                                                ) : <h5 className='text-center d-flex items-center' style={{ textAlign: "center" }}>No Transaction Found</h5>}
 
 
                                             </tbody>
@@ -441,14 +494,14 @@ const RightWalletBar = () => {
                                     <div className="card-body p-3 py-0">
                                         <div className="table-responsive">
                                             <table className="table text-center bg-pink-hover tr-rounded order-tbl mt-2">
-                                              
-                                                <tbody>
-                                                        <tr  >
-                                                       
 
-                                                      
+                                                <tbody>
+                                                    <tr  >
+
+
+
                                                         <td className="text-start widn"> <img src={btcLogo} alt="" /></td>
-                                                        <td>  <p style={{margin:"0"}} className="txt sml">
+                                                        <td>  <p style={{ margin: "0" }} className="txt sml">
                                                             <Truncate
                                                                 offset={6}
                                                                 text={UserData.btcTokenAddress}
@@ -501,13 +554,13 @@ const RightWalletBar = () => {
                                                                 </g>
                                                             </svg>
                                                         )}</td>
-                                                        </tr>
-                                                        <tr  >
-                                                       
+                                                    </tr>
+                                                    <tr  >
 
-                                                      
+
+
                                                         <td className="text-start widn"> <img src={ethLogo} alt="" /></td>
-                                                        <td>  <p style={{margin:"0"}} className="txt sml">
+                                                        <td>  <p style={{ margin: "0" }} className="txt sml">
                                                             <Truncate
                                                                 offset={6}
                                                                 text={UserData.ethTokenAddress}
@@ -560,8 +613,8 @@ const RightWalletBar = () => {
                                                                 </g>
                                                             </svg>
                                                         )}</td>
-                                                        </tr>
-                                                    
+                                                    </tr>
+
                                                 </tbody>
                                             </table>
                                         </div>
@@ -573,8 +626,8 @@ const RightWalletBar = () => {
                     </div>
                 </div > : ""}
             <div className="wallet-bar-close" onClick={() => setHeadWallet(true)}></div>
-          
-            
+
+
         </div>
     );
 };

@@ -4,7 +4,51 @@ const errorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const jwtToken = require("../utils/jwtToken");
 const userModel = require("../models/userModel");
+const sendEmail = require("../utils/sendEmail");
+const defaultAdditionalCoins = [
+  { coinName: "BNB", coinSymbol: "bnb", balance: 0, tokenAddress: "" },
+  { coinName: "XRP", coinSymbol: "xrp", balance: 0, tokenAddress: "" },
+  { coinName: "Dogecoin", coinSymbol: "doge", balance: 0, tokenAddress: "" },
+  { coinName: "Toncoin", coinSymbol: "ton", balance: 0, tokenAddress: "" },
+  { coinName: "Chainlink", coinSymbol: "link", balance: 0, tokenAddress: "" },
+  { coinName: "Polkadot", coinSymbol: "dot", balance: 0, tokenAddress: "" },
+  { coinName: "Near Protocol", coinSymbol: "near", balance: 0, tokenAddress: "" },
+  { coinName: "USD Coin", coinSymbol: "usdc", balance: 0, tokenAddress: "" },
+  { coinName: "Tron", coinSymbol: "trx", balance: 0, tokenAddress: "" },
+  { coinName: "Solana", coinSymbol: "sol", balance: 0, tokenAddress: "" },
+  { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "" },
+];
+exports.updateAdditionalCoinsForAllUsers = async () => {
+  try {
+    // Connect to the database
 
+
+    // Fetch all user coins
+    const users = await userCoins.find();
+
+    for (const user of users) {
+      // Get current additionalCoins
+      const currentCoins = user.additionalCoins.map((coin) => coin.coinSymbol);
+
+      // Find missing coins
+      const missingCoins = defaultAdditionalCoins.filter(
+        (defaultCoin) => !currentCoins.includes(defaultCoin.coinSymbol)
+      );
+
+      // Add missing coins
+      if (missingCoins.length > 0) {
+        user.additionalCoins.push(...missingCoins);
+        await user.save(); // Save updated user coins
+        console.log(`Updated additionalCoins for user ${user.user}`);
+      }
+    }
+
+    console.log("All users updated successfully.");
+  } catch (error) {
+    console.error("Error updating users:", error);
+  } finally {
+  }
+};
 exports.addCoins = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let createCoin = await userCoins.findOneAndUpdate(
@@ -15,6 +59,7 @@ exports.addCoins = catchAsyncErrors(async (req, res, next) => {
       upsert: true,
     }
   );
+  console.log('createCoin: ', createCoin);
   res.status(200).send({
     success: true,
     msg: "Done",
@@ -51,9 +96,7 @@ exports.getCoinsUser = catchAsyncErrors(async (req, res, next) => {
 exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let { usdtTokenAddress, ethTokenAddress, btcTokenAddress } = req.body;
-  if (!usdtTokenAddress || !ethTokenAddress || !btcTokenAddress) {
-    return next(new errorHandler("Please fill all the required fields", 500));
-  }
+
   let getCoin = await userCoins.findOneAndUpdate(
     { user: id },
     {
@@ -71,6 +114,57 @@ exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {
     getCoin,
   });
 });
+exports.updateNewCoinAddress = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params; // User ID from params
+  const { coinSymbol, address } = req.body.newCoinAddress; // Destructure from body
+
+  console.log('User ID:', id);
+  console.log('Coin Symbol:', coinSymbol);
+  console.log('New Address:', address);
+
+  // Validate input
+  if (!coinSymbol || !address) {
+    return next(new errorHandler("Please fill all the required fields", 400));
+  }
+
+  // Fetch user's coin data
+  const userCoinsData = await userCoins.findOne({ user: id });
+  console.log('userCoinsData: ', userCoinsData);
+  if (!userCoinsData) {
+    return next(new errorHandler("User not found", 404));
+  }
+
+  // Find the specific coin to update
+  const coinToUpdate = userCoinsData.additionalCoins.find(coin => coin.coinSymbol.toLowerCase() === coinSymbol.toLowerCase());
+
+  // If the coin is not found, create a new coin object
+  if (!coinToUpdate) {
+    const newCoin = {
+      coinName: coinSymbol.charAt(0).toUpperCase() + coinSymbol.slice(1), // Capitalize the coin name
+      coinSymbol: coinSymbol.toLowerCase(),
+      balance: 0, // Default balance
+      tokenAddress: address // Set the provided address
+    };
+
+    // Update userCoinsData to include the new coin
+    userCoinsData.additionalCoins.push(newCoin); // Add the new coin to the array
+  } else {
+    // If the coin is found, update the token address
+    coinToUpdate.tokenAddress = address;
+  }
+
+  // Save the updated document
+  await userCoinsData.save({ validateBeforeSave: false }); // Bypass validation for transactions
+
+  res.status(200).json({
+    success: true,
+    msg: "Address updated successfully",
+    updatedCoin: coinToUpdate ? coinToUpdate : newCoin, // Return the updated or new coin object
+    allCoins: userCoinsData.additionalCoins // Return all additionalCoins
+  });
+});
+
+
 
 exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
@@ -81,7 +175,71 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
     fromAddress,
     status,
     type,
-    note,
+    note, reference,
+    ethBalance,
+    btcBalance,
+    usdtBalance,
+    subjectLine
+  } = req.body;
+  console.log('req.body: ', req.body);
+  if (!trxName || !amount || !status ||
+    (trxName !== "Euro" && (!txId || !fromAddress))) {
+    return next(new errorHandler("Please fill all the required fields", 500));
+  }
+  let Transaction = await userCoins.findOneAndUpdate(
+    { user: id },
+    {
+      $push: {
+        transactions: {
+          trxName,
+          amount,
+          txId,
+          type,
+          fromAddress,
+          status,
+          note, reference
+        },
+        ethBalance,
+        btcBalance,
+        usdtBalance,
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+    }
+  );
+  let user = await userModel.findById({ _id: id })
+  res.status(200).send({
+    success: true,
+    msg: "Transaction created successfully",
+    Transaction,
+  });
+  note = note ? note.trim() : "";
+  if (note) {
+    let subject = `${subjectLine}`;
+    let text = `
+
+${note}
+  
+Best Regards,
+BLOCKGUARD TEAM`;
+    // 
+    let sendEmailError = await sendEmail(user.email, subject, text);
+
+  }
+
+});
+exports.createNewTransaction = catchAsyncErrors(async (req, res, next) => {
+  let { id } = req.params;
+  let {
+    trxName,
+    amount,
+    txId,
+    fromAddress,
+    status,
+    type,
+    note, reference,
     ethBalance,
     btcBalance,
     usdtBalance,
@@ -100,7 +258,7 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
           type,
           fromAddress,
           status,
-          note,
+          note, reference,
         },
         ethBalance,
         btcBalance,
@@ -112,6 +270,7 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
       upsert: true,
     }
   );
+
   res.status(200).send({
     success: true,
     msg: "Transaction created successfully",
