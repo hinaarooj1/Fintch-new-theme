@@ -15,6 +15,7 @@ import {
 import axios from "axios";
 
 import Truncate from "react-truncate-inside/es";
+import AdminHeader from "../adminHeader";
 const UserTransactions = () => {
   const [modal, setModal] = useState(false);
   const [isLoading, setisLoading] = useState(true);
@@ -89,14 +90,18 @@ const UserTransactions = () => {
   };
   const getCoins = async () => {
     try {
-      const response = await axios.get(
-        "https://api.coindesk.com/v1/bpi/currentprice.json"
-      );
+
       const userCoins = await getCoinsApi(id);
 
-      if (response && userCoins.success) {
+      if (userCoins.success) {
         setUserTransactions(userCoins.getCoin.transactions.reverse());
-        let val = response.data.bpi.USD.rate.replace(/,/g, "");
+        let val = 0;
+        if (userCoins && userCoins.btcPrice && userCoins.btcPrice.quote && userCoins.btcPrice.quote.USD) {
+
+          val = userCoins.btcPrice.quote.USD.price
+        } else {
+          val = 96075.25
+        }
         setliveBtc(val);
         setisLoading(false);
 
@@ -109,6 +114,24 @@ const UserTransactions = () => {
       toast.dismiss();
       toast.error(error);
     } finally {
+    }
+  };
+  const [timestamp, setTimestamp] = useState(null);
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setTimestamp(value);
+  
+    // Regex for strict datetime-local format: YYYY-MM-DDTHH:MM
+    const datetimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+  
+    if (!value) {
+      setError("Date is required.");
+    } else if (!datetimeRegex.test(value)) {
+      setError("Invalid date format. Enter date in correct format");
+    } else {
+      setError("");
     }
   };
   let toggleModal = async (data) => {
@@ -127,6 +150,7 @@ const UserTransactions = () => {
       type: data.type,
       trxName: data.trxName,
     });
+    setTimestamp(new Date(data.createdAt).toISOString().slice(0, 16))
     setModal(true);
     try {
       let _id = data._id;
@@ -174,6 +198,7 @@ const UserTransactions = () => {
     let fromAddress = txid.fromAddress;
     let status = Status;
     let type = Type;
+    let createdAt = timestamp;
     // Assuming Status is a string, trim it
 
     // Check if all required fields are non-empty after trimming
@@ -185,7 +210,7 @@ const UserTransactions = () => {
       trxName === "" ||
       fromAddress === "" ||
       status === "" ||
-      type === ""
+      type === "" || error !== ""
     ) {
       toast.error("All fields are required.");
       return;
@@ -203,6 +228,7 @@ const UserTransactions = () => {
       type,
       fromAddress,
       status,
+      createdAt
     };
 
     try {
@@ -292,46 +318,8 @@ const UserTransactions = () => {
           <SideBar state={Active} toggle={toggleBar} />
           <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
             <div className="mx-auto w-full max-w-7xl">
-              <div className="relative z-50 mb-5 flex h-16 items-center gap-2">
-                <button
-                  type="button"
-                  className="flex h-10 w-10 items-center justify-center -ms-3"
-                >
-                  <div className="relative h-5 w-5 scale-90">
-                    <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 top-1 max-w-[75%] -rotate-45 top-0.5" />
-                    <span className="bg-primary-500 absolute top-1/2 block h-0.5 w-full max-w-[50%] transition-all duration-300 translate-x-4 opacity-0" />
-                    <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 bottom-1 max-w-[75%] rotate-45 bottom-0" />
-                  </div>
-                </button>
-                <h1 className="font-heading text-2xl font-light leading-normal leading-normal text-muted-800 hidden dark:text-white md:block">
-                  User Management
-                </h1>
-                <div className="ms-auto" />
 
-                <div className="group inline-flex items-center justify-center text-right">
-                  <div
-                    data-headlessui-state
-                    className="relative h-9 w-9 text-left"
-                  >
-                    <button
-                      className="group-hover:ring-primary-500 dark:ring-offset-muted-900 inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4"
-                      id="headlessui-menu-button-25"
-                      aria-haspopup="menu"
-                      aria-expanded="false"
-                      type="button"
-                    >
-                      <div className="relative inline-flex h-9 w-9 items-center justify-center rounded-full">
-                        <img
-                          src={Log}
-                          className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                          alt=""
-                        />
-                      </div>
-                    </button>
-                    {/**/}
-                  </div>
-                </div>
-              </div>
+              <AdminHeader toggle={toggleBar} pageName="User Management" />
               <div
                 className="nuxt-loading-indicator"
                 style={{
@@ -863,11 +851,23 @@ const UserTransactions = () => {
                         <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Timestamp
                         </dt>
-                        <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                        {/* <dd className="mt-1 text-sm text-gray-900 dark:text-white">
                           {new Date(
                             singleTransaction.createdAt
                           ).toLocaleString()}
-                        </dd>
+                        </dd> */}
+                        <input
+                          type="datetime-local"
+                          value={timestamp}
+                          onChange={handleChange}
+                          required
+                          style={{border: error?"1px solid red":"1px solid #ccc" }}
+                          className={`w-full px-3 py-1 border rounded-md text-sm ${error
+                            ? "  text-red-600"
+                            : "text-gray-900 dark:text-white  "
+                            } bg-white dark:bg-gray-800`}
+                        />
+                        {error && <p className="mt-1 text-sm text-red-600 "style={{color:'red'}}>{error}</p>}
                       </div>
                       <div className="sm:col-span-1">
                         <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">

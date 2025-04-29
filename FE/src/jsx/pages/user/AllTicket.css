@@ -13,6 +13,19 @@
     /* Make the image circular */
 }
 
+.main-head-not button {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.main-head-not .topakd {
+    margin-bottom: 0 !important;
+}
+
+.main-head-not .groupas {
+    display: none !important
+}
+
 .fla .badgea {
     margin-left: 20px;
     padding-block: 5px !important;

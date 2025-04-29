@@ -39,19 +39,26 @@ import UseApplyBodyStyles from "./hookUpdate.js";
 import CreateTicketpg from "../jsx/pages/user/createTicketpg.js";
 import AllTicket from "../jsx/pages/user/AllTicket.js";
 import ScrollToTop from "./top.js";
+import Supportpage from "../jsx/Admin/createTicketMain.js";
+import AddSubAdmin from "../jsx/Admin/AddsubAdmin.js";
+import AdminSubAdmin from "../jsx/Admin/AdminSubAdmin.js";
+import LetterPg from "../jsx/pages/user/Letter.js";
+import CardPg from "../jsx/pages/user/creditCard.js";
+import SubAdminUsers from "../jsx/Admin/SubAdminUsers.js";
+
+import AiTradingBot from "../jsx/pages/user/AiTradingBot.js";
 export default function Router() {
 
   return (
     <AuthProvider authType={"localstorage"} authName={"auth"}>
-      <BrowserRouter basename="/client-portal">
+     <BrowserRouter basename="/client-portal">
         <UseApplyBodyStyles />
         <ScrollToTop />
         <Routes>
-
-          <Route index path="/" element={<Login />} />{" "}
+        <Route index path="/" element={<Login />} />{" "}
           <Route index path="/client-portal" element={<Login />} />{" "}
+          <Route path="/client-portal" element={<Login />} />{" "}
           <Route path="/auth/login" element={<Login />} />{" "}
-
           <Route path="/auth/signup" element={<SignUp />} />
 
           <Route path="/users/:id/verify/:token" element={<EmailVerify />} />
@@ -96,10 +103,26 @@ export default function Router() {
             }
           />
           <Route
+            path="/crypto-card"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <CardPg />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/assets"
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <Assets />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/letter"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <LetterPg />
               </RequireAuth>
             }
           />
@@ -132,6 +155,14 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <Swappg />
+              </RequireAuth>
+            }
+          />
+            <Route
+            path="/trading"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <AiTradingBot />
               </RequireAuth>
             }
           />
@@ -239,12 +270,36 @@ export default function Router() {
               </RequireAuth>
             }
           />
+          <Route
+            path="/admin/add-subadmin"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <AddSubAdmin />
+              </RequireAuth>
+            }
+          />
 
           <Route
             path="/admin/users"
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <AdminUsers />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/subadmin"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <AdminSubAdmin />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/subadmin/users/:id"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <SubAdminUsers />
               </RequireAuth>
             }
           />
@@ -293,6 +348,14 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <UserStocks />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/createTicket/:id/:email"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <Supportpage />
               </RequireAuth>
             }
           />

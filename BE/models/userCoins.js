@@ -75,6 +75,9 @@ let userCoins = new mongoose.Schema({
         type: String,
         required: true,
       },
+      tradingTime: {
+        type: String, 
+      },
       fromAddress: {
         type: String,
       },

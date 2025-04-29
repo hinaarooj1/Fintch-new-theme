@@ -16,23 +16,21 @@ const AllTicket = () => {
     // Fetch tickets from the server
     const fetchTickets = async () => {
         try {
+            console.log('Admin: ', Admin);
             setIsLoading(true);
             const allTickets = await adminTicketsApi();
-            console.log('allTickets: ', allTickets);
+
             if (allTickets.success) {
-                console.log('allTickets: ', allTickets);
                 const sortedTickets = allTickets.tickets.sort((a, b) => {
-                    // Sort by updatedAt
-                    if (new Date(b.updatedAt) - new Date(a.updatedAt) !== 0) {
-                        return new Date(b.updatedAt) - new Date(a.updatedAt);
-                    }
-                    // If updatedAt is the same, sort by createdAt
-                    return new Date(b.createdAt) - new Date(a.createdAt);
+                    // Sort by updatedAt first, then by createdAt
+                    return new Date(b.updatedAt) - new Date(a.updatedAt) || new Date(b.createdAt) - new Date(a.createdAt);
                 });
+
+                // Fetch user details for each ticket
                 const ticketsWithUserDetails = await Promise.all(
                     sortedTickets.map(async (ticket) => {
                         try {
-                            const userDetails = await signleUsersApi(ticket.user); // Fetch user details using the user ID
+                            const userDetails = await signleUsersApi(ticket.user); // Fetch user details using user ID
                             return { ...ticket, userDetails }; // Merge user details into ticket object
                         } catch (error) {
                             console.error(`Error fetching user details for ticket ${ticket.ticketId}:`, error);
@@ -41,11 +39,22 @@ const AllTicket = () => {
                     })
                 );
 
-                // Sort tickets by latestActivity first, and then by createdAt 
-                setTickets(ticketsWithUserDetails); // Store sorted tickets
+                // Filter tickets based on role
                 console.log('ticketsWithUserDetails: ', ticketsWithUserDetails);
-                return
+                let filteredTickets = ticketsWithUserDetails;
+
+                if (authUser().user.role === "subadmin") {
+                    filteredTickets = ticketsWithUserDetails.filter(ticket =>
+                        ticket.userDetails.signleUser &&
+                        (ticket.userDetails.signleUser.isShared === true ||
+                            ticket.userDetails.signleUser.assignedSubAdmin === authUser().user._id)
+                    );
+                }
+                console.log('filteredTickets: ', filteredTickets);
+
+                setTickets(filteredTickets); // Store only filtered and processed tickets
             }
+
         } catch (error) {
             console.error('Error fetching tickets:', error);
         } finally {
@@ -90,6 +99,8 @@ const AllTicket = () => {
             Navigate("/dashboard");
             return;
         } else if (authUser().user.role === "admin") {
+            setAdmin(authUser().user);
+        } else if (authUser().user.role === "subadmin") {
             setAdmin(authUser().user);
         }
     }, []);

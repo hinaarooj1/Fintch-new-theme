@@ -59,6 +59,7 @@ const CreateTicket = () => {
                 userId: authUser().user._id,
                 title: title,
                 description: description,
+                isAdmin: false
             };
             if (!title || !description) {
                 toast.dismiss();

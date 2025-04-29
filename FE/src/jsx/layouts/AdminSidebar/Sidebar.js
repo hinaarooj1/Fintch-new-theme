@@ -1,14 +1,20 @@
-import logo_300x57_1 from "../../../assets/images/img/Logo - Copy.png";
+import logo_300x57_1 from "../../../assets/newlogo/logo-blue.png";
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import Log from "../../../assets/images/img/log.jpg";
+import Log from "../../../assets/newlogo/logo-blue.png";
 import { useAuthUser, useSignOut } from "react-auth-kit";
-import { logoutApi } from "../../../Api/Service";
+import { logoutApi, addUserByEmailApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
+import './Sidebar.css'
+import 'react-responsive-modal/styles.css';
+import { Modal } from 'react-responsive-modal';
 const SideBar = (props) => {
   let signOut = useSignOut();
 
   let authUser = useAuthUser();
+  const [isLoading, setisLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
   const [Admin, setAdmin] = useState("");
   const [noPop, setnoPop] = useState(false);
   useEffect(() => {
@@ -28,6 +34,39 @@ const SideBar = (props) => {
     }
   };
   let Navigate = useNavigate();
+  let addUser = async () => {
+    if (email.trim() === "") {
+      toast.error("Please enter email");
+      return
+    }
+    setisLoading(true)
+    try {
+
+      let body = {
+        email,
+        id: authUser().user._id
+      }
+      const updateHeader = await addUserByEmailApi(body);
+
+      if (updateHeader.success) {
+        toast.dismiss();
+        toast.info(updateHeader.msg);
+        onCloseModal()
+        setTimeout(() => {
+          window.location.href = "/admin/users"
+        }, 800);
+
+      } else {
+        toast.dismiss();
+        toast.error(updateHeader.msg);
+      }
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err.msg);
+    } finally {
+      setisLoading(false)
+    }
+  }
   const isLoginOrLogout = async () => {
     try {
       const logout = await logoutApi();
@@ -47,52 +86,57 @@ const SideBar = (props) => {
     } finally {
     }
   };
+  const onOpenModal = () => setOpen(true);
+  const onCloseModal = () => setOpen(false);
   return (
-    <div
-      id="sidebar"
-      className={
-        props.state
-          ? "dark:bg-muted-800 border-muted-200 dark:border-muted-700 fixed left-0 top-0 z-[60] flex h-full flex-col border-r bg-white transition-all duration-300 w-[280px] -translate-x-full translate-x-0 lg:translate-x-0"
-          : "dark:bg-muted-800 border-muted-200 dark:border-muted-700 fixed left-0 top-0 z-[60] flex h-full flex-col border-r bg-white transition-all duration-300 w-[280px] -translate-x-full lg:translate-x-0"
-      }
-    >
-      <div className="flex sna">
-        <button
-          type="button"
-          onClick={props.toggle}
-          className="nui-mask nui-mask-blob hover:bg-muted-200 dark:hover:bg-muted-800 text-muted-700 dark:text-muted-400 flex h-10 w-10 cursor-pointer items-center justify-center transition-colors duration-300 lg:hidden"
-        >
-          <svg
-            data-v-cd102a71
-            xmlns="http://www.w3.org/2000/svg"
-            xmlnsXlink="http://www.w3.org/1999/xlink"
-            aria-hidden="true"
-            role="img"
-            className="icon h-5 w-5"
-            width="1em"
-            height="1em"
-            viewBox="0 0 24 24"
+    <>
+
+
+      <div
+        id="sidebar"
+        className={
+          props.state
+            ? "dark:bg-muted-800 border-muted-200 dark:border-muted-700 fixed left-0 top-0 z-[60] flex h-full flex-col border-r bg-white transition-all duration-300 w-[280px] -translate-x-full translate-x-0 lg:translate-x-0"
+            : "dark:bg-muted-800 border-muted-200 dark:border-muted-700 fixed left-0 top-0 z-[60] flex h-full flex-col border-r bg-white transition-all duration-300 w-[280px] -translate-x-full lg:translate-x-0"
+        }
+      >
+        <div className="flex sna">
+          <button
+            type="button"
+            onClick={props.toggle}
+            className="nui-mask nui-mask-blob hover:bg-muted-200 dark:hover:bg-muted-800 text-muted-700 dark:text-muted-400 flex h-10 w-10 cursor-pointer items-center justify-center transition-colors duration-300 lg:hidden"
           >
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="m12 19l-7-7l7-7m7 7H5"
-            />
-          </svg>
-        </button>
-      </div>
-      <div className="flex h-16 w-full items-center justify-between px-6">
-        <div className="flex h-16 w-16 items-center ">
-          <NavLink
-            to="/"
-            className="router-link-active router-link-exact-active flex items-center justify-center"
-            aria-current="page"
-          >
-            <img src={logo_300x57_1} />
-            {/* <svg
+            <svg
+              data-v-cd102a71
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              aria-hidden="true"
+              role="img"
+              className="icon h-5 w-5"
+              width="1em"
+              height="1em"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="m12 19l-7-7l7-7m7 7H5"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className="flex h-16 w-full items-center justify-between px-6">
+          <div className="flex h-16 w-16 items-center ">
+            <NavLink
+              to="/"
+              className="router-link-active router-link-exact-active flex items-center justify-center"
+              aria-current="page"
+            >
+              <img style={{ width: "100px" }} src={logo_300x57_1} />
+              {/* <svg
               width="224"
               height="24"
               viewBox="0 0 224 24"
@@ -134,109 +178,46 @@ const SideBar = (props) => {
                 </clipPath>
               </defs>
             </svg> */}
-          </NavLink>
+            </NavLink>
+          </div>
         </div>
-      </div>
-      <div className="slimscroll relative w-full grow overflow-y-auto py-6 px-6">
-        <ul id="sidebar-menu" className="space-y-2">
-          <li>
-            <NavLink
-              to="/admin/dashboard"
-              className=" nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
-              aria-current="page"
-            >
-              <svg
-                data-v-cd102a71
-                xmlns="http://www.w3.org/2000/svg"
-                xmlnsXlink="http://www.w3.org/1999/xlink"
-                aria-hidden="true"
-                role="img"
-                className="icon w-5 h-5"
-                width="1em"
-                height="1em"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  d="M5 3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm9 4a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0zm-3 2a1 1 0 1 0-2 0v4a1 1 0 1 0 2 0zm-3 3a1 1 0 1 0-2 0v1a1 1 0 1 0 2 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="whitespace-nowrap font-sans text-sm block">
-                Dashboard
-              </span>
-            </NavLink>
-          </li>
-          <li>
-            <div className="border-muted-200 dark:border-muted-700 my-3 h-px w-full border-t" />
-          </li>
-          <li>
-            <NavLink
-              to="/admin/users"
-              className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
-            >
-              <svg
-                data-v-cd102a71
-                xmlns="http://www.w3.org/2000/svg"
-                xmlnsXlink="http://www.w3.org/1999/xlink"
-                aria-hidden="true"
-                role="img"
-                className="icon w-5 h-5"
-                width="1em"
-                height="1em"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill="currentColor"
-                  d="M13 6a3 3 0 1 1-6 0a3 3 0 0 1 6 0m5 2a2 2 0 1 1-4 0a2 2 0 0 1 4 0m-4 7a4 4 0 0 0-8 0v3h8zM6 8a2 2 0 1 1-4 0a2 2 0 0 1 4 0m10 10v-3a5.972 5.972 0 0 0-.75-2.906A3.005 3.005 0 0 1 19 15v3zM4.75 12.094A5.973 5.973 0 0 0 4 15v3H1v-3a3 3 0 0 1 3.75-2.906"
-                />
-              </svg>
-
-              <span className="whitespace-nowrap font-sans text-sm block">
-                Users Management
-              </span>
-            </NavLink>
-          </li>
-          {authUser().user.role === "admin" ? (
+        <div className="slimscroll relative w-full grow overflow-y-auto py-6 px-6">
+          <ul id="sidebar-menu" className="space-y-2">
             <li>
               <NavLink
-                to="/admin/add-user"
-                className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                to="/admin/dashboard"
+                className=" nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                aria-current="page"
               >
                 <svg
-                  data-v-cd102a71="true"
+                  data-v-cd102a71
                   xmlns="http://www.w3.org/2000/svg"
                   xmlnsXlink="http://www.w3.org/1999/xlink"
                   aria-hidden="true"
                   role="img"
-                  className="icon h-4 w-4"
+                  className="icon w-5 h-5"
                   width="1em"
                   height="1em"
-                  viewBox="0 0 256 256"
+                  viewBox="0 0 20 20"
                 >
-                  <g fill="currentColor">
-                    <path
-                      d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64"
-                      opacity=".2"
-                    />
-                    <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56" />
-                  </g>
+                  <path
+                    fill="currentColor"
+                    fillRule="evenodd"
+                    d="M5 3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm9 4a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0zm-3 2a1 1 0 1 0-2 0v4a1 1 0 1 0 2 0zm-3 3a1 1 0 1 0-2 0v1a1 1 0 1 0 2 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
-
                 <span className="whitespace-nowrap font-sans text-sm block">
-                  Add User
+                  Dashboard
                 </span>
               </NavLink>
             </li>
-          ) : (
-            ""
-          )}
-
-          {authUser().user.role === "admin" ? (
+            <li>
+              <div className="border-muted-200 dark:border-muted-700 my-3 h-px w-full border-t" />
+            </li>
             <li>
               <NavLink
-                to="/admin/transactions/pending"
+                to="/admin/users"
                 className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
               >
                 <svg
@@ -250,25 +231,186 @@ const SideBar = (props) => {
                   height="1em"
                   viewBox="0 0 20 20"
                 >
-                  <g fill="currentColor">
-                    <path d="M9 2a1 1 0 0 0 0 2h2a1 1 0 1 0 0-2z" />
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 0 1 2-2a3 3 0 0 0 3 3h2a3 3 0 0 0 3-3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm3 4a1 1 0 0 0 0 2h.01a1 1 0 1 0 0-2zm3 0a1 1 0 0 0 0 2h3a1 1 0 1 0 0-2zm-3 4a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2zm3 0a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2z"
-                      clipRule="evenodd"
-                    />
-                  </g>
+                  <path
+                    fill="currentColor"
+                    d="M13 6a3 3 0 1 1-6 0a3 3 0 0 1 6 0m5 2a2 2 0 1 1-4 0a2 2 0 0 1 4 0m-4 7a4 4 0 0 0-8 0v3h8zM6 8a2 2 0 1 1-4 0a2 2 0 0 1 4 0m10 10v-3a5.972 5.972 0 0 0-.75-2.906A3.005 3.005 0 0 1 19 15v3zM4.75 12.094A5.973 5.973 0 0 0 4 15v3H1v-3a3 3 0 0 1 3.75-2.906"
+                  />
                 </svg>
 
                 <span className="whitespace-nowrap font-sans text-sm block">
-                  Pending Transactions
+                  Users Management
                 </span>
               </NavLink>
             </li>
-          ) : (
-            ""
-          )}
-          {/* <li>
+            {authUser().user.role === "admin" ? (
+              <li>
+                <NavLink
+                  to="/admin/subadmin"
+                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                >
+                  <svg
+                    data-v-cd102a71
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    aria-hidden="true"
+                    role="img"
+                    className="icon w-5 h-5"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M13 6a3 3 0 1 1-6 0a3 3 0 0 1 6 0m5 2a2 2 0 1 1-4 0a2 2 0 0 1 4 0m-4 7a4 4 0 0 0-8 0v3h8zM6 8a2 2 0 1 1-4 0a2 2 0 0 1 4 0m10 10v-3a5.972 5.972 0 0 0-.75-2.906A3.005 3.005 0 0 1 19 15v3zM4.75 12.094A5.973 5.973 0 0 0 4 15v3H1v-3a3 3 0 0 1 3.75-2.906"
+                    />
+                  </svg>
+
+                  <span className="whitespace-nowrap font-sans text-sm block">
+                    Sub Admin  Management
+                  </span>
+                </NavLink>
+              </li>
+            ) : (
+              ""
+            )}
+            {authUser().user.role === "admin" ? (
+              <li>
+                <NavLink
+                  to="/admin/add-user"
+                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                >
+                  <svg
+                    data-v-cd102a71="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    aria-hidden="true"
+                    role="img"
+                    className="icon h-4 w-4"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 256 256"
+                  >
+                    <g fill="currentColor">
+                      <path
+                        d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64"
+                        opacity=".2"
+                      />
+                      <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56" />
+                    </g>
+                  </svg>
+
+                  <span className="whitespace-nowrap font-sans text-sm block">
+                    Add User
+                  </span>
+                </NavLink>
+              </li>
+            ) : (
+              ""
+            )}
+            {authUser().user.role === "admin" ? (
+              <li>
+                <NavLink
+                  to="/admin/add-subadmin"
+                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                >
+                  <svg
+                    data-v-cd102a71="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    aria-hidden="true"
+                    role="img"
+                    className="icon h-4 w-4"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 256 256"
+                  >
+                    <g fill="currentColor">
+                      <path
+                        d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64"
+                        opacity=".2"
+                      />
+                      <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56" />
+                    </g>
+                  </svg>
+
+                  <span className="whitespace-nowrap font-sans text-sm block">
+                    Add Sub Admin
+                  </span>
+                </NavLink>
+              </li>
+            ) : (
+              ""
+            )}
+            {authUser().user.role === "subadmin" ? (
+              <li>
+                <button onClick={onOpenModal}
+                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                >
+                  <svg
+                    data-v-cd102a71="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    aria-hidden="true"
+                    role="img"
+                    className="icon h-4 w-4"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 256 256"
+                  >
+                    <g fill="currentColor">
+                      <path
+                        d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64"
+                        opacity=".2"
+                      />
+                      <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56" />
+                    </g>
+                  </svg>
+
+                  <span className="whitespace-nowrap font-sans text-sm block">
+                    Add User
+                  </span>
+                </button>
+              </li>
+            ) : (
+              ""
+            )}
+
+            {authUser().user.role === "admin" ? (
+              <li>
+                <NavLink
+                  to="/admin/transactions/pending"
+                  className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                >
+                  <svg
+                    data-v-cd102a71
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    aria-hidden="true"
+                    role="img"
+                    className="icon w-5 h-5"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 20 20"
+                  >
+                    <g fill="currentColor">
+                      <path d="M9 2a1 1 0 0 0 0 2h2a1 1 0 1 0 0-2z" />
+                      <path
+                        fillRule="evenodd"
+                        d="M4 5a2 2 0 0 1 2-2a3 3 0 0 0 3 3h2a3 3 0 0 0 3-3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm3 4a1 1 0 0 0 0 2h.01a1 1 0 1 0 0-2zm3 0a1 1 0 0 0 0 2h3a1 1 0 1 0 0-2zm-3 4a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2zm3 0a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2z"
+                        clipRule="evenodd"
+                      />
+                    </g>
+                  </svg>
+
+                  <span className="whitespace-nowrap font-sans text-sm block">
+                    Pending Transactions
+                  </span>
+                </NavLink>
+              </li>
+            ) : (
+              ""
+            )}
+            {/* <li>
             <NavLink
               to="/admin/tickets"
               className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
@@ -295,163 +437,172 @@ const SideBar = (props) => {
             </NavLink>
           </li> */}
 
-          <li>
-            <NavLink
-              to="/admin/profile"
-              className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
-            >
-              <svg
-                data-v-cd102a71="true"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlnsXlink="http://www.w3.org/1999/xlink"
-                aria-hidden="true"
-                role="img"
-                className="icon h-4 w-4"
-                width="1em"
-                height="1em"
-                viewBox="0 0 256 256"
+            <li>
+              <NavLink
+                to="/admin/profile"
+                className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
               >
-                <g fill="currentColor">
-                  <path
-                    d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64"
-                    opacity=".2"
-                  />
-                  <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56" />
-                </g>
-              </svg>
-
-              <span className="whitespace-nowrap font-sans text-sm block">
-                Update Profile
-              </span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/admin/support"
-              className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
-            >
-              <i class="fa-solid fa-headset"></i>
-
-              <span className="whitespace-nowrap font-sans text-sm block">
-                Support Tickets
-              </span>
-            </NavLink>
-          </li>
-
-          <li onClick={() => isLoginOrLogout()}>
-            <p className=" router-link-active cursor-pointer nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                id="logout"
-                width="1rem"
-                height="1rem"
-              >
-                <g data-name="Layer 2" fill="currentColor">
-                  <path
-                    d="M7 6a1 1 0 0 0 0-2H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h2a1 1 0 0 0 0-2H6V6zm13.82 5.42-2.82-4a1 1 0 0 0-1.39-.24 1 1 0 0 0-.24 1.4L18.09 11H10a1 1 0 0 0 0 2h8l-1.8 2.4a1 1 0 0 0 .2 1.4 1 1 0 0 0 .6.2 1 1 0 0 0 .8-.4l3-4a1 1 0 0 0 .02-1.18z"
-                    data-name="log-out"
-                  ></path>
-                </g>
-              </svg>
-              <span className="whitespace-nowrap font-sans text-sm block">
-                Logout
-              </span>
-            </p>
-          </li>
-          {/**/}
-        </ul>
-      </div>
-      <div className="flex h-16 w-full items-center gap-4 transition-all duration-150 px-6">
-        <div className="group inline-flex items-center justify-center text-right">
-          <div data-headlessui-state className="relative h-10 w-10 text-left">
-            <button
-              onClick={togglePop}
-              className="group-hover:ring-primary-500 dark:ring-offset-muted-800 inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4"
-              id="headlessui-menu-button-34"
-              aria-haspopup="menu"
-              aria-expanded="false"
-              type="button"
-            >
-              <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-full">
-                <img
-                  src={Log}
-                  className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                  alt=""
-                />
-              </div>
-            </button>
-            {noPop && (
-              <div
-                aria-labelledby="headlessui-menu-button-31"
-                id="headlessui-menu-items-32"
-                role="menu"
-                tabIndex={0}
-                data-headlessui-state="open"
-                className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 absolute mt-2 w-60 origin-bottom-right rounded-md border bg-white text-left shadow-lg focus:outline-none bottom-0 -end-64"
-              >
-                <div
-                  className="bg-muted-50 dark:bg-muted-700/40 p-6"
-                  role="none"
+                <svg
+                  data-v-cd102a71="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlnsXlink="http://www.w3.org/1999/xlink"
+                  aria-hidden="true"
+                  role="img"
+                  className="icon h-4 w-4"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 256 256"
                 >
-                  <div className="flex items-center" role="none">
-                    <div
-                      className="relative inline-flex h-14 w-14 items-center justify-center rounded-full"
-                      role="none"
-                    >
-                      <img
-                        src={Log}
-                        className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                        alt=""
-                        role="none"
-                      />
-                    </div>
-                    <div className="ms-3" role="none">
-                      <h6
-                        className="font-heading text-muted-800 text-sm font-medium dark:text-white"
-                        role="none"
-                      >
-                        {Admin.firstName}
-                      </h6>
-                      <p
-                        className="text-muted-400 font-sans text-xs"
-                        role="none"
-                      >
-                        {Admin.email}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-2" role="none">
-                  <div
-                    id="headlessui-menu-item-44"
-                    role="menuitem"
-                    tabIndex={-1}
-                    data-headlessui-state
-                  >
-                    <a
-                      onClick={() => isLoginOrLogout()}
-                      href="javascript:void(0)"
-                      className="group flex w-full items-center rounded-md p-3 text-sm transition-colors duration-300 text-muted-400"
-                    >
-                      <div className="ms-3">
-                        <h6 className="font-heading text-muted-800 text-xs font-medium leading-none dark:text-white">
-                          Logout
-                        </h6>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
+                  <g fill="currentColor">
+                    <path
+                      d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64"
+                      opacity=".2"
+                    />
+                    <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56" />
+                  </g>
+                </svg>
+
+                <span className="whitespace-nowrap font-sans text-sm block">
+                  Update Profile
+                </span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/admin/support"
+                className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+              >
+                <i class="fa-solid fa-headset"></i>
+
+                <span className="whitespace-nowrap font-sans text-sm block">
+                  Support Tickets
+                </span>
+              </NavLink>
+            </li>
+
+            <li onClick={() => isLoginOrLogout()}>
+              <p className=" router-link-active cursor-pointer nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  id="logout"
+                  width="1rem"
+                  height="1rem"
+                >
+                  <g data-name="Layer 2" fill="currentColor">
+                    <path
+                      d="M7 6a1 1 0 0 0 0-2H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h2a1 1 0 0 0 0-2H6V6zm13.82 5.42-2.82-4a1 1 0 0 0-1.39-.24 1 1 0 0 0-.24 1.4L18.09 11H10a1 1 0 0 0 0 2h8l-1.8 2.4a1 1 0 0 0 .2 1.4 1 1 0 0 0 .6.2 1 1 0 0 0 .8-.4l3-4a1 1 0 0 0 .02-1.18z"
+                      data-name="log-out"
+                    ></path>
+                  </g>
+                </svg>
+                <span className="whitespace-nowrap font-sans text-sm block">
+                  Logout
+                </span>
+              </p>
+            </li>
             {/**/}
-          </div>
+          </ul>
         </div>
-        <span className="text-muted-500 dark:text-muted-400/80 whitespace-nowrap font-sans text-sm block">
-          My Account
-        </span>
+        <div className="flex h-16 w-full items-center gap-4 transition-all duration-150 px-6">
+          <div className="group inline-flex items-center justify-center text-right">
+            <div data-headlessui-state className="relative h-10 w-10 text-left">
+              <button
+                onClick={togglePop}
+                className="group-hover:ring-primary-500 dark:ring-offset-muted-800 inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4"
+                id="headlessui-menu-button-34"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                type="button"
+              >
+                <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-full">
+                  <img
+                    src={Log}
+                    className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
+                    alt=""
+                  />
+                </div>
+              </button>
+              {noPop && (
+                <div
+                  aria-labelledby="headlessui-menu-button-31"
+                  id="headlessui-menu-items-32"
+                  role="menu"
+                  tabIndex={0}
+                  data-headlessui-state="open"
+                  className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 absolute mt-2 w-60 origin-bottom-right rounded-md border bg-white text-left shadow-lg focus:outline-none bottom-0 -end-64"
+                >
+                  <div
+                    className="bg-muted-50 dark:bg-muted-700/40 p-6"
+                    role="none"
+                  >
+                    <div className="flex items-center" role="none">
+                      <div
+                        className="relative inline-flex h-14 w-14 items-center justify-center rounded-full"
+                        role="none"
+                      >
+                        <img
+                          src={Log}
+                          className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
+                          alt=""
+                          role="none"
+                        />
+                      </div>
+                      <div className="ms-3" role="none">
+                        <h6
+                          className="font-heading text-muted-800 text-sm font-medium dark:text-white"
+                          role="none"
+                        >
+                          {Admin.firstName}
+                        </h6>
+                        <p
+                          className="text-muted-400 font-sans text-xs"
+                          role="none"
+                        >
+                          {Admin.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-2" role="none">
+                    <div
+                      id="headlessui-menu-item-44"
+                      role="menuitem"
+                      tabIndex={-1}
+                      data-headlessui-state
+                    >
+                      <a
+                        onClick={() => isLoginOrLogout()}
+                        href="javascript:void(0)"
+                        className="group flex w-full items-center rounded-md p-3 text-sm transition-colors duration-300 text-muted-400"
+                      >
+                        <div className="ms-3">
+                          <h6 className="font-heading text-muted-800 text-xs font-medium leading-none dark:text-white">
+                            Logout
+                          </h6>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/**/}
+            </div>
+          </div>
+          <span className="text-muted-500 dark:text-muted-400/80 whitespace-nowrap font-sans text-sm block">
+            My Account
+          </span>
+        </div>
       </div>
-    </div>
+      <Modal classNames="this-modal" open={open} onClose={onCloseModal} center>
+        <h2>Add user</h2>
+        <div className="emaol-">
+          <label htmlFor="">Enter Email</label>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <button disabled={isLoading} onClick={addUser} className="btn btn-dark bansa">Add</button></div>
+      </Modal>  </>
   );
 };
 

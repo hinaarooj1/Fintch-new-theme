@@ -139,20 +139,34 @@ const useMenuList = () => {
             iconStyle: <i className="material-symbols-outlined">apps_outage</i>,
 
         },
-        {
-            title: 'My Stocks',
-            classsChange: 'mm-active',
+        // {
+        //     title: 'My Stocks',
+        //     classsChange: 'mm-active',
 
 
-            to: Admin ? `/stocks/${Admin._id}` : '#',
-            iconStyle: <i className="material-symbols-outlined">table</i>,
+        //     to: Admin ? `/stocks/${Admin._id}` : '#',
+        //     iconStyle: <i className="material-symbols-outlined">table</i>,
 
-        },
+        // },
         {
             title: 'Documents',
             classsChange: 'mm-active',
             to: '/all-files',
             iconStyle: <i className="material-symbols-outlined">request_quote</i>,
+
+        },
+        {
+            title: 'Letter',
+            classsChange: 'mm-active',
+            to: '/letter',
+            iconStyle: <i className="material-symbols-outlined">lab_profile</i>,
+
+        },
+        {
+            title: 'Crypto Card',
+            classsChange: 'mm-active',
+            to: '/crypto-card',
+            iconStyle: <i className="material-symbols-outlined">monetization_on</i>,
 
         },
         {
@@ -183,7 +197,13 @@ const useMenuList = () => {
             iconStyle: <i className="material-symbols-outlined">widgets</i>,
 
         },
+        {
+            title: 'AI Trading Bot ',
+            classsChange: 'mm-active',
+            to: '/trading',
+            iconStyle: <i className="material-symbols-outlined">request_quote</i>,
 
+        },  
         {
             title: 'Swap',
             classsChange: 'mm-active',

@@ -20,7 +20,8 @@
 
 }
 
-.mainea .header, .mainea {
+.mainea .header,
+.mainea {
     background-color: #0d0d2b !important;
 }
 
@@ -885,6 +886,12 @@ iRSNHM {
 }
 
 @media (max-width: 768px) {
+    .nnmmn {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
     .hIwTsa {
         grid-template-columns: repeat(8, 1fr);
         margin-top: 0px;
@@ -928,4 +935,48 @@ img.emoji {
     vertical-align: -0.1em !important;
     background: none !important;
     padding: 0 !important;
+}
+
+.elementor-toggle-item {
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.elementor-tab-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.elementor-tab-content {
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    color: #555;
+}
+
+.rotateaf {
+    transition: all 0.3s ease-in-out;
+}
+
+.rotatef {
+    rotate: 180deg;
+    transition: all 0.3s ease-in-out;
+}
+
+.hidden {
+    display: none;
+}
+
+.dblock.elementor-tab-content {
+    display: block !important;
+}
+
+@media (max-width:990px) {
+    .fldla {
+        flex-basis: 0;
+        flex-grow: 0;
+    }
+
+    .homepaag .top-wrap {
+        width: max-content !important;
+    }
 }

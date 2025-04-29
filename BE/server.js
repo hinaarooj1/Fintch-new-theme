@@ -3,7 +3,7 @@ const app = require("./app");
 var bodyParser = require("body-parser");
 const { errorMiddleware } = require("./middlewares/errorMiddleware");
 // Database connect
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 const database = require("./config/database");
 database();
 

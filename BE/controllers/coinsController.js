@@ -5,6 +5,10 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const jwtToken = require("../utils/jwtToken");
 const userModel = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
+const axios = require("axios");
+
+const XLSX = require("xlsx");
+
 const defaultAdditionalCoins = [
   { coinName: "BNB", coinSymbol: "bnb", balance: 0, tokenAddress: "" },
   { coinName: "XRP", coinSymbol: "xrp", balance: 0, tokenAddress: "" },
@@ -69,27 +73,89 @@ exports.addCoins = catchAsyncErrors(async (req, res, next) => {
 exports.getCoins = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let getCoin = await userCoins.findOne({ user: id });
+  let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC&convert=USD', {
+    headers: {
+      'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
+    },
+  });
+  let btcPrice = response.data.data.BTC
   res.status(200).send({
     success: true,
     msg: "Done",
     getCoin,
+    btcPrice
   });
+
 });
+exports.exportExcel = catchAsyncErrors(async (req, res, next) => {
+
+  let getCoin = await userCoins.find();
+
+  const worksheet = XLSX.utils.json_to_sheet(getCoin);
+
+  // Create a new workbook and append the worksheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+  // Write to buffer
+  const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
+
+  // Send file to client
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=data.xlsx"
+  );
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+
+
+  res.status(200).send({
+    success: true,
+    msg: "Done",
+    buffer,
+
+  });
+
+});
+// export 
+
+// Sample JSON data (Replace this with your MongoDB data)
+
+
+
+// 
 exports.getUserCoin = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let getCoin = await userCoins.findOne({ user: id });
+  let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC&convert=USD', {
+    headers: {
+      'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
+    },
+  });
+  let btcPrice = response.data.data.BTC
   res.status(200).send({
     success: true,
     msg: "Done",
     getCoin,
+    btcPrice
   });
 });
 exports.getCoinsUser = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
+  console.log('id: ', id);
+  let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC&convert=USD', {
+    headers: {
+      'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
+    },
+  });
+  let btcPrice = response.data.data.BTC
   let getCoin = await userCoins.findOne({ user: id });
   res.status(200).send({
     success: true,
-    msg: "Done",
+    msg: "Dones",
+    btcPrice,
     getCoin,
   });
 });
@@ -223,7 +289,7 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
 ${note}
   
 Best Regards,
-BLOCKGUARD TEAM`;
+${process.env.WebName} TEAM`;
     // 
     let sendEmailError = await sendEmail(user.email, subject, text);
 
@@ -349,7 +415,7 @@ exports.deleteUserStocksApi = catchAsyncErrors(async (req, res, next) => {
 
 exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
-  let { trxName, amount, txId, selectedPayment, e, status } = req.body;
+  let { trxName, amount, txId, selectedPayment, e, status, tradingTime } = req.body;
   console.log("req.body: ", req.body);
 
   // Default status to "pending" if not provided
@@ -372,6 +438,7 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
           type,
           status,
           by,
+          tradingTime 
         },
       },
     },
@@ -506,11 +573,17 @@ exports.createUserTransactionDepositSwap = catchAsyncErrors(
 // });
 exports.getTransactions = catchAsyncErrors(async (req, res, next) => {
   let Transaction = await userCoins.find();
-
+  let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC&convert=USD', {
+    headers: {
+      'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
+    },
+  });
+  let btcPrice = response.data.data.BTC
   res.status(200).send({
     success: true,
     msg: " ",
     Transaction,
+    btcPrice
   });
 });
 exports.getEachUser = catchAsyncErrors(async (req, res, next) => {
@@ -540,6 +613,26 @@ exports.deleteEachUser = catchAsyncErrors(async (req, res, next) => {
   res.status(200).send({
     success: true,
     msg: "User has been deleted successfully",
+    // getCoin,
+  });
+});
+exports.UnassignUser = catchAsyncErrors(async (req, res, next) => {
+  let { id } = req.params;
+  let signleUser = await userModel.findById({ _id: id });
+  console.log('signleUser: ', signleUser);
+
+  if (!signleUser) {
+    res.status(200).send({
+      success: false,
+      msg: "User not found or already has been unasssigned",
+    });
+  }
+  // Set assignedSubAdmin to null
+  signleUser.assignedSubAdmin = null;
+  await signleUser.save();
+  res.status(200).send({
+    success: true,
+    msg: "User has been unasssigned successfully",
     // getCoin,
   });
 });

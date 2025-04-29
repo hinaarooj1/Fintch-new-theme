@@ -8,7 +8,7 @@ import LogoNew from '../../assets/images/logo.png'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Dropdown, Spinner } from 'react-bootstrap';
 import { useAuthUser } from 'react-auth-kit';
-import { getIndivTicketApi, signleUsersApi, updateMessageApi } from '../../Api/Service';
+import { allUsersApi, getIndivTicketApi, signleUsersApi, updateMessageApi } from '../../Api/Service';
 import { toast } from 'react-toastify';
 import TicketHeader from '../pages/user/TicketHeader';
 
@@ -30,12 +30,48 @@ const AllTicket = () => {
     const getTickets = async () => {
         try {
             // setisLoading(true);
+            if (authUser().user.role === "subadmin") {
+                // Get user ID from params
+                const allUsers = await allUsersApi();
+
+                console.log('All Users:', allUsers);
+
+                if (!allUsers || !Array.isArray(allUsers.allUsers) || allUsers.allUsers.length === 0) {
+                    console.log("No users found or invalid data structure.");
+                    return;
+                }
+
+                // Find the specific user by ID and check permissions
+                const user = allUsers.allUsers.find(user => user._id === id);
+
+                if (!user) {
+                    console.log(`User with ID ${id} not found.`);
+                    return;
+                }
+
+                const hasPermission = user.isShared === true ||
+                    (user.isShared === false && user.assignedSubAdmin === authUser().user._id);
+
+                console.log(`Checking permissions for User ID: ${id}`, hasPermission);
+
+                if (!hasPermission) {
+                    console.log("Permission denied for this user.");
+                    Navigate("/admin/support");
+                    return;
+                }
+
+                console.log("Access granted. Proceeding to the next block.");
+                // Continue with the next block of code
+            }
+
+
             const indivTicket = await getIndivTicketApi(id, ticketId);
 
             if (indivTicket.success) {
+
                 console.log('indivTicket: ', indivTicket);
                 if (indivTicket.ticket.length <= 0) {
-                    Navigate("admin/support");
+                    Navigate("/admin/support");
                     return;
                 }
                 const ticketData = indivTicket.ticket[0];
@@ -70,7 +106,7 @@ const AllTicket = () => {
 
     useEffect(() => {
         console.log('authUser().user.role: ', authUser().user.role);
-        if (authUser().user.role === "admin") {
+        if (authUser().user.role === "admin" || authUser().user.role === "subadmin") {
             setAdmin(authUser().user);
             getTickets()
             return;

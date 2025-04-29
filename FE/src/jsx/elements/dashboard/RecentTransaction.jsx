@@ -136,13 +136,17 @@ const RecentTransaction = () => {
     };
     const getTransactions = async () => {
         try {
-            const response = await axios.get(
-                "https://api.coindesk.com/v1/bpi/currentprice.json"
-            );
+
             const allTransactions = await getUserCoinApi(authUser().user._id);
-            if (response && allTransactions.success) {
+            if (allTransactions.success) {
                 setUserTransactions(allTransactions.getCoin.transactions.reverse());
-                let val = response.data.bpi.USD.rate.replace(/,/g, "");
+                let val = 0;
+                if (allTransactions && allTransactions.btcPrice && allTransactions.btcPrice.quote && allTransactions.btcPrice.quote.USD) {
+
+                    val = allTransactions.btcPrice.quote.USD.price
+                } else {
+                    val = 96075.25
+                }
 
                 setliveBtc(val);
                 return;

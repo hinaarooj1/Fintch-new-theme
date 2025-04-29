@@ -1,11 +1,11 @@
-import logo_300x57_1 from "../../assets/img/Logo.png";
+import logo_300x57_1 from "../../assets/newlogo/logo.png";
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuthUser, useSignOut } from "react-auth-kit";
 import { logoutApi, getsignUserApi } from "../../Api/Service";
 import { toast } from "react-toastify";
 import "./Header.css";
-import Log from "../../assets/img/log.jpg";
+import Log from "../../assets/newlogo/logo.png";
 import "./Sidebar.css";
 const SideBar = (props) => {
   let AuthUse = useAuthUser();
@@ -216,6 +216,7 @@ const SideBar = (props) => {
                 </span>
               </NavLink>
             </li>
+
             <li>
               <NavLink
                 to="/account"

@@ -13,6 +13,11 @@
     outline-color: #cbd5e1;
     outline-style: dashed
 }
+.bg-primary-400a{
+    background-color:#8b5cf6!important;
+    /* color:#8b5cf6 !important */
+    color:white !important
+}
 
 .logo-to-show2,
 .logo-to-show {

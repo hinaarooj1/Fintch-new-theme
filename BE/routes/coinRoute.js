@@ -9,7 +9,7 @@ const {
   updateTransaction,
   getTransactions,
   getEachUser,
-  getCoinsUser,
+  getCoinsUser,UnassignUser,
   getUserCoin,
   deleteEachUser,
   createUserTransaction,
@@ -17,7 +17,8 @@ const {
   createUserTransactionWithdrawSwap,
   createUserTransactionDepositSwap,
   createUserStocks,
-  deleteUserStocksApi, updateNewCoinAddress, updateAdditionalCoinsForAllUsers
+  deleteUserStocksApi, updateNewCoinAddress, updateAdditionalCoinsForAllUsers,
+  exportExcel
 } = require("../controllers/coinsController");
 
 let router = express.Router();
@@ -30,6 +31,7 @@ router.route("/getCoins/:id").get(getCoins);
 router.route("/getUserCoin/:id").get(getUserCoin);
 
 router.route("/getCoinsUser/:id").get(getCoinsUser);
+router.route("/exportExcel").get(exportExcel);
 router
   .route("/deleteTransaction/:userId/:transactionId")
   .get(deleteTransaction);
@@ -49,5 +51,6 @@ router.route("/updateTransaction/:id").patch(updateTransaction);
 router.route("/getTransactions").get(getTransactions);
 router.route("/getEachUser/:id").get(getEachUser);
 router.route("/deleteEachUser/:id").delete(deleteEachUser);
+router.route("/UnassignUser/:id").delete(UnassignUser);
 
 module.exports = router;

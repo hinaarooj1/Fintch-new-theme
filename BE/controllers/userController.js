@@ -1,4 +1,5 @@
 let UserModel = require("../models/userModel");
+let notificationSchema = require("../models/notifications");
 // Usedto handle error
 const errorHandler = require("../utils/errorHandler");
 const cloudinary = require("cloudinary").v2;
@@ -13,6 +14,7 @@ const sendEmail = require("../utils/sendEmail");
 const htmlModel = require("../models/htmlData");
 const Ticket = require("../models/ticket");
 const Message = require("../models/message");
+const { default: mongoose } = require("mongoose");
 exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
   const {
     firstName,
@@ -66,7 +68,7 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
     token: crypto.randomBytes(32).toString("hex"),
   }).save();
   let subject = `Email Verification link`;
-  const url = `https://fintch.io/client-portal/users/${createUser._id}/verify/${token.token}`;
+  const url = `${process.env.BASE_URL}/users/${createUser._id}/verify/${token.token}`;
   let text = `To activate your account, please click the following link:
 
 ${url}
@@ -88,6 +90,66 @@ The link will be expired after 2 hours`;
 
   res.status(201).send({
     msg: "A verification link has been sent to your email, please verify",
+    success: true,
+  });
+  // 
+
+  // jwtToken(createUser, 201, res);
+});
+exports.RegisterSubAdmin = catchAsyncErrors(async (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    phone,
+    address,
+    city,
+    country,
+    postalCode,
+    // role,
+  } = req.body;
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password ||
+    !phone ||
+    !address ||
+    !city ||
+    !country ||
+    !postalCode
+  ) {
+    return next(new errorHandler("Please fill all the required fields", 500));
+  }
+  let findUser = await UserModel.findOne({
+    email: req.body.email,
+  });
+  if (findUser) {
+    return next(
+      new errorHandler("Email  already exists ", 500)
+    );
+  }
+  email.toLowerCase();
+
+  let createUser = await UserModel.create({
+    firstName,
+    lastName,
+    email,
+    phone,
+    password,
+    address,
+    city,
+    note: "",
+    country,
+    postalCode,
+    role: "subadmin", verified: true
+  });
+
+
+
+  res.status(201).send({
+    msg: "Sub admin added successfully",
     success: true,
   });
   // 
@@ -204,7 +266,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 
       //
       let subject = `Email Verification link`;
-      const url = `https://fintch.io/client-portal/users/${UserAuth._id}/verify/${token.token}`;
+      const url = `${process.env.BASE_URL}/users/${UserAuth._id}/verify/${token.token}`;
       let text = `To activate your account, please click the following link: 
 
 ${url}
@@ -221,7 +283,7 @@ The link will be expired after 2 hours`;
 
       //
       let subject = `Email Verification link`;
-      const url = `https://fintch.io/client-portal/users/${UserAuth._id}/verify/${token.token}`;
+      const url = `${process.env.BASE_URL}/users/${UserAuth._id}/verify/${token.token}`;
       let text = `To activate your account, please click the following link: 
 
 ${url}
@@ -651,6 +713,7 @@ exports.createAccount = catchAsyncErrors(async (req, res, next) => {
     );
 
     // Check if the user exists
+
     if (!user) {
       return next(new errorHandler("User not found", 404));
     }
@@ -745,6 +808,172 @@ exports.adminTickets = catchAsyncErrors(async (req, res, next) => {
     res.status(500).json({ success: false, error: 'Failed to fetch tickets' });
   }
 });
+exports.addUserByEmail = catchAsyncErrors(async (req, res, next) => {
+  try {
+    // const tickets = await Ticket.find({ status: 'open' }).populate('user');
+    const { email } = req.body;
+    const subAdminId = req.body.id; // Assuming you get sub-admin ID from authentication middleware
+
+    // Find the user by email
+    let user = await UserModel.findOne({ email });
+    console.log('user: ', user);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Check if user is already assigned
+    if (user.assignedSubAdmin) {
+      return res.status(403).json({ msg: "User already assigned to you or another admin" });
+    }
+
+    // Assign the sub-admin
+    user.assignedSubAdmin = subAdminId;
+    await user.save();
+
+    res.status(200).json({ success: true, msg: "User assigned successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Sommething went wroong' });
+  }
+});
+exports.applyCreditCard = catchAsyncErrors(async (req, res, next) => {
+  try {
+
+    // const tickets = await Ticket.find({ status: 'open' }).populate('user');
+    const { userId, type, status } = req.body;
+
+    // Find the user by email
+    let user = await UserModel.findOne({ _id: userId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    user.cryptoCard = { status: "applied" };
+    const existingApplication = await notificationSchema.findOne({
+      userId,
+      type: "card_request",
+      status: "applied",
+    });
+    console.log('existingApplication: ', existingApplication);
+
+    if (existingApplication) {
+      return res.status(400).json({
+        success: false,
+        msg: "You already have a pending credit card application."
+      });
+    }
+    await notificationSchema.create({
+      userId,
+      type,
+      content: `You have a new credit card application from ${user.firstName}  ${user.lastName}.`,
+      status: status,
+      userEmail: user.email,
+      userName: `${user.firstName} ${user.lastName}`
+    });
+
+    await user.save();
+
+    // Assign the sub-admin
+    // user.assignedSubAdmin = subAdminId;
+    // await user.save();
+
+    res.status(200).json({ success: true, msg: "Credit card applied successfully" });
+  } catch (error) {
+    console.log('error: ', error);
+    res.status(500).json({ success: false, msg: 'Sommething went wroong' });
+  }
+});
+exports.getNotifications = catchAsyncErrors(async (req, res, next) => {
+  try {
+
+
+
+    // Find the user by email
+    let notifications = await notificationSchema.find();
+
+
+
+    res.status(200).json({ success: true, notifications });
+  } catch (error) {
+    console.log('error: ', error);
+    res.status(500).json({ success: false, msg: 'Sommething went wroong' });
+  }
+});
+exports.updateNotificationStatus = catchAsyncErrors(async (req, res, next) => {
+  try {
+
+    let status = req.params.status;
+    console.log('status: ', status);
+    let id = req.params.id
+    // Find the user by email
+    const notification = await notificationSchema.findById(id);
+
+    if (!notification) {
+      return res.status(404).json({ success: false, msg: 'Notification not found' });
+    }
+
+    notification.isRead = status;
+    await notification.save();
+
+    res.status(200).json({ success: true, msg: 'Notification status updated', isRead: notification.isRead });
+
+
+  } catch (error) {
+    console.log('error: ', error);
+    res.status(500).json({ success: false, msg: 'Sommething went wroong' });
+  }
+});
+exports.userCryptoCard = catchAsyncErrors(async (req, res, next) => {
+  try {
+
+    let { cardNumber, cardName, cardExpiry, cardCvv, ticketId, userId } = req.body;
+
+    // Find the user by email
+    const user = await UserModel.findById(userId);
+    user.cryptoCard = {
+      status: "active",
+      cardNumber: cardNumber,
+      cvv: cardCvv,
+      cardName: cardName,
+      Exp: cardExpiry // optional if you have more fields
+    };
+    await user.save();
+
+    console.log('user: ', user);
+    const notification = await notificationSchema.findById(ticketId);
+
+    if (!notification) {
+      return res.status(404).json({ success: false, msg: 'Notification not found' });
+    }
+
+    notification.isRead = true;
+    notification.status = 'active';
+    await notification.save();
+
+    res.status(200).json({ success: true, msg: 'Crypto Card activated' });
+
+
+  } catch (error) {
+    console.log('error: ', error);
+    res.status(500).json({ success: false, msg: 'Sommething went wroong' });
+  }
+});
+exports.getNotifications = catchAsyncErrors(async (req, res, next) => {
+  try {
+
+
+
+    // Find the user by email
+    let notifications = await notificationSchema.find();
+
+
+
+    res.status(200).json({ success: true, notifications });
+  } catch (error) {
+    console.log('error: ', error);
+    res.status(500).json({ success: false, msg: 'Sommething went wroong' });
+  }
+});
 // exports.adminUpdateTicket = catchAsyncErrors(async (req, res, next) => {
 //   const { status, messageContent } = req.body; // New status and message content
 
@@ -800,11 +1029,16 @@ const generateTicketId = async () => {
 };
 exports.createTicket = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { userId, title, description } = req.body;
+    const { userId, title, description, isAdmin } = req.body;
 
     // Validate input
     if (!title || !description || !userId) {
       return res.status(400).json({ success: false, msg: 'title and description are required' });
+    }
+    const objectId = new mongoose.Types.ObjectId(userId);
+    const signleUser = await UserModel.findById({ _id: objectId })
+    if (!signleUser) {
+      return next(new errorHandler("User not found", 404));
     }
     const ticketId = await generateTicketId();
     // Create a new ticket object
@@ -814,20 +1048,50 @@ exports.createTicket = catchAsyncErrors(async (req, res, next) => {
       title,
       status: 'open',
       ticketContent: [{
-        sender: 'user', // Set to 'user' initially
+        sender: isAdmin ? 'admin' : 'user', // Set to 'user' initially
         description,
         createdAt: Date.now() // Current timestamp
       }]
     });
-
-    // Save the ticket
-    console.log('newTicket: ', newTicket);
+    console.log('isAdmin: ', isAdmin);
+    if (isAdmin === false) {
+      let checkNotification = await notificationSchema.create({
+        userId,
+        ticketId,
+        type: "ticket_message",
+        content: `You have a new support Ticket from ${signleUser.firstName}  ${signleUser.lastName}.`,
+        status: "open",
+        userEmail: signleUser.email,
+        userName: `${signleUser.firstName} ${signleUser.lastName}`
+      });
+      console.log(checkNotification);
+    }
+    // Save the ticket 
     await newTicket.save();
 
     // Respond with the created ticket
     res.status(201).json({ success: true, ticket: newTicket });
-  } catch (error) {
-    console.error('Error creating ticket:', error); // Log the error for debugging
+    if (isAdmin) {
+
+      let subject = `${process.env.WebName} Customer Support - Re: ${ticketId} `;
+      let text = `Hi there,
+
+We’ve opened a new request (#${ticketId}) for you.  
+
+You can check the details and provide any input by clicking the link below.  
+
+Here’s the link: ${process.env.BASE_URL}/tickets/${ticketId}  
+
+Let us know if you need further assistance.  
+
+Best regards,  
+${process.env.WebName} Team`;
+      // 
+      await sendEmail(signleUser.email, subject, text);
+
+    }
+  } catch (error) {  // Log the error for debugging
+    console.log('error: ', error);
     res.status(500).json({ success: false, msg: 'Server error', error: error.message });
   }
 });
@@ -905,6 +1169,34 @@ exports.updateMessage = catchAsyncErrors(async (req, res, next) => {
 
     // Save the updated ticket
     await ticket.save();
+    let existingNotification = await notificationSchema.findOne({ ticketId: ticketId });
+
+    if (existingNotification) {
+      // If the notification exists, update it with the new content
+      existingNotification.content = `The ticket number #${ticketId} just received a new message`;
+      existingNotification.isRead = false;
+      existingNotification.createdAt = Date.now();
+      await existingNotification.save();
+    } else {
+      // If no notification exists, create a new notification
+      let signleUser = await UserModel.findById({ _id: userId });
+
+      if (!signleUser) {
+        console.error(`User with ID ${userId} not found.`);
+        return  // Prevents further execution if user is not found
+      }
+
+      let checkNotification = await notificationSchema.create({
+        userId,
+        ticketId,
+        type: "ticket_message",
+        content: `You have a new support ticket  message from ${signleUser.firstName} ${signleUser.lastName}.`,
+        status: "open",
+        userEmail: signleUser.email,
+        userName: `${signleUser.firstName} ${signleUser.lastName}`,
+      });
+      console.log(checkNotification);
+    }
     res.status(200).json({
       success: true,
       msg: 'Ticket updated successfully.',
@@ -925,7 +1217,7 @@ We wanted to let you know that your request (#${ticketId}) has been updated.
 
 You can check out our response and add any additional comments by clicking on the link below.
 
-Here’s the link: ${process.env.BASE_URL}/client-portal/tickets/${ticketId}`;
+Here’s the link: ${process.env.BASE_URL}/tickets/${ticketId}`;
       // 
       await sendEmail(signleUser.email, subject, text);
 

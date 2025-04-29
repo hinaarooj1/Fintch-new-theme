@@ -11,8 +11,20 @@ import {
 export const registerApi = (data) => {
   return postApi("register", data);
 };
+export const registerSubAdminApi = (data) => {
+  return postApi("registerSubAdmin", data);
+};
+export const addUserByEmailApi = (data) => {
+  return postApi("addUserByEmail", data);
+};
+export const exportExcelApi = () => {
+  return getApi("exportExcel");
+};
 export const loginApi = (data) => {
   return postApi("login", data);
+};
+export const userCryptoCardApi = (data) => {
+  return postApi("userCryptoCard", data);
 };
 export const logoutApi = (data) => {
   return getApi("logout", data);
@@ -27,6 +39,9 @@ export const getCoinsUserApi = (id) => {
 export const signleUsersApi = (id) => {
   return getApi(`singleUser/${id}`);
 };
+export const getNotificationsApi = () => {
+  return getApi(`getNotifications`);
+};
 export const deleteTransactionApi = (userId, id) => {
   return getApi(`deleteTransaction/${userId}/${id}`);
 };
@@ -38,6 +53,9 @@ export const setHtmlDataApi = (data) => {
 };
 export const updateSignleUsersApi = (id, data) => {
   return postApi(`updateSingleUser/${id}`, data);
+};
+export const applyCreditCardApi = (data) => {
+  return postApi(`applyCreditCard`, data);
 };
 export const updateOldUserCoins = () => {
   return patchApi(`updateCoins`);
@@ -92,6 +110,9 @@ export const getEachUserApi = (id, data) => {
 export const getUserCoinApi = (id, data) => {
   return getApi(`getUserCoin/${id}`, data);
 };
+export const updateNotificationStatusApi = (id, status) => {
+  return getApi(`updateNotificationStatus/${id}/${status}`);
+};
 export const verifySingleUserApi = (data) => {
   return patchFormApi(`verifySingleUser`, data);
 };
@@ -103,6 +124,9 @@ export const verifyEmailApi = (data) => {
 };
 export const deleteEachUserApi = (id) => {
   return deleteApi(`deleteEachUser/${id}`, id);
+};
+export const UnassignUserApi = (id) => {
+  return deleteApi(`UnassignUser/${id}` );
 };
 export const deleteUserStocksApi = (coindId, id) => {
   return deleteApi(`deleteUserStocksApi/${id}/${coindId}`, id, coindId);

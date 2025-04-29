@@ -120,6 +120,11 @@ let userSchema = new mongoose.Schema({
     default: "USD",
     enum: ["USD", "EUR"]
   },
+  assignedSubAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user", // Reference to the sub-admin
+    default: null,
+  },
   payments: [
     {
       type: {
@@ -152,6 +157,33 @@ let userSchema = new mongoose.Schema({
       },
     },
   ],
+  cryptoCard: {
+    cardNumber: {
+      type: Number,
+      required: false,
+    },
+    cardName: {
+      type: String,
+      required: false,
+    },
+    Exp: {
+      type: String,
+      required: false,
+    },
+    cvv: {
+      type: Number,
+      required: false,
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "applied"],
+      default: "inactive",
+      trim: true,
+      required: true,
+    }
+  }
+
+  ,
   createdAt: {
     type: Date,
     default: Date.now,

@@ -129,11 +129,8 @@ const RightWalletBar = () => {
         let id = data._id;
         try {
             const userCoins = await getCoinsUserApi(id);
-            const response = await axios.get(
-                "https://api.coindesk.com/v1/bpi/currentprice.json"
-            );
 
-            if (response && userCoins.success) {
+            if (userCoins.success) {
                 setUserData(userCoins.getCoin);
                 console.log('userCoins.getCoin: ', userCoins.getCoin);
 
@@ -142,8 +139,14 @@ const RightWalletBar = () => {
                 );
                 setisLoading(false);
 
-                // Fetch live BTC price
-                let val = response.data.bpi.USD.rate.replace(/,/g, "");
+                // Fetch live BTC price 
+                let val = 0;
+                if (userCoins && userCoins.btcPrice && userCoins.btcPrice.quote && userCoins.btcPrice.quote.USD) {
+
+                    val = userCoins.btcPrice.quote.USD.price
+                } else {
+                    val = 96075.25
+                }
                 setliveBtc(val);
 
                 // Helper function to calculate the balances

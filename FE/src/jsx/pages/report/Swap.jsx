@@ -72,13 +72,15 @@ const Swap = () => {
     const [selectedToCurrencyInput, setSelectedToCurrencyInput] = useState("");
     const getCoinsPrice = async () => {
         try {
-            const [response, ethResponse] = await Promise.all([
-                axios.get("https://api.coindesk.com/v1/bpi/currentprice.json"),
+            const [ethResponse] = await Promise.all([
                 axios.get("https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT"),
             ]);
 
-            if (response && response.data) {
-                let val = response.data.bpi.USD.rate.replace(/,/g, "");
+            let id = authUser().user._id;
+            const userCoins = await getCoinsUserApi(id);
+            if (userCoins) {
+                let val = userCoins?.btcPrice?.quote?.USD?.price ?? 96075.25;
+
                 setLiveBtcPrice(parseFloat(val));
                 setliveBtc(val);
                 updateExpectedRate();
@@ -95,13 +97,13 @@ const Swap = () => {
                     ethResponse.data.data.price
                 );
             }
-            if (response && response.data) {
-                let val = response.data.bpi.USD.rate.replace(/,/g, "");
+            if (userCoins) {
+                let val = userCoins?.btcPrice?.quote?.USD?.price ?? 96075.25;
+
                 console.log("val: ", val);
 
                 setLiveBtcPrice(parseFloat(val));
             }
-            console.log("response: ", response);
         } catch (error) {
             toast.dismiss();
             toast.error(error);

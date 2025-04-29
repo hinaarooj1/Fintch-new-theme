@@ -14,6 +14,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Truncate from "react-truncate-inside/es";
 import axios from "axios";
+import AdminHeader from "./adminHeader";
 const PendingTransactions = () => {
   const [liveBtc, setliveBtc] = useState(null);
   const [modal, setModal] = useState(false);
@@ -67,13 +68,20 @@ const PendingTransactions = () => {
 
   const getTransactions = async () => {
     try {
-      const response = await axios.get(
-        "https://api.coindesk.com/v1/bpi/currentprice.json"
-      );
+      // const response = await axios.get(
+      //   "https://api.coindesk.com/v1/bpi/currentprice.json"
+      // );
       const allTransactions = await getTransactionsApi();
-      if (response && allTransactions.success) {
+      
+      if (allTransactions.success) {
         // setData(filter)
-        let val = response.data.bpi.USD.rate.replace(/,/g, "");
+        let val = 0;
+        if (allTransactions && allTransactions.btcPrice && allTransactions.btcPrice.quote && allTransactions.btcPrice.quote.USD) {
+
+          val = allTransactions.btcPrice.quote.USD.price
+        } else {
+          val = 96075.25
+        }
         setliveBtc(val);
         console.log("allTransactions:as ", allTransactions.Transaction);
         setUserTransactions(allTransactions.Transaction.reverse());
@@ -95,6 +103,24 @@ const PendingTransactions = () => {
     } finally {
     }
   };
+    const [timestamp, setTimestamp] = useState(null);
+    const [error, setError] = useState("");
+  
+    const handleChange = (e) => {
+      const value = e.target.value;
+      setTimestamp(value);
+    
+      // Regex for strict datetime-local format: YYYY-MM-DDTHH:MM
+      const datetimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+    
+      if (!value) {
+        setError("Date is required.");
+      } else if (!datetimeRegex.test(value)) {
+        setError("Invalid date format. Enter date in correct format");
+      } else {
+        setError("");
+      }
+    };
   let toggleModal = async (data) => {
     setStatus(data.status);
     setType(data.type);
@@ -111,6 +137,8 @@ const PendingTransactions = () => {
       type: data.type,
       trxName: data.trxName,
     });
+    setTimestamp(new Date(data.createdAt).toISOString().slice(0, 16))
+    
     setModal(true);
     try {
       let _id = data._id;
@@ -159,6 +187,8 @@ const PendingTransactions = () => {
     let fromAddress = txid.fromAddress;
     let status = Status;
     let type = Type;
+    
+    let createdAt = timestamp;
     // Assuming Status is a string, trim it
 
     // Check if all required fields are non-empty after trimming
@@ -171,6 +201,7 @@ const PendingTransactions = () => {
       fromAddress === "" ||
       status === "" ||
       type === ""
+       || error !== ""
     ) {
       toast.error("All fields are required.");
       return;
@@ -188,6 +219,8 @@ const PendingTransactions = () => {
       type,
       fromAddress,
       status,
+
+      createdAt
     };
 
     try {
@@ -292,77 +325,8 @@ const PendingTransactions = () => {
           <SideBar state={Active} toggle={toggleBar} />
           <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
             <div className="mx-auto w-full max-w-7xl">
-              <div className="relative z-50 mb-5 flex h-16  items-center gap-2">
-                <button
-                  type="button"
-                  className="flex h-10 for-desk w-10 items-center justify-center -ms-3"
-                >
-                  <div className="relative  h-5 w-5 scale-90">
-                    <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 top-1 max-w-[75%] -rotate-45 top-0.5" />
-                    <span className="bg-primary-500 absolute top-1/2 block h-0.5 w-full max-w-[50%] transition-all duration-300 translate-x-4 opacity-0" />
-                    <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 bottom-1 max-w-[75%] rotate-45 bottom-0" />
-                  </div>
-                </button>
-                <button
-                  onClick={toggleBar}
-                  type="button"
-                  className="flex for-mbl h-10 w-10 items-center justify-center -ms-3"
-                >
-                  <div className="relative h-5 w-5">
-                    <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 top-0.5 top-0.5" />
-                    <span className="bg-primary-500 absolute top-1/2 block h-0.5 w-full max-w-[50%] transition-all duration-300" />
-                    <span className="bg-primary-500 absolute block h-0.5 w-full transition-all duration-300 bottom-0 bottom-0" />
-                  </div>
-                </button>
-                <h1 className="font-heading text-2xl font-light leading-normal leading-normal text-muted-800 hidden dark:text-white md:block">
-                  Pending Transactions
-                </h1>
-                <div className="ms-auto" />
 
-                <div className="group inline-flex items-center justify-center text-right">
-                  <div
-                    data-headlessui-state
-                    className="relative h-9 w-9 text-left"
-                  >
-                    <button
-                      className="group-hover:ring-primary-500 dark:ring-offset-muted-900 inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4"
-                      id="headlessui-menu-button-25"
-                      aria-haspopup="menu"
-                      aria-expanded="false"
-                      type="button"
-                    >
-                      <div className="relative inline-flex h-9 w-9 items-center justify-center rounded-full">
-                        <img
-                          src={Log}
-                          className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                          alt=""
-                        />
-                      </div>
-                    </button>
-                    {/**/}
-                  </div>
-                </div>
-              </div>
-              <div
-                className="nuxt-loading-indicator"
-                style={{
-                  position: "fixed",
-                  top: "0px",
-                  right: "0px",
-                  left: "0px",
-                  pointerEvents: "none",
-                  width: "auto",
-                  height: "3px",
-                  opacity: 0,
-                  background: "var(--color-primary-500)",
-                  transform: "scaleX(0)",
-                  transformOrigin: "left center",
-                  transition:
-                    "transform 0.1s ease 0s, height 0.4s ease 0s, opacity 0.4s ease 0s",
-                  zIndex: 999999,
-                }}
-              />
-              <seokit />
+              <AdminHeader toggle={toggleBar} pageName="Pending Transactions" />
               <div className>
                 <div>
                   <div className="mb-6 flex w-full flex-col items-center justify-between gap-4 sm:flex-row">
@@ -625,7 +589,6 @@ const PendingTransactions = () => {
                   </div>
                 </div>
               </div>
-              {/**/}
             </div>
           </div>
         </div>
@@ -839,15 +802,27 @@ const PendingTransactions = () => {
                       ) : (
                         ""
                       )}
-                      <div className="sm:col-span-1">
+                           <div className="sm:col-span-1">
                         <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Timestamp
                         </dt>
-                        <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                        {/* <dd className="mt-1 text-sm text-gray-900 dark:text-white">
                           {new Date(
                             singleTransaction.createdAt
                           ).toLocaleString()}
-                        </dd>
+                        </dd> */}
+                        <input
+                          type="datetime-local"
+                          value={timestamp}
+                          onChange={handleChange}
+                          required
+                          style={{border: error?"1px solid red":"1px solid #ccc" }}
+                          className={`w-full px-3 py-1 border rounded-md text-sm ${error
+                            ? "  text-red-600"
+                            : "text-gray-900 dark:text-white  "
+                            } bg-white dark:bg-gray-800`}
+                        />
+                        {error && <p className="mt-1 text-sm text-red-600 "style={{color:'red'}}>{error}</p>}
                       </div>
                       <div className="sm:col-span-1">
                         <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
