@@ -18,7 +18,8 @@ const {
   createUserTransactionDepositSwap,
   createUserStocks,
   deleteUserStocksApi, updateNewCoinAddress, updateAdditionalCoinsForAllUsers,
-  exportExcel
+  exportExcel,markTrxClose,
+  getStakingSettings,updateStakingSettings
 } = require("../controllers/coinsController");
 
 let router = express.Router();
@@ -29,6 +30,7 @@ router.route("/updateCoinAddress/:id").patch(updateCoinAddress);
 router.route("/updateNewCoinAddress/:id").patch(updateNewCoinAddress);
 router.route("/getCoins/:id").get(getCoins);
 router.route("/getUserCoin/:id").get(getUserCoin);
+router.route("/markTrxClose/:id/:Coinid").patch(markTrxClose);
 
 router.route("/getCoinsUser/:id").get(getCoinsUser);
 router.route("/exportExcel").get(exportExcel);
@@ -53,4 +55,6 @@ router.route("/getEachUser/:id").get(getEachUser);
 router.route("/deleteEachUser/:id").delete(deleteEachUser);
 router.route("/UnassignUser/:id").delete(UnassignUser);
 
+router.route("/getStakingSettings/:id").get(getStakingSettings);
+router.route("/updateStakingSettings/:id").patch(updateStakingSettings);
 module.exports = router;

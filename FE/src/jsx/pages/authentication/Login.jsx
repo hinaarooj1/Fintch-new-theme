@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import './login.css'
 import { toast } from "react-toastify";
 import LogoNew from "../../../assets/newlogo/logo.png";
-import LogoNFaew from "../../../assets/newlogo/favicon.png";
 import { loginApi } from "../../../Api/Service";
 import { useSignIn, useIsAuthenticated, useAuthUser } from "react-auth-kit";
 import { useAuth } from "../../../store/auth";
@@ -160,7 +159,7 @@ function Login(props) {
 					<div className="MuiToolbar-root MuiToolbar-regular css-uot54n">
 						<div className="MuiContainer-root css-13uezk9">
 							<Link to="/" className="mnl__logo__root MuiBox-root css-ga3xdk">
-								<img className="MuiBox-root " src={LogoNFaew} />
+								<img className="MuiBox-root css-1ngw63v" src={LogoNew} />
 							</Link>
 							<span className="css-19pabp7">
 							</span>
@@ -176,7 +175,7 @@ function Login(props) {
 					<div className="MuiBox-root css-1iu2lsq">
 						<div className="MuiBox-root css-phm93g">
 							<Link to="/" className="mnl__logo__root MuiBox-root css-19nzp7d">
-								<img className="MuiBox-root " src={LogoNew} />
+								<img className="MuiBox-root css-1ngw63v" src={LogoNew} />
 							</Link>
 							<div className="MuiBox-root css-sqs8lx" style={{ transform: 'rotate(216.144deg) translateZ(0px)' }}>
 							</div>

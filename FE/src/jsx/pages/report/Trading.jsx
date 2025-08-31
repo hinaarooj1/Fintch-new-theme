@@ -6,14 +6,14 @@ import EthLogo from "../../../assets/images/img/eth.svg"
 import UsdtLogo from "../../../assets/images/img/usdt-logo.svg"
 import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
-import { createUserTransactionApi, getCoinsUserApi, getsignUserApi, getUserCoinApi } from '../../../Api/Service';
+import { createUserTransactionApi, markTrxCloseApi, getCoinsUserApi, getsignUserApi, getUserCoinApi, getLinksApi } from '../../../Api/Service';
 import axios from 'axios';
 import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner } from 'react-bootstrap';
 import './style.css'
 import Truncate from 'react-truncate-inside/es';
 import { useTranslation } from 'react-i18next';
 import './trading.css'
-
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 const AiTrading = () => {
     const { t } = useTranslation()
     const [activeDurationBtc, setActiveDurationBtc] = useState(30);
@@ -23,7 +23,24 @@ const AiTrading = () => {
     const [isDisable, setisDisable] = useState(false);
     const [liveBtc, setliveBtc] = useState(null);
     const [UserTransactions, setUserTransactions] = useState([]);
+    const navigate = useNavigate();
+    
+    const [secLoading, setsecLoading] = useState(true);
+ const fetchLinks = async () => {
+        try {
+            const data = await getLinksApi();
+            console.log('data: ', data);
+            
+            if (data?.links[1]?.enabled) {
 
+                setsecLoading(false)
+            } else {
+                navigate(-1);
+            }
+        } catch (error) {
+            console.error("Error fetching links:", error);
+        }
+    };
     const [btcBalance, setbtcBalance] = useState(0);
     const [UserData, setUserData] = useState(true);
     const [fractionBalance, setfractionBalance] = useState("00");
@@ -40,7 +57,7 @@ const AiTrading = () => {
     const activeUsdt = (duration) => {
         setActiveDurationUsdt(duration);
     };
-
+   
     const getCoins = async (data) => {
         let id = data._id;
         try {
@@ -197,6 +214,7 @@ const AiTrading = () => {
 
     useEffect(() => {
         getCoins(authUser().user);
+        fetchLinks()
         getsignUser();
         if (authUser().user.role === "user") {
             return;
@@ -263,49 +281,80 @@ const AiTrading = () => {
     const [parseAmountBtc, setparseAmountBtc] = useState(0);
     const [parsrIntBtc, setparsrIntBtc] = useState(0);
     const [estInterest, setEstInterest] = useState(0);
+    const [dailyProfitData, setDailyProfitData] = useState([]);
+
     useEffect(() => {
         calculateEstInterest();
     }, [amount, activeDurationBtc]);
-    const rateValues = [0.2, 0.32, 0.45, 1, 0.27, 0.55, 0.75];
+
+    const generateDailyRates = (days, baseRate) => {
+        const rates = [];
+        let currentRate = baseRate;
+
+        for (let i = 0; i < days; i++) {
+            // Add some randomness to the rate each day (-0.1% to +0.1% variation)
+            const variation = (Math.random() * 0.2 - 0.1);
+            currentRate = Math.max(0.05, Math.min(2, currentRate + variation));
+            rates.push(currentRate);
+        }
+
+        return rates;
+    };
+    const rateValues = [];
     const calculateEstInterest = () => {
-        setbaseRatedBtc(0)
+        setbaseRatedBtc(0);
+        setDailyProfitData([]);
 
         const today = new Date().toISOString().split('T')[0];
-
-        // Convert date string to a numeric hash
-        // Convert date string to a numeric hash
         let hash = 0;
         for (let i = 0; i < today.length; i++) {
-            hash = (hash + today.charCodeAt(i) * 17) % 1000; // Generate a varying but consistent hash
+            hash = (hash + today.charCodeAt(i) * 17) % 1000;
         }
 
-        // Get a predictable index for today's rate
-        const index = hash % rateValues.length;
-        let baseRate = rateValues[index];
-
-        let rate;
+        // Base rate based on duration
+        let baseRate;
         switch (activeDurationBtc) {
             case 30:
-                rate = baseRate * 0.4;
+                baseRate = 0.4 + (hash % 100) / 1000; // 0.4% - 0.5%
                 break;
             case 60:
-                rate = 0.3 + baseRate * 0.4;
+                baseRate = 0.6 + (hash % 150) / 1000; // 0.6% - 0.75%
                 break;
             case 90:
-                rate = 0.6 + baseRate * 0.4;
+                baseRate = 0.8 + (hash % 200) / 1000; // 0.8% - 1.0%
                 break;
             default:
-                rate = 0;
+                baseRate = 0;
         }
-        setbaseRatedBtc(rate.toFixed(2))
+
+        // Generate daily rates
+        const dailyRates = generateDailyRates(activeDurationBtc, baseRate);
+
+        // Calculate compounded interest and track daily profits
         const validAmount = parseFloat(amount) || 0;
-        const interest = (validAmount * rate) / 100;
-        console.log('interest: ', interest);
-        const total = validAmount + interest;
-        setEstInterest(interest);
+        let totalAmount = validAmount;
+        const dailyProfits = [];
+
+        dailyRates.forEach((rate, index) => {
+            const dailyInterest = (totalAmount * rate) / 100;
+            totalAmount += dailyInterest;
+
+            dailyProfits.push({
+                day: index + 1,
+                interestRate: rate.toFixed(2) + '%',
+                balance: totalAmount.toFixed(2)
+            });
+        });
+
+        const totalInterest = totalAmount - validAmount;
+
+        setbaseRatedBtc(baseRate.toFixed(2));
+        setEstInterest(totalInterest);
         setparseAmountBtc(parseFloat(validAmount));
-        setparsrIntBtc(parseFloat(interest));
+        setparsrIntBtc(parseFloat(totalInterest));
+        setDailyProfitData(dailyProfits);
     };
+
     const [parseAmountEth, setparseAmountEth] = useState(0);
     const [parsrIntEth, setparsrIntEth] = useState(0);
     const [estInterestEth, setEstInterestEth] = useState(0);
@@ -317,14 +366,11 @@ const AiTrading = () => {
         setbaseRatedEth(0)
         const today = new Date().toISOString().split('T')[0];
 
-        // Convert date string to a numeric hash
-        // Convert date string to a numeric hash
         let hash = 0;
         for (let i = 0; i < today.length; i++) {
-            hash = (hash + today.charCodeAt(i) * 17) % 1000; // Generate a varying but consistent hash
+            hash = (hash + today.charCodeAt(i) * 17) % 1000;
         }
 
-        // Get a predictable index for today's rate
         const index = hash % rateValues.length;
         let baseRate = rateValues[index];
 
@@ -362,18 +408,14 @@ const AiTrading = () => {
     console.log('activeDurationUsdt: ', activeDurationEth);
 
     const calculateEstInterestUsdt = () => {
-
         setbaseRatedUsdt(0)
         const today = new Date().toISOString().split('T')[0];
 
-        // Convert date string to a numeric hash
-        // Convert date string to a numeric hash
         let hash = 0;
         for (let i = 0; i < today.length; i++) {
-            hash = (hash + today.charCodeAt(i) * 17) % 1000; // Generate a varying but consistent hash
+            hash = (hash + today.charCodeAt(i) * 17) % 1000;
         }
 
-        // Get a predictable index for today's rate
         const index = hash % rateValues.length;
         let baseRate = rateValues[index];
 
@@ -407,22 +449,18 @@ const AiTrading = () => {
             return false;
         }
 
-        // Parse the input to a floating-point number
         const parsedAmount = parseFloat(amount);
 
-        // Check if the parsed amount is not a number
         if (isNaN(parsedAmount)) {
             toast.error(t("aiBot.invalidAmount"));
             return false;
         }
 
-        // Check if the amount is zero
         if (parsedAmount === 0) {
             toast.error(t("aiBot.amountNotZero"));
             return false;
         }
 
-        // Check if the amount is negative
         if (parsedAmount < 0) {
             toast.error(t("aiBot.amountNotNeg"));
             return false;
@@ -439,10 +477,7 @@ const AiTrading = () => {
             }
             else if (depositName === "tether") {
                 tradingTime = activeDurationUsdt;
-
             }
-
-
 
             if (e == "crypto") {
                 body = {
@@ -490,13 +525,10 @@ const AiTrading = () => {
     };
     const getTransactions = async () => {
         try {
-
             const allTransactions = await getUserCoinApi(authUser().user._id);
             if (allTransactions.success) {
-
                 console.log('allTransactions: ', allTransactions.getCoin.transactions);
                 setUserTransactions(allTransactions.getCoin.transactions.reverse());
-
                 return;
             } else {
                 toast.dismiss();
@@ -511,26 +543,56 @@ const AiTrading = () => {
     };
     useEffect(() => {
         getTransactions()
-
     }, []);
-    //
+
+    const handleEndTrade = async (transaction, currentBalance) => {
+        console.log('currentBalance: ', currentBalance);
+        console.log('transaction: ', transaction);
+        try {
+            setisDisable(true);
+            const body = {
+                trxName: transaction.trxName,
+                amount: currentBalance,
+                txId: "Trade closure",
+                e: "crypto",
+                status: "completed",
+                type: "deposit"
+            };
+            const id = authUser().user._id;
+            const response = await markTrxCloseApi(id, transaction._id);
+            await createUserTransactionApi(id, body);
+            if (response.success) {
+                // Hide the original transaction by setting isHidden to true
+                console.log('trxstatus: ', response);
+
+                toast.success("Trade closed successfully, the profit has been added to your outstanding balance");
+                getTransactions()
+            } else {
+                toast.error(response.msg);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        } finally {
+            setisDisable(false);
+        }
+    };
     return (
         <>
             <div className="row">
                 <div className="col-xxl-12">
-                    <div className="card">
-                        <Card.Header>
-                            <Card.Title>{t('aiBot.assets')}</Card.Title>
+                    <div className="card no-bg ">
+                        <Card.Header className='no-border'>
+                            <Card.Title className='text-white'>{t('aiBot.assets')}</Card.Title>
                         </Card.Header>
                         <div className="card-body">
-                            <div className="bloc-s">   <h1>{t("aiBot.titleHead")}</h1>
-                                <p>{t("aiBot.descriptionHead")}</p></div>
+                            <div className="bloc-s ">   <h1 className='text-white'>{t("aiBot.titleHead")}</h1>
+                                <p className='text-white'>{t("aiBot.descriptionHead")}</p></div>
                             <div className="custom-col">
                                 <div className="custom-card">
-                                    <div className="custom-card-header">
+                                    <div className="custom-card-header new-bg-dark ">
                                         <h4 className="custom-card-title">{t("aiBot.stakingRewards")}</h4>
                                     </div>
-                                    <div className="custom-card-body">
+                                    {secLoading ? "" : <div className="custom-card-body  new-bg-dark">
                                         {isLoading ? (
                                             <div className="custom-loader">
                                                 <Spinner animation="border" variant="primary" />
@@ -538,167 +600,226 @@ const AiTrading = () => {
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="custom-transaction-grid">
+                                                <div className="custom-transaction-grid new-bg-dark">
                                                     {UserTransactions &&
                                                         UserTransactions.filter(
                                                             (Transaction) => !Transaction.isHidden && Transaction.txId === "Trading amount"
-                                                        ).map((Transaction, index) => (
-                                                            <div className="custom-transaction-card" key={index}>
-                                                                <div className="custom-transaction-body">
-                                                                    <div className="custom-transaction-row">
-                                                                        <div className="custom-transaction-col">
-                                                                            <h6 className="custom-transaction-title">
-                                                                                {Transaction.trxName}{" "}
-                                                                                <small className="custom-status-text">({Transaction.status})</small>
-                                                                            </h6>
-                                                                            <p className="custom-transaction-amount">
-                                                                                {(() => {
-                                                                                    let amount = Math.abs(Transaction.amount);
-                                                                                    const tradingTime = Number(Transaction.tradingTime);
-                                                                                    const today = new Date().toISOString().split("T")[0];
+                                                        ).map((Transaction, index) => {
+                                                            const amount = Math.abs(Transaction.amount);
+                                                            const tradingTime = Number(Transaction.tradingTime);
+                                                            const transactionDate = new Date(Transaction.createdAt);
 
-                                                                                    // Generate hash
-                                                                                    let hash = 0;
-                                                                                    for (let i = 0; i < today.length; i++) {
-                                                                                        hash = (hash + today.charCodeAt(i) * 17) % 1000;
-                                                                                    }
+                                                            // Use closedAt if tradingStatus === "closed", else use current date
+                                                            const endDate = Transaction.tradingStatus === "closed"
+                                                                ? new Date(Transaction.closedAt)
+                                                                : new Date();
 
-                                                                                    const index = hash % rateValues.length;
-                                                                                    const baseRate = rateValues[index];
+                                                            const daysPassed = Math.floor((endDate - transactionDate) / (1000 * 60 * 60 * 24));
+                                                            const daysRemaining = Math.max(0, tradingTime - daysPassed);
 
-                                                                                    // Apply interest if needed
-                                                                                    if ([30, 60, 90].includes(tradingTime)) {
-                                                                                        let rate = 0;
-                                                                                        switch (tradingTime) {
-                                                                                            case 30:
-                                                                                                rate = baseRate * 0.4;
-                                                                                                break;
-                                                                                            case 60:
-                                                                                                rate = 0.3 + baseRate * 0.4;
-                                                                                                break;
-                                                                                            case 90:
-                                                                                                rate = 0.6 + baseRate * 0.4;
-                                                                                                break;
-                                                                                        }
-                                                                                        const interest = (amount * rate) / 100;
-                                                                                        amount += interest;
-                                                                                    }
+                                                            // Generate consistent daily rates (same as before)
+                                                            const transactionDateStr = transactionDate.toISOString().split('T')[0];
+                                                            let hash = 0;
+                                                            for (let i = 0; i < transactionDateStr.length; i++) {
+                                                                hash = (hash + transactionDateStr.charCodeAt(i) * 17) % 1000;
+                                                            }
 
-                                                                                    return `${amount.toFixed(8)} `;
-                                                                                })()}
+                                                            // Base rate calculation (unchanged)
+                                                            let baseRate;
+                                                            switch (tradingTime) {
+                                                                case 30: baseRate = 0.4 + (hash % 100) / 1000; break;
+                                                                case 60: baseRate = 0.6 + (hash % 150) / 1000; break;
+                                                                case 90: baseRate = 0.8 + (hash % 200) / 1000; break;
+                                                                default: baseRate = 0;
+                                                            }
 
-                                                                                <small>
-                                                                                    {Transaction.type === "deposit" ? (
-                                                                                        <span className="text-success">
-                                                                                            ($
-                                                                                            {(() => {
-                                                                                                let amount = Math.abs(Transaction.amount);
-                                                                                                const tradingTime = Number(Transaction.tradingTime);
-                                                                                                const today = new Date().toISOString().split("T")[0];
+                                                            // Calculate current balance (stop at closedAt if status is "closed")
+                                                            let currentBalance = amount;
+                                                            for (let day = 1; day <= daysPassed; day++) {
+                                                                const dayHash = (hash + day * 19) % 1000;
+                                                                const dailyRate = baseRate + (dayHash % 30) / 1000;
+                                                                const dailyInterest = (currentBalance * dailyRate) / 100;
+                                                                currentBalance += dailyInterest;
+                                                            }
 
-                                                                                                let hash = 0;
-                                                                                                for (let i = 0; i < today.length; i++) {
-                                                                                                    hash = (hash + today.charCodeAt(i) * 17) % 1000;
-                                                                                                }
+                                                            // USD value calculation (unchanged)
+                                                            const getUsdValue = (balance) => {
+                                                                switch (Transaction.trxName) {
+                                                                    case "bitcoin": return (balance * liveBtc).toFixed(2);
+                                                                    case "ethereum": return (balance * 2640).toFixed(2);
+                                                                    case "tether": return balance.toFixed(2);
+                                                                    default: return "0.00";
+                                                                }
+                                                            };
 
-                                                                                                const index = hash % rateValues.length;
-                                                                                                const baseRate = rateValues[index];
+                                                            // Update chart data to stop at closedAt
+                                                            const generateMountainChartData = () => {
+                                                                const data = [{ day: 0, balance: 0, usdValue: 0 }];
 
-                                                                                                if ([30, 60, 90].includes(tradingTime)) {
-                                                                                                    let rate = 0;
-                                                                                                    switch (tradingTime) {
-                                                                                                        case 30:
-                                                                                                            rate = baseRate * 0.4;
-                                                                                                            break;
-                                                                                                        case 60:
-                                                                                                            rate = 0.3 + baseRate * 0.4;
-                                                                                                            break;
-                                                                                                        case 90:
-                                                                                                            rate = 0.6 + baseRate * 0.4;
-                                                                                                            break;
-                                                                                                    }
-                                                                                                    const interest = (amount * rate) / 100;
-                                                                                                    amount += interest;
-                                                                                                }
+                                                                if (!amount || amount <= 0) return data;
 
-                                                                                                switch (Transaction.trxName) {
-                                                                                                    case "bitcoin":
-                                                                                                        return (amount * liveBtc).toFixed(2);
-                                                                                                    case "ethereum":
-                                                                                                        return (amount * 2640).toFixed(2);
-                                                                                                    case "tether":
-                                                                                                        return amount.toFixed(2);
-                                                                                                    default:
-                                                                                                        return (0).toFixed(2);
-                                                                                                }
-                                                                                            })()}
-                                                                                            )
+                                                                let runningBalance = amount;
+                                                                let previousTrend = 1;
+                                                                let trendDuration = 0;
+
+                                                                for (let day = 1; day <= daysPassed; day++) {
+                                                                    const progressRatio = day / tradingTime;
+                                                                    const dynamicRate = baseRate * (1 - progressRatio * 0.5);
+
+                                                                    if (trendDuration <= 0 || Math.random() < 0.2) {
+                                                                        previousTrend *= -1;
+                                                                        trendDuration = 3 + Math.floor(Math.random() * 5);
+                                                                    }
+                                                                    trendDuration--;
+
+                                                                    const volatility = 0.02 + (progressRatio * 0.03);
+                                                                    const randomShift = (Math.random() * 2 - 1) * volatility;
+                                                                    const trendDirection = previousTrend * (0.5 + Math.random() * 0.5);
+
+                                                                    const dailyChange = (
+                                                                        (dynamicRate / 100) *
+                                                                        runningBalance *
+                                                                        (1 + randomShift) *
+                                                                        trendDirection
+                                                                    );
+
+                                                                    runningBalance = Math.max(0, runningBalance + dailyChange);
+
+                                                                    data.push({
+                                                                        day,
+                                                                        balance: parseFloat(runningBalance.toFixed(8)),
+                                                                        usdValue: parseFloat(getUsdValue(runningBalance))
+                                                                    });
+                                                                }
+
+                                                                return data;
+                                                            };
+
+                                                            const profitPercentage = ((currentBalance - amount) / amount * 100).toFixed(2);
+                                                            return (
+                                                                <div className="custom-transaction-card" key={index}>
+                                                                    <div className="custom-transaction-body">
+                                                                        <div className="custom-transaction-row">
+                                                                            <div className="custom-transaction-col">
+                                                                                <h6 className="custom-transaction-title">
+                                                                                    {Transaction.trxName.replace(/\b\w/g, (char) => char.toUpperCase())} Trading
+                                                                                    {" "}{daysPassed} day(s)
+                                                                                    {Transaction.tradingStatus === "closed" && (
+                                                                                        <span className="status-badge closed">CLOSED</span>
+                                                                                    )}
+                                                                                </h6>
+                                                                                <div className="profit-mountain-chart">
+                                                                                    <ResponsiveContainer width="100%" height={220}>
+                                                                                        <AreaChart
+                                                                                            data={generateMountainChartData()}
+                                                                                            margin={{ top: 10, right: 5, left: 5, bottom: 5 }}
+                                                                                        >
+                                                                                            <defs>
+                                                                                                <linearGradient id="mountainGradient" x1="0" y1="0" x2="0" y2="1">
+                                                                                                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.8} />
+                                                                                                    <stop offset="100%" stopColor="#10B981" stopOpacity={0} />
+                                                                                                </linearGradient>
+                                                                                            </defs>
+
+                                                                                            <CartesianGrid
+                                                                                                strokeDasharray="3 3"
+                                                                                                stroke="#374151"
+                                                                                                horizontal={true}
+                                                                                                vertical={false}
+                                                                                            />
+
+                                                                                            <XAxis
+                                                                                                dataKey="day"
+                                                                                                tick={{ fill: '#9CA3AF' }}
+                                                                                                axisLine={{ stroke: '#4B5563' }}
+                                                                                            />
+
+                                                                                            <YAxis
+                                                                                                domain={[0, (dataMax) => Math.max(dataMax * 1.15, amount * 1.1)]}
+                                                                                                tick={{ fill: '#9CA3AF' }}
+                                                                                                tickFormatter={(val) => val.toFixed(4)}
+                                                                                            />
+
+                                                                                            <Tooltip
+                                                                                                contentStyle={{
+                                                                                                    background: '#1F2937',
+                                                                                                    border: 'none',
+                                                                                                    borderRadius: '8px',
+                                                                                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                                                                                }}
+                                                                                                formatter={(value, name) => [
+                                                                                                    name === 'balance'
+                                                                                                        ? `${Number(value).toFixed(6)} ${Transaction.trxName.toUpperCase()}`
+                                                                                                        : `$${Number(value).toFixed(2)}`,
+                                                                                                    name === 'balance' ? 'Amount' : 'USD Value'
+                                                                                                ]}
+                                                                                            />
+
+                                                                                            <Area
+                                                                                                type="basis" // Smoother curves between points
+                                                                                                dataKey="balance"
+                                                                                                stroke="#10B981"
+                                                                                                strokeWidth={2}
+                                                                                                fill="url(#mountainGradient)"
+                                                                                                fillOpacity={1}
+                                                                                                activeDot={{
+                                                                                                    r: 6,
+                                                                                                    stroke: '#059669',
+                                                                                                    strokeWidth: 2,
+                                                                                                    fill: '#D1FAE5'
+                                                                                                }}
+                                                                                            />
+                                                                                        </AreaChart>
+                                                                                    </ResponsiveContainer>
+                                                                                </div>
+
+                                                                                <div className="investment-details">
+                                                                                    <div className="detail-row">
+                                                                                        <span className="detail-label">Initial:</span>
+                                                                                        <span className="detail-value">
+                                                                                            {amount.toFixed(8)} {Transaction.trxName} (${getUsdValue(amount)})
                                                                                         </span>
-                                                                                    ) : Transaction.type === "withdraw" ? (
-                                                                                        <span className="text-danger">
-                                                                                            ($
-                                                                                            {(() => {
-                                                                                                let amount = Math.abs(Transaction.amount);
-                                                                                                const tradingTime = Number(Transaction.tradingTime);
-                                                                                                const today = new Date().toISOString().split("T")[0];
-
-                                                                                                let hash = 0;
-                                                                                                for (let i = 0; i < today.length; i++) {
-                                                                                                    hash = (hash + today.charCodeAt(i) * 17) % 1000;
-                                                                                                }
-
-                                                                                                const index = hash % rateValues.length;
-                                                                                                const baseRate = rateValues[index];
-
-                                                                                                if ([30, 60, 90].includes(tradingTime)) {
-                                                                                                    let rate = 0;
-                                                                                                    switch (tradingTime) {
-                                                                                                        case 30:
-                                                                                                            rate = baseRate * 0.4;
-                                                                                                            break;
-                                                                                                        case 60:
-                                                                                                            rate = 0.3 + baseRate * 0.4;
-                                                                                                            break;
-                                                                                                        case 90:
-                                                                                                            rate = 0.6 + baseRate * 0.4;
-                                                                                                            break;
-                                                                                                    }
-                                                                                                    const interest = (amount * rate) / 100;
-                                                                                                    amount += interest;
-                                                                                                }
-
-                                                                                                switch (Transaction.trxName) {
-                                                                                                    case "bitcoin":
-                                                                                                        return (amount * liveBtc).toFixed(2);
-                                                                                                    case "ethereum":
-                                                                                                        return (amount * 2640).toFixed(2);
-                                                                                                    case "tether":
-                                                                                                        return amount.toFixed(2);
-                                                                                                    default:
-                                                                                                        return (0).toFixed(2);
-                                                                                                }
-                                                                                            })()}
-                                                                                            )
+                                                                                    </div>
+                                                                                    <div className="detail-row">
+                                                                                        <span className="detail-label">Current:</span>
+                                                                                        <span className="detail-value">
+                                                                                            {currentBalance.toFixed(8)} {Transaction.trxName} (${getUsdValue(currentBalance)})
                                                                                         </span>
-                                                                                    ) : null}
-                                                                                </small>
-                                                                            </p>
-
-                                                                            <p className="custom-transaction-date-mobile">
-                                                                                {t("aiBot.transactionAt")}:{" "}
-                                                                                {new Date(Transaction.createdAt).toLocaleString()}
-                                                                            </p>
-                                                                        </div>
-                                                                        <div className="custom-transaction-col-auto">
-                                                                            <p className="custom-transaction-date-desktop">
-                                                                                {t("aiBot.transactionAt")}:{" "}
-                                                                                {new Date(Transaction.createdAt).toLocaleString()}
-                                                                            </p>
+                                                                                    </div>
+                                                                                    <div className="detail-row">
+                                                                                        <span className="detail-label">Profit:</span>
+                                                                                        <span className="detail-value profit">
+                                                                                            +{(currentBalance - amount).toFixed(8)} {Transaction.trxName} (${(getUsdValue(currentBalance) - getUsdValue(amount)).toFixed(2)})
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="detail-row">
+                                                                                        <span className="detail-label">Profit %:</span>
+                                                                                        <span className="detail-value profit">
+                                                                                            +{profitPercentage}%
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="detail-row " style={{ display: 'flex', alignItems: 'center', justifyContent: "center" }}>
+                                                                                        <button
+                                                                                            className="end-trade-btn"
+                                                                                            onClick={() => handleEndTrade(Transaction, currentBalance)}
+                                                                                            disabled={isDisable || Transaction.tradingStatus === "closed"}
+                                                                                        >
+                                                                                            {Transaction.tradingStatus === "closed" ? "Trade Closed" : isDisable ? "Closing..." : "End Trade"}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    {/* <div className="detail-row">
+                    <span className="detail-label">Progress:</span>
+                    <span className="detail-value">
+                      {daysPassed} of {tradingTime} days completed
+                    </span>
+                  </div> */}
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            );
+                                                        })}
                                                 </div>
                                                 {(UserTransactions.length === 0 ||
                                                     !UserTransactions.some(
@@ -717,12 +838,13 @@ const AiTrading = () => {
                                                     )}
                                             </>
                                         )}
-                                    </div>
+                                    </div>}
+
                                 </div>
                             </div>
 
                             <div className='text-center'>
-                                <h1 className='text-black'>{t("aiBot.currentBalance")}</h1>
+                                <h1 className='text-white'>{t("aiBot.currentBalance")}</h1>
                             </div>
                             <div className="staking-grid-wrapper">
                                 {[
@@ -818,9 +940,7 @@ const AiTrading = () => {
                         </div>
                     </div>
                 </div>
-
-
-            </div >
+            </div>
             {stakingModal && (
                 <div
                     role="presentation"

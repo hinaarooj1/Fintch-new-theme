@@ -127,7 +127,7 @@ const UserSideBar = (props) => {
                 <span>Manage Verifications</span>
               </NavLink>
             </li>
-            {/* <li>
+            <li>
               <NavLink
                 to={`/admin/users/${props.userid}/stocks`}
                 className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
@@ -153,7 +153,34 @@ const UserSideBar = (props) => {
                 </svg>
                 <span>User Stocks</span>
               </NavLink>
-            </li> */}
+            </li>
+            <li>
+              <NavLink
+                to={`/admin/users/${props.userid}/staking`}
+                className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
+              >
+                <svg
+                  data-v-cd102a71
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlnsXlink="http://www.w3.org/1999/xlink"
+                  aria-hidden="true"
+                  role="img"
+                  className="icon h-4 w-4"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 256 256"
+                >
+                  <g fill="currentColor">
+                    <path
+                      d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96"
+                      opacity=".2"
+                    />
+                    <path d="M173.66 98.34a8 8 0 0 1 0 11.32l-56 56a8 8 0 0 1-11.32 0l-24-24a8 8 0 0 1 11.32-11.32L112 148.69l50.34-50.35a8 8 0 0 1 11.32 0M232 128A104 104 0 1 1 128 24a104.11 104.11 0 0 1 104 104m-16 0a88 88 0 1 0-88 88a88.1 88.1 0 0 0 88-88" />
+                  </g>
+                </svg>
+                <span>Manage User Staking</span>
+              </NavLink>
+            </li>
             {/* <li>
             <p className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300">
               <svg

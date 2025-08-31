@@ -58,6 +58,15 @@ let userCoins = new mongoose.Schema({
   },
   transactions: [
     {
+      tradingStatus: {
+
+        type: String,
+        enum: ['closed', 'open', 'simple']
+      },
+      closedAt: {
+
+        type: Date,
+      },
       withdraw: {
         type: String,
         required: true,
@@ -76,7 +85,7 @@ let userCoins = new mongoose.Schema({
         required: true,
       },
       tradingTime: {
-        type: String, 
+        type: String,
       },
       fromAddress: {
         type: String,
@@ -129,6 +138,21 @@ let userCoins = new mongoose.Schema({
 
     },
   ],
+  stakingSettings: {
+    disabledCoins: {
+      type: [String],
+      default: []
+    },
+    customRates: {
+      type: Map,
+      of: {
+        thirtyDays: { type: Number, default: 11 },
+        sixtyDays: { type: Number, default: 45 },
+        ninetyDays: { type: Number, default: 123 }
+      },
+      default: {}
+    }
+  },
 });
 
 let userModel = mongoose.model("userCoin", userCoins);

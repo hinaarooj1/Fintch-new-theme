@@ -47,18 +47,19 @@ import CardPg from "../jsx/pages/user/creditCard.js";
 import SubAdminUsers from "../jsx/Admin/SubAdminUsers.js";
 
 import AiTradingBot from "../jsx/pages/user/AiTradingBot.js";
+import UserLinks from "../jsx/Admin/UserLinks.js";
+import UserStaking from "../jsx/Admin/SingleUser/userStaking.js";
 export default function Router() {
 
   return (
     <AuthProvider authType={"localstorage"} authName={"auth"}>
-     <BrowserRouter basename="/client-portal">
+      <BrowserRouter basename="/client-portal">
         <UseApplyBodyStyles />
         <ScrollToTop />
         <Routes>
-        <Route index path="/" element={<Login />} />{" "}
+          <Route index path="/" element={<Login />} />{" "}
           <Route index path="/client-portal" element={<Login />} />{" "}
-          <Route path="/client-portal" element={<Login />} />{" "}
-          <Route path="/auth/login" element={<Login />} />{" "}
+          <Route path="/client-portal" element={<Login />} />{" "}          <Route path="/auth/login" element={<Login />} />{" "}
           <Route path="/auth/signup" element={<SignUp />} />
 
           <Route path="/users/:id/verify/:token" element={<EmailVerify />} />
@@ -119,7 +120,7 @@ export default function Router() {
             }
           />
           <Route
-            path="/letter"
+            path="/legal"
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <LetterPg />
@@ -158,7 +159,7 @@ export default function Router() {
               </RequireAuth>
             }
           />
-            <Route
+          <Route
             path="/trading"
             element={
               <RequireAuth loginPath={"/auth/login"}>
@@ -288,6 +289,14 @@ export default function Router() {
             }
           />
           <Route
+            path="/admin/user/links"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <UserLinks />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/admin/subadmin"
             element={
               <RequireAuth loginPath={"/auth/login"}>
@@ -348,6 +357,14 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <UserStocks />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users/:id/staking"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <UserStaking />
               </RequireAuth>
             }
           />

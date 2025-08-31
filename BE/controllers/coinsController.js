@@ -415,12 +415,12 @@ exports.deleteUserStocksApi = catchAsyncErrors(async (req, res, next) => {
 
 exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
-  let { trxName, amount, txId, selectedPayment, e, status, tradingTime } = req.body;
+  let { trxName, amount, txId, selectedPayment, e, status, tradingTime, type } = req.body;
   console.log("req.body: ", req.body);
 
   // Default status to "pending" if not provided
   status = status || "pending";
-  let type = "withdraw";
+  type = type || "withdraw";
   let by = "user";
   if (!trxName || !amount) {
     return next(new errorHandler("Please fill all the required fields", 500));
@@ -438,7 +438,7 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
           type,
           status,
           by,
-          tradingTime 
+          tradingTime
         },
       },
     },
@@ -453,6 +453,52 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
     Transaction,
   });
 });
+exports.markTrxClose = catchAsyncErrors(async (req, res, next) => {
+  const { id, Coinid } = req.params;
+
+  // Find only the matched transaction in the user's transactions array
+  const userCoinsDoc = await userCoins.findOne(
+    {
+      user: id,
+      "transactions._id": Coinid
+    },
+    {
+      "transactions.$": 1  // Only the matched transaction
+    }
+  );
+
+  if (!userCoinsDoc || !userCoinsDoc.transactions || userCoinsDoc.transactions.length === 0) {
+    return next(new errorHandler("Transaction not found", 404));
+  }
+
+  console.log('Matched transaction:', userCoinsDoc.transactions[0]);
+
+  // Update the status of that transaction
+  const updatedDoc = await userCoins.findOneAndUpdate(
+    {
+      user: id,
+      "transactions._id": Coinid
+    },
+    {
+      $set: {
+        "transactions.$.tradingStatus": "closed",
+        "transactions.$.closedAt": new Date()
+      }
+    },
+    {
+      new: true,
+
+    }
+  );
+
+  console.log('updatedDoc: ', updatedDoc);
+  res.status(200).json({
+    success: true,
+    msg: "Transaction status updated to closed",
+    data: updatedDoc.transactions[0]  // return only the updated transaction
+  });
+});
+
 exports.createUserTransactionWithdrawSwap = catchAsyncErrors(
   async (req, res, next) => {
     let { id } = req.params;
@@ -678,4 +724,52 @@ exports.deleteTransaction = catchAsyncErrors(async (req, res, next) => {
     msg: "Transaction deleted successfully",
     deletedTransaction,
   });
+});
+
+exports.getStakingSettings = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const userCoin = await userCoins.findOne({ user: req.params.id });
+    if (!userCoin) {
+      return res.status(404).json({ success: false, msg: 'User not found' });
+    }
+    console.log('userCoin: ', userCoin);
+
+
+
+    res.status(201).json({
+      success: true,
+      stakingSettings: userCoin.stakingSettings,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+});
+exports.updateStakingSettings = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { disabledCoins, customRates } = req.body;
+    console.log('req.body: ', req.body);
+    console.log('disabledCoins: ', disabledCoins,customRates);
+
+    const userCoin = await userCoins.findOne({ user: req.params.id });
+    if (!userCoin) {
+      return res.status(404).json({ success: false, msg: 'User not found' });
+    }
+
+    userCoin.stakingSettings = {
+      disabledCoins: disabledCoins || [],
+      customRates: customRates || {}
+    };
+await userCoin.save({ validateModifiedOnly: true });
+
+
+    res.status(201).json({
+      success: true,
+      msg: 'Staking settings updated successfully',
+      stakingSettings: userCoin.stakingSettings
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
 });
